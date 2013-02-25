@@ -8,8 +8,7 @@ Python libraries needed
 * Pexpect
 
 ```
-pip install elementtree
-pip install pexpect
+pip install elementtree pexpect hutools ipcalc
 ```
 
 ## Overview

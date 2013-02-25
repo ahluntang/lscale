@@ -1,38 +1,90 @@
 #!/usr/bin/env python
 
 import os, traceback, time, logging, argparse
-
+import topology
 
 
 def setlogging(logginglevel):
+
+    # making sure the log dir exists, if not create it.
     logdir = 'logs'
     if not os.path.exists(logdir):
         os.makedirs(logdir)
 
+    # if log dir exists, configure the logging.
     if (os.path.exists(logdir) and os.path.isdir(logdir) ):
-        date_time_format = '%d-%m-%Y_%H-%M-%S' 
-        logfile = "%s/%s_topology_generator.log" % (logdir, time.strftime(date_time_format, time.gmtime() ) )
-        logging.basicConfig( filename=logfile, format='%(asctime)s [%(levelname)s] - %(message)s', datefmt=date_time_format, level=logginglevel)
+
+        # datetime format
+        datetime_format = '%d/%m/%Y %H:%M:%S'
+        datetime_format_file = '%d-%m-%Y_%H-%M-%S' 
+
+        # location for logfile.
+        logfile = "%s/%s_topology_generator.log" % (logdir, time.strftime(datetime_format_file, time.gmtime() ) )
+
+        # logformat for each line
+        logformat='%(asctime)s [%(levelname)s] %(message)s'
+
+        # configure the logging framework.
+        logging.basicConfig( filename=logfile, format=logformat, datefmt=datetime_format, level=logginglevel)
+
+        # Log INFO and higher to console as well.
+        # define a Handler which writes INFO messages or higher to the sys.stderr
+        console = logging.StreamHandler()
+        console.setLevel(logging.INFO)
+        console.setFormatter( logging.Formatter(logformat) )
+
+        # add the handler to the root logger
+        logging.getLogger('').addHandler(console)
+    
     elif ( os.path.exists(logdir) ):
-        print "Path to logs is not a directory!"
+        raise IOError("Path to logs is not a directory!")
+
     else:
-        print "Log directory not created!"
+        raise IOError("Log directory not created!")
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Topology Generator.')
-    parser.add_argument('-f', '--file', default='topology.xml', help='output file to write to.', required=False)
+    parser.add_argument('-f', '--file', default='', help='output file to write to.', required=False)
     return vars(parser.parse_args())
+
+def set_filename(filename):
+    prompt = "Output filename is currently set to %s. Do you want to change this (N)? " % filename
+    response = raw_input(prompt).rstrip().lower()
+    while True:
+        if (response == 'y' or response == 'yes' ):
+            prompt = 'Type the filename: '
+            filename = raw_input(prompt).rstrip()
+            return filename
+        elif (response == 'n' or response == 'no' or response == '' ):
+            return filename
+        else:
+            response = raw_input(prompt).rstrip().lower()
 
 ##########
 ## Main ##
 ##########
 def main():
-    setlogging(logging.DEBUG)
-    args = parse_arguments()
+    try:
+        setlogging(logging.DEBUG)
+    except Exception, e:
+        print "Could not configure logging framework."
+        #logging.getLogger(__name__).exception("Could not configure logging framework.")
+        raise e
 
-    filename = args['file']
-
+    try:
+        args = parse_arguments()
+    except Exception, e:
+        logging.getLogger(__name__).exception("Could not parse arguments.")
+        raise e
     
+    # output filename
+    filename = "topology.xml"
+    filename = args['file'] or set_filename(filename)
+    logging.getLogger(__name__).info("Using %s as output file for the topology.", filename)
+
+    # defining details for the topology
+    topology_details = topology.define_topology_details()
+
     return 0
 
 if __name__ == "__main__":
