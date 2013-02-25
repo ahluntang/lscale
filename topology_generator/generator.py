@@ -2,7 +2,6 @@
 
 import os, traceback, logging
 
-from lscale_pexpect_utils import Bridge, Container, VirtualLink
 ##########
 ## Main ##
 ##########
