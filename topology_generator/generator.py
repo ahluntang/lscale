@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 import os, traceback, time, logging, argparse
-import topology
+import topology, elements
+
 
 
 def setlogging(logginglevel):
@@ -82,12 +83,11 @@ def main():
     filename = args['file'] or set_filename(filename)
     logging.getLogger(__name__).info("Using %s as output file for the topology.", filename)
 
-    # check for last used container_id
-    last_container_id = 0
-    last_link_id = 0
+    # check for last used container and link
+    used_resources = topology.UsedResources(0, 0)
 
     # defining details for the topology
-    topology_details = topology.define_topology_details(last_container_id, last_link_id)
+    topology_details = topology.define_topology_details(used_resources)
 
     return 0
 
