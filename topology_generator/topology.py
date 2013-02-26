@@ -8,27 +8,38 @@ from elements import Container, Bridge, NetworkInterface
 
 class UsedResources(object):
 
-    def __init__(self, last_container_id, last_link_id):
+    def __init__(self, last_host, last_container_id, last_link_id):
+        self.last_host      = 0
         self.last_container = 0
         self.last_link      = 0
 
 def define_topology_details(used_resources):
-	# type of topology: ring, star or mesh
-	toptype = topology_type()
-	containers = number_of_containers()
-	#subnet_config = subnetting(containers)
-	topology = {}
-	if (toptype == 'openring'):
-		topology = create_openring(containers, used_resources)
+    topology = None
+    # type of topology: ring, star or mesh
+    toptype = topology_type()
+    containers = number_of_containers()
+    #subnet_config = subnetting(containers)
+    topology = {}
 
+    # lets start with adding a host.
+    host_id = "h%03d" % used_resources.last_host
+    host = Container(host_id, True)
+    used_resources.last_host += 1
+
+    topology[host_id] = {}
+    topology[host_id]['id'] = host
+
+    # define some containers
+    if (toptype == 'openring'):
+        containers = create_openring(containers, used_resources)
+    topology[host_id]['containers'] = containers
+    return topology
 
 
 def topology_type():
-    default = 'openring'
-
-    prompt = "Select type of topology: ring, openring, star or mesh (%s): " % default
-
-    response = raw_input(prompt).rstrip().lower()
+    default     = 'openring'
+    prompt      = "Select type of topology: ring, openring, star or mesh (%s): " % default
+    response    = raw_input(prompt).rstrip().lower()
 
     while True:
         if ( response == 'ring' or response == 'star' or  response == 'mesh'):
@@ -39,11 +50,9 @@ def topology_type():
             response = raw_input(prompt).rstrip().lower()
 
 def number_of_containers():
-    default = 5
-
-    prompt = "Select amount to containers to add (%s): " % default
-    response = raw_input(prompt)
-    response = response.rstrip().lower()
+    default     = 5
+    prompt      = "Select amount to containers to add (%s): " % default
+    response    = raw_input(prompt).rstrip().lower()
 
     while True:
         if ( response.isdigit() and response > 0 ):
@@ -78,7 +87,7 @@ def create_openring(containers, used_resources):
         # create links between the containers
         if (i > 0):
             c1 = created_containers[last_container_id]
-            link_id = "link%s" % used_resources.last_link
+            link_id = "l%03d" % used_resources.last_link
 
             interface1_id   = "%s.1" % last_container_id
             interface1      = NetworkInterface(interface1_id, link_id)

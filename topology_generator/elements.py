@@ -6,8 +6,9 @@ class Container(object):
     """ Represents a container or host.
     """
 
-    def __init__(self, container_id):
+    def __init__(self, container_id, is_host = False):
         self.container_id   = container_id
+        self.is_host = is_host
         self.interfaces     = []
         self.bridges     = []
 
@@ -37,3 +38,7 @@ class NetworkInterface(object):
         self.interface_id   = interface_id
         self.link_id        = link_id
         self.address        = address
+
+    def set_container(self, container_id):
+        self.container_id = container_id
+        

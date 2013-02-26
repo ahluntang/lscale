@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os, traceback, time, logging, argparse
-import topology, elements
+import topology, elements, export
 
 
 
@@ -84,10 +84,12 @@ def main():
     logging.getLogger(__name__).info("Using %s as output file for the topology.", filename)
 
     # check for last used container and link
-    used_resources = topology.UsedResources(0, 0)
+    used_resources = topology.UsedResources(0,0, 0)
 
     # defining details for the topology
-    topology_details = topology.define_topology_details(used_resources)
+    created_topology = topology.define_topology_details(used_resources)
+
+    export.write_topology_xml(created_topology, filename)
 
     return 0
 
