@@ -6,14 +6,14 @@ import ipcalc
 
 
 
-def define_topology_details():
+def define_topology_details(last_container_id, last_link_id):
 	# type of topology: ring, star or mesh
 	toptype = topology_type()
 	containers = number_of_containers()
 	#subnet_config = subnetting(containers)
 	topology = {}
 	if (toptype == 'openring'):
-		topology = create_openring(containers)
+		topology = create_openring(containers, last_container_id)
 
 
 
@@ -45,7 +45,8 @@ def number_of_containers():
         else:
             response = raw_input(prompt).rstrip().lower()
 
-def create_openring(containers):
+def create_openring(containers, last_container_id):
+	topology = {}
 	network = None
 	subnet = subnet_ring(containers)
 	
@@ -57,7 +58,12 @@ def create_openring(containers):
 		address = "%s/%s" % (ip_address, subnet)
 		network = ipcalc.Network(address)
 
-	
+	containers = {}
+	for i in range(containers):
+        container_id = "lxc%03d" % i
+		containers[container][container_id]
+
+	topology['containers'] = containers
 
 
 
@@ -95,7 +101,6 @@ def ip_scheme(subnet_config):
     			return default
     		else:
     			return response
-
     	except Exception, e:
     		response = raw_input(prompt).rstrip().lower()
         

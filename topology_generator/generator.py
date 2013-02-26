@@ -82,8 +82,12 @@ def main():
     filename = args['file'] or set_filename(filename)
     logging.getLogger(__name__).info("Using %s as output file for the topology.", filename)
 
+    # check for last used container_id
+    last_container_id = 0
+    last_link_id = 0
+
     # defining details for the topology
-    topology_details = topology.define_topology_details()
+    topology_details = topology.define_topology_details(last_container_id, last_link_id)
 
     return 0
 
