@@ -2,7 +2,7 @@
 
 import os, traceback, time, logging, itertools
 
-import ipcalc
+import netaddr
 
 from elements import Container, Bridge, NetworkInterface
 
@@ -171,7 +171,7 @@ def create_ring(host_id, component, connected_to = None):
         ip_address = ip_scheme(subnet)
 
         address = "%s/%s" % (ip_address, subnet)
-        network = ipcalc.Network(address)
+        network = netaddr.IPNetwork(address)
 
     containers = component.topology['containers']
 
@@ -246,7 +246,7 @@ def ip_scheme(subnet_config):
             if(response == ''):
                 return default
             else:
-                ip_address = ipcalc.IP(response)
+                ip_address = netaddr.IPAddress(response)
                 return response
         except Exception, e:
             response = raw_input(prompt).rstrip().lower()
