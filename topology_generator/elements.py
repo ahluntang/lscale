@@ -7,10 +7,11 @@ class Container(object):
     """
 
     def __init__(self, container_id, is_host = False):
-        self.container_id   = container_id
-        self.is_host = is_host
-        self.interfaces     = []
-        self.bridges     = []
+        self.container_id       = container_id
+        self.is_host            = is_host
+        self.interface_number   = 0
+        self.interfaces         = []
+        self.bridges            = []
 
     def add_interface(self, interface):
         self.interfaces.append(interface)
@@ -18,18 +19,29 @@ class Container(object):
     def add_bridge(self, bridge):
         self.bridges.append(bridge)
 
+    def get_next_interface(self):
+        self.interface_number += 1
+        return self.interface_number
+
+
 class Bridge(object):
     """ Represents a bridge or switch.
     """
 
     def __init__(self, bridge_id, address = "0.0.0.0"):
-        self.bridge_id      = bridge_id
-        self.container_id   = None
-        self.address        = address
-        self.interfaces     = []
+        self.bridge_id          = bridge_id
+        self.container_id       = None
+        self.address            = address
+        self.interface_number   = 0
+        self.interfaces         = []
 
     def add_interface(self, interface):
         self.interfaces.append(interface)
+
+    
+    def get_next_interface(self):
+        self.interface_number += 1
+        return self.interface_number
 
 class NetworkInterface(object):
     """ Represents an interface.

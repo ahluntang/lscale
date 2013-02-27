@@ -16,6 +16,24 @@ class UsedResources(object):
         self.last_container  = 0
         self.last_link       = 0
 
+    def get_new_host_id(self):
+        self.last_host += 1
+        return "h%03d" % self.last_host
+
+    def get_new_bridge_id(self):
+        self.last_bridge += 1
+        return "b%03d" % self.last_bridge
+
+    def get_new_container_id(self):
+        self.last_container += 1
+        return "c%03d" % self.last_container
+
+    def get_new_link_id(self):
+        self.last_link += 1
+        return "l%03d" % self.last_link
+
+
+
 class NetworkComponent(object):
     """Represents a part of the network.
 
@@ -31,7 +49,6 @@ class NetworkComponent(object):
         self.topology   = {}
 
         self.topology['containers'] = {}
-        self.topology['links']      = {}
         self.topology['bridges']    = {}
 
 
@@ -55,6 +72,9 @@ def define_topology_details(resources):
     create_bridge(host_id, br2_component)
     components[br2_component.component_id] = br2_component
 
+    # create link between bridges
+    connect_components(br1_component,br2_component)
+
     # create a ring component for topology
     ringcomponent = NetworkComponent()
     create_ring(host_id, ringcomponent)
@@ -73,23 +93,19 @@ def add_component_to_topology(topology, component):
     for container_id, container in component.topology['containers'].items():
         topology[host_id]['containers'][container.container_id] = container
 
-    for link_id, link in component.topology['links'].items():
-        topology[host_id]['links'][link.link_id] = link
-
     for bridge_id, bridge in component.topology['bridges'].items():
         topology[host_id]['bridges'][bridge.bridge_id] = bridge
 
 
 def add_host(topology):
     # lets start with adding a host.
-    host_id = "h%03d" % used_resources.last_host
+    host_id = used_resources.get_new_host_id()
     host = Container(host_id, True)
-    used_resources.last_host += 1
 
     topology[host_id]               = {}
     topology[host_id]['id']         = host
     topology[host_id]['containers'] = {}
-    topology[host_id]['links']      = {}
+    #topology[host_id]['links']      = {}
     topology[host_id]['bridges']    = {}
 
     return host_id
@@ -107,7 +123,25 @@ def define_topology_component(component, host_id, connected_to = None):
     if (toptype == 'bridge'):
         create_bridge(component)
     
+def connect_components(comp1, comp2):
+    if(comp1.type == "bridge" and comp2.type == "bridge"):
+        connect_bridges(comp1,comp2)
 
+def connect_bridges(bridge1_component, bridge2_component):
+    #TODO: connect bridges
+    link_id = used_resources.get_new_link_id()
+
+    br1 = bridge1_component.free_interfaces[0]
+    br2 = bridge2_component.free_interfaces[0]
+
+    interface1_id   = "%s.%03d" % ( br1.bridge_id, br1.get_next_interface() )
+    interface1      = NetworkInterface(interface1_id, link_id)
+
+    interface2_id   = "%s.%03d" % ( br2.bridge_id, br2.get_next_interface() )
+    interface2      = NetworkInterface(interface2_id, link_id)
+
+    br1.add_interface(interface2)
+    br2.add_interface(interface1)
 
 def topology_type():
     default     = 'ring'
@@ -144,24 +178,23 @@ def create_bridge(host_id, component, connected_to = None):
     component.host_id   = host_id
     component.type      = "bridge"
 
-    used_resources.last_bridge += 1
-    bridge_id                   = "b%03d" % used_resources.last_bridge
-    bridge                      = Bridge(bridge_id)
+    bridge_id           = used_resources.get_new_bridge_id()
+    bridge              = Bridge(bridge_id)
+    bridge.container_id = host_id
 
     component.topology['bridges'][bridge_id] = bridge
+    
+    # bridges are added to the free interfaces list
+    component.free_interfaces.append(bridge)
 
 
-def create_ring(host_id, component, connected_to = None):
+def create_ring(host_id, component):
     component.host_id = host_id
     component.type = "ring"
 
     containers_number = number_of_containers()
 
-    if connected_to is None:
-        connected = "nothing"
-    else:
-         connected = ", ".join(connected_to)
-    logging.getLogger(__name__).info("Creating ring with %s containers. Connected to %s.", containers_number, connected)
+    logging.getLogger(__name__).info("Creating ring with %s containers.", containers_number)
     network = None
     subnet = subnet_ring(containers_number)
 	
@@ -174,10 +207,15 @@ def create_ring(host_id, component, connected_to = None):
         network = netaddr.IPNetwork(address)
 
     containers = component.topology['containers']
-
+    first_container = None
+    last_container = None
     # creating all containers
     for i in range(0, containers_number):
-        container_id                = "c%03d" % used_resources.last_container
+        container_id    = used_resources.get_new_container_id()
+        if (i == 0):
+            first_container = container_id
+        elif(i == containers_number):
+            last_container = container_id
         c                           = Container(container_id)
         containers[container_id]    = c
 
@@ -185,33 +223,50 @@ def create_ring(host_id, component, connected_to = None):
 
         # create links between the containers
         if (i > 0):
-            c1              = containers[last_container_id]
-            link_id         = "l%03d" % used_resources.last_link
+            c2              = containers[last_container_id]
+            link_id         = used_resources.get_new_link_id()
 
             interface1_id   = "%s.1" % last_container_id
             interface1      = NetworkInterface(interface1_id, link_id)
 
             interface2_id   = "%s.0" % container_id 
             interface2      = NetworkInterface(interface2_id, link_id)
+
             # TODO: add code for optional ip addressing
 
             # adding interfaces to the previous and this container
-            c1.add_interface(interface1)
+            c2.add_interface(interface1)
             c.add_interface(interface2)
-            logging.getLogger(__name__).info("Created link %s. Connections: %s->%s and %s->%s ", link_id, interface1.interface_id, c1.container_id, interface2.interface_id, c.container_id)
-
-            used_resources.last_link += 1
+            logging.getLogger(__name__).info("Created link %s. Connections: %s->%s and %s->%s ", link_id, interface1.interface_id, c2.container_id, interface2.interface_id, c.container_id)
 
         last_container_id               = container_id
-        used_resources.last_container  += 1
 
-    if (connected_to is None):
-        # close the ring
-        pass
-    else:
-        # connect the ring to connected_to
-        pass
+    # close ring or not
+    print "Ring component created, do you want to close it or not?"
+    print " * If you close the ring, a link will be added between first and last container."
+    print " * If you keep the ring open, there will be two unused interfaces in this component."
+    prompt      = "Type open or close (open) : "
+    response = raw_input(prompt).rstrip().lower()
 
+    interface1_id   = "%s.0" % first_container
+    interface1      = NetworkInterface(interface1_id, link_id)
+
+    interface2_id   = "%s.1" % last_container 
+    interface2      = NetworkInterface(interface2_id, link_id)
+
+    while True:
+        if( response == "open" or response == "" ):
+            # TODO keep ring open, mark two unused interfaces
+            component.free_interfaces.append(interface1)
+            component.free_interfaces.append(interface2)
+            return
+        elif( response == "close" ):
+            # close the ring
+            containers[first_container].add_interface(interface1)
+            containers[last_container].add_interface(interface2)
+            return
+        else:
+            response = raw_input(prompt).rstrip().lower()
 
 
 def subnet_ring(containers):

@@ -61,6 +61,9 @@ def write_topology_xml(topology, output):
             bid_element         = SubElement(bridge_element, 'id')
             bid_element.text    = bridge.bridge_id
 
+            cid_element         = SubElement(bridge_element, 'container')
+            cid_element.text    = bridge.container_id
+
             if (bridge.address != "0.0.0.0"):
                 address_element     = SubElement(bridge_element, 'address')
                 address_element.text= bridge.address
