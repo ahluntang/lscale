@@ -32,6 +32,7 @@ def setlogging(logginglevel):
         # define a Handler which writes INFO messages or higher to the sys.stderr
         console = logging.StreamHandler()
         console.setLevel(logging.INFO)
+        logformat='[%(levelname)s] %(message)s'
         console.setFormatter( logging.Formatter(logformat) )
 
         # add the handler to the root logger

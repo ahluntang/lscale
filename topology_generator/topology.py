@@ -7,20 +7,26 @@ import ipcalc
 from elements import Container, Bridge, NetworkInterface
 
 class UsedResources(object):
-
+    """ Saves amount of used resources.
+    Class to track how many items have been created
+    """
     def __init__(self, last_host, last_container_id, last_link_id):
         self.last_host      = 0
         self.last_container = 0
         self.last_link      = 0
 
 def define_topology_details(used_resources):
-    topology = None
-    # type of topology: ring, star or mesh
-    toptype = topology_type()
-    containers = number_of_containers()
-    #subnet_config = subnetting(containers)
     topology = {}
+    
+    host_id = add_host(used_resources, topology)
 
+    # create component in topology
+    define_topology_component(used_resources, topology, host_id)
+
+
+    return topology
+
+def add_host(used_resources, topology):
     # lets start with adding a host.
     host_id = "h%03d" % used_resources.last_host
     host = Container(host_id, True)
@@ -28,17 +34,29 @@ def define_topology_details(used_resources):
 
     topology[host_id] = {}
     topology[host_id]['id'] = host
+    topology[host_id]['containers'] = {}
+    topology[host_id]['links'] = {}
+    topology[host_id]['bridges'] = {}
 
+    return host_id
+
+def define_topology_component(used_resources, topology, host_id, connected_to = None):
+    # type of topology: ring, star or mesh
+    toptype = topology_type()
+    containers_number = number_of_containers()
+    #subnet_config = subnetting(containers)
+    
     # define some containers
-    if (toptype == 'openring'):
-        containers = create_openring(containers, used_resources)
-    topology[host_id]['containers'] = containers
-    return topology
+    if (toptype == 'ring'):
+        create_ring(host_id, topology[host_id]['containers'], containers_number, used_resources)
+    if (toptype == 'bridge'):
+        create_bridge(topology[host_id]['bridges'])
+    
 
 
 def topology_type():
-    default     = 'openring'
-    prompt      = "Select type of topology: ring, openring, star or mesh (%s): " % default
+    default     = 'ring'
+    prompt      = "Select type of topology: ring, star or mesh (%s): " % default
     response    = raw_input(prompt).rstrip().lower()
 
     while True:
@@ -62,9 +80,22 @@ def number_of_containers():
         else:
             response = raw_input(prompt).rstrip().lower()
 
-def create_openring(containers, used_resources):
+
+def create_bridge(used_resources, connected_to = None):
+    """ Creates a bridge.
+    Optionally adds an interface from connected_to to the bridge.
+    """
+    pass
+
+
+def create_ring(host_id, containers, containers_number, used_resources, connected_to = None):
+    if connected_to is None:
+        connected = "nothing"
+    else:
+        connected = connected_to
+    logging.getLogger(__name__).info("Creating ring with %s containers. Connected to %s.", containers_number, connected)
     network = None
-    subnet = subnet_ring(containers)
+    subnet = subnet_ring(containers_number)
 	
     ip_address = None
 
@@ -74,58 +105,53 @@ def create_openring(containers, used_resources):
         address = "%s/%s" % (ip_address, subnet)
         network = ipcalc.Network(address)
 
-    
-    created_containers = {}
-
 
     # creating all containers
-    for i in range(0, containers):
-        container_id = "c%03d" % used_resources.last_container
-        c = Container(container_id)
-        created_containers[container_id] = c
+    for i in range(0, containers_number):
+        container_id                = "c%03d" % used_resources.last_container
+        c                           = Container(container_id)
+        containers[container_id]    = c
+
+        logging.getLogger(__name__).info("Created container %s in %s", container_id, host_id)
 
         # create links between the containers
         if (i > 0):
-            c1 = created_containers[last_container_id]
-            link_id = "l%03d" % used_resources.last_link
+            c1              = containers[last_container_id]
+            link_id         = "l%03d" % used_resources.last_link
 
             interface1_id   = "%s.1" % last_container_id
             interface1      = NetworkInterface(interface1_id, link_id)
 
             interface2_id   = "%s.0" % container_id 
             interface2      = NetworkInterface(interface2_id, link_id)
+            # TODO: add code for optional ip addressing
 
             # adding interfaces to the previous and this container
             c1.add_interface(interface1)
             c.add_interface(interface2)
+            logging.getLogger(__name__).info("Created link %s. Connections: %s->%s and %s->%s ", link_id, interface1.interface_id, c1.container_id, interface2.interface_id, c.container_id)
 
             used_resources.last_link += 1
 
         last_container_id               = container_id
         used_resources.last_container  += 1
 
-    
-    #for (container_id, container) in created_containers.items() :
-    #    print "%s: " % container_id,
-    #    for interface in container.interfaces:
-    #        if (interface.address is None):
-    #            address = ""
-    #        else:
-    #            address = interface.address
-    #        print "%s/%s/%s" % (interface.interface_id, interface.link_id, address ),
-    #    print ""
-    
-    return created_containers
+    if (connected_to is None):
+        # close the ring
+        pass
+    else:
+        # connect the ring to connected_to
+        pass
 
 
 
 def subnet_ring(containers):
     default = 30
-    print "There are %d containers.\n" % containers
-    print "In (open)ring topologies, each link between the containers will be configured as a new subnet."
-    print "For normal (open)ring topologies, each link will need network address, broadcast address and two addresses for each endpoint."
-    print "Recommended netmask for this is /30."
-    print "Type 'none' if you want to manually configure ip addressing scheme\n"
+    print " * There are %d containers." % containers
+    print " * In (open)ring topologies, each link between the containers will be configured as a new subnet."
+    print " * For normal (open)ring topologies, each link will need network address, broadcast address and two addresses for each endpoint."
+    print " * Recommended netmask for this is /30."
+    print " * Type 'none' if you want to manually configure ip addressing scheme\n"
 
     prompt = "Select the netmask for this network with %s containers (%s): " % (containers, default)
     response = raw_input(prompt).rstrip().lower()
