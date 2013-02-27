@@ -23,7 +23,7 @@ def write_topology_xml(topology, output):
 
 
         links    = defaultdict(list)
-        bridges  = defaultdict(list)
+        #bridges  = defaultdict(list)
         
         for (container_id, container) in host['containers'].items():
 
@@ -55,6 +55,25 @@ def write_topology_xml(topology, output):
                     address_element     = SubElement(if_element, 'address')
                     address_element.text= interface.address
 
+        for bridge_id, bridge in host['bridges'].items():
+            bridge_element      = SubElement(bridges_tree,'bridge')
 
+            bid_element         = SubElement(bridge_element, 'id')
+            bid_element.text    = bridge.bridge_id
+
+            if (bridge.address != "0.0.0.0"):
+                address_element     = SubElement(bridge_element, 'address')
+                address_element.text= bridge.address
+
+            interface_element   = SubElement(bridge_element, 'interfaces')
+
+            for interface in bridge.interfaces:
+                if_element     = SubElement(interface_element, 'interface')
+                if_element.text= interface.interface_id
+
+
+
+
+    print "\n\nEXPORT:\n"
     print tostring(root_tree)
     ElementTree(root_tree).write(output)

@@ -23,9 +23,10 @@ class Bridge(object):
     """
 
     def __init__(self, bridge_id, address = "0.0.0.0"):
-        self.bridge_id  = bridge_id
-        self.address    = address
-        self.interfaces = []
+        self.bridge_id      = bridge_id
+        self.container_id   = None
+        self.address        = address
+        self.interfaces     = []
 
     def add_interface(self, interface):
         self.interfaces.append(interface)
@@ -41,4 +42,3 @@ class NetworkInterface(object):
 
     def set_container(self, container_id):
         self.container_id = container_id
-        
