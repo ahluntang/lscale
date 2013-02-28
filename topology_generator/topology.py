@@ -283,7 +283,6 @@ def create_ring(host_id, component):
 
     while True:
         if( response == "open" or response == "" ):
-            # TODO keep ring open, mark two unused interfaces
             component.free_link_interfaces.append(interface1)
             component.free_link_interfaces.append(interface2)
             component.has_free_interfaces.append(containers[first_container])
