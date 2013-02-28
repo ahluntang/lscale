@@ -6,6 +6,9 @@ import time
 import logging
 import argparse
 
+import parse_topology
+import interaction
+
 
 def set_logging(logging_level):
    """ set logging options
@@ -55,6 +58,7 @@ def parse_arguments():
    parser.add_argument('-i', '--id', default='h001', help='host id that should be used to parse and create containers for', required=False)
    return vars(parser.parse_args())
 
+
 ##########
 ## Main ##
 ##########
@@ -63,7 +67,6 @@ def main():
         set_logging( logging.DEBUG )
     except Exception, e :
         print "Could not configure logging framework."
-        #logging.getLogger(__name__).exception("Could not configure logging framework.")
         raise e
 
     try :
@@ -73,6 +76,13 @@ def main():
         raise e
 
     filename = args['file']
+    host_id  = args['id']
+
+    parsed_topology = {}
+
+    parse_topology.parse(filename, parsed_topology)
+    interaction.interact(parsed_topology, host_id)
+
 
     return 0
 
