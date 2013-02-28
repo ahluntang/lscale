@@ -75,9 +75,15 @@ def parse_container(container):
 
 def parse_bridge(bridge):
     bridge_id = bridge.find("id").text
-    address = bridge.find("address").text
+    address = bridge.find("address")
+
+    if address is None :
+        ip = "0.0.0.0"
+    else:
+        ip = address.text
+
     # creating the bridge
-    b = Bridge(bridge_id,address)
+    b = Bridge(bridge_id,ip)
 
     for interface in bridge.findall('interfaces/interface'):
         b.addif(interface.text)
