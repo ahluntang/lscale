@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 
-import os, traceback, time, logging, itertools
+import logging
 
 import netaddr
 
 from elements import Container, Bridge, NetworkInterface
 
+
 class UsedResources(object):
+
     """ Saves amount of used resources.
     Class to track how many items have been created
     """
+
     def __init__(self, last_host, last_container_id, last_link_id):
         self.last_host       = 0
         self.last_bridge     = 0
@@ -33,29 +36,14 @@ class UsedResources(object):
         return "l%03d" % self.last_link
 
 
-
-class NetworkComponent(object):
-    """Represents a part of the network.
-
-    """
-    new_id = itertools.count().next
-
-    def __init__(self):
-        self.component_id           = NetworkComponent.new_id()
-        self.host_id                = None
-        self.type                   = None
-        self.free_link_interfaces   = []
-        self.has_free_interfaces    = []
-
-        self.topology   = {}
-
-        self.topology['containers'] = {}
-        self.topology['bridges']    = {}
-
-
-
-
 def add_component_to_topology(topology_root, component):
+    """ Adds component to main topology
+
+    :param topology_root: main topology
+    :param component: component to add to topology
+    """
+    logging.getLogger(__name__).info("Adding component %s (%s) to main topology", component.component_id, component.type)
+
     host_id = component.host_id
 
     for container_id, container in component.topology['containers'].items():
@@ -65,11 +53,21 @@ def add_component_to_topology(topology_root, component):
         topology_root[host_id]['bridges'][bridge.bridge_id] = bridge
 
 def set_resources(resources):
+   """ Sets the resources in the global module variable used_resources.
+
+    resources will be used to know from where new id generation can be started.
+   :param resources:
+   """
    global used_resources
    used_resources = resources
 
 def add_host(topology_root):
-    # lets start with adding a host.
+    """ Adds host to main topology.
+
+    :param topology_root: the main topology
+    :return: returns host_id
+    """
+
     host_id = used_resources.get_new_host_id()
     host = Container(host_id, True)
 
@@ -81,7 +79,13 @@ def add_host(topology_root):
 
     return host_id
 
-def define_topology_component(component, host_id, connected_to = None):
+def create_topology_component(component, host_id):
+    """ Creates a component for the topology
+
+    :param component: reference to the component
+    :param host_id: host where the component will be added to.
+    """
+
     component.host_id = host_id
     # type of topology: ring, star or mesh
     toptype = topology_type()
@@ -95,6 +99,15 @@ def define_topology_component(component, host_id, connected_to = None):
         create_bridge(component)
     
 def connect_components(comp1, comp2):
+
+    """ Connects two components together.
+
+    If each of the components has 1 or more free interfaces, this method will create a link between them using
+    the free interfaces.
+
+    :param comp1: first component
+    :param comp2: second component
+    """
     if( comp1.type == "bridge" and comp2.type == "bridge" ):
         connect_bridges(comp1,comp2)
     elif( comp1.type == "bridge" and comp2.type == "ring" ):
@@ -103,6 +116,11 @@ def connect_components(comp1, comp2):
         connect_ring_bridge(comp1,comp2)
 
 def connect_ring_bridge(ring_component, bridge_component):
+    """ Connects a ring to a bridge.
+
+    :param ring_component: ring component that will be connected to the bridge. Needs at least two free interfaces
+    :param bridge_component: bridge component that will be connected to the ring. Will add new interfaces to the bridge.
+    """
     link_id = used_resources.get_new_link_id()
 
     ring_container = ring_component.has_free_interfaces.pop()
@@ -119,6 +137,12 @@ def connect_ring_bridge(ring_component, bridge_component):
     
 
 def connect_bridges(bridge1_component, bridge2_component):
+    """ Connects two bridges together
+
+    :param bridge1_component: bridge component. Method adds new interface to this bridge.
+    :param bridge2_component: bridge component. Method adds new interface to this bridge.
+    """
+
     link_id = used_resources.get_new_link_id()
 
     br1 = bridge1_component.has_free_interfaces[0]
@@ -134,8 +158,13 @@ def connect_bridges(bridge1_component, bridge2_component):
     br2.add_interface(interface1)
 
 def topology_type():
+    """ Prompts user for type of component
+    Valid inputs are 'ring', 'star' or 'mesh'.
+
+    :return: type of component: 'ring', 'star' or 'mesh'
+    """
     default     = 'ring'
-    prompt      = "Select type of topology: ring, star or mesh (%s): " % default
+    prompt      = "Select type of component: ring, star or mesh (%s): " % default
     response    = raw_input(prompt).rstrip().lower()
 
     while True:
@@ -146,23 +175,33 @@ def topology_type():
         else:
             response = raw_input(prompt).rstrip().lower()
 
-def number_of_containers():
-    default     = 5
-    prompt      = "Select amount to containers to add (%s): " % default
-    response    = raw_input(prompt).rstrip().lower()
+def number_of_containers(default = 5, silent = True):
+    """ Prompts user for amount of containers to add to the component.
 
-    while True:
-        if ( response.isdigit() and response > 0 ):
-            return response
-        elif (response == '' ):
-            return default
-        else:
-            response = raw_input(prompt).rstrip().lower()
+    :param default:
+    :param silent:
+    :return: amount of containers that should be added to the component
+    """
+    if not silent:
+        prompt      = "Select amount to containers to add (%s): " % default
+        response    = raw_input(prompt).rstrip().lower()
 
+        while True:
+            if ( response.isdigit() and response > 0 ):
+                return response
+            elif (response == '' ):
+                return default
+            else:
+                response = raw_input(prompt).rstrip().lower()
+    else:
+        return default
 
-def create_bridge(host_id, component, connected_to = None):
-    """ Creates a bridge.
+def create_bridge(host_id, component):
+    """Creates a bridge.
     Optionally adds an interface from connected_to to the bridge.
+
+    :param host_id: id of the host where the bridge should be added.
+    :param component: component where the bridge should be created.
     """
     logging.getLogger(__name__).info("Creating bridgecomponent (%s)", component.component_id)
     component.host_id   = host_id
@@ -178,11 +217,17 @@ def create_bridge(host_id, component, connected_to = None):
     component.has_free_interfaces.append(bridge)
 
 
-def create_ring(host_id, component):
+def create_ring(host_id, component, containers_number = 5, silent = True):
+    """ Creates a ring.
+
+    :param host_id: id of the host where the ring should be added
+    :param component: component where the ring should be created
+    :param containers_number: number of containers the ring should create
+    :param silent:
+    :return:
+    """
     component.host_id = host_id
     component.type = "ring"
-
-    containers_number = number_of_containers()
 
     logging.getLogger(__name__).info("Creating ring with %s containers.", containers_number)
     network = None
@@ -232,11 +277,14 @@ def create_ring(host_id, component):
         last_container_id               = container_id
 
     # close ring or not
-    print "Ring component created, do you want to close it or not?"
-    print " * If you close the ring, a link will be added between first and last container."
-    print " * If you keep the ring open, there will be two unused interfaces in this component."
-    prompt      = "Type open or close (open) : "
-    response = raw_input(prompt).rstrip().lower()
+    if not silent:
+        print "Ring component created, do you want to close it or not?"
+        print " * If you close the ring, a link will be added between first and last container."
+        print " * If you keep the ring open, there will be two unused interfaces in this component."
+        prompt      = "Type open or close (open) : "
+        response = raw_input(prompt).rstrip().lower()
+    else:
+        response = "open"
 
     interface1_id   = "%s.0" % first_container
     interface1      = NetworkInterface(interface1_id, link_id)
@@ -260,40 +308,57 @@ def create_ring(host_id, component):
             response = raw_input(prompt).rstrip().lower()
 
 
-def subnet_ring(containers):
-    default = 30
-    print "\n Select netmask. "
-    print " * There are %d containers." % containers
-    print " * In (open)ring topologies, each link between the containers will be configured as a new subnet."
-    print " * For normal (open)ring topologies, each link will need network address, broadcast address and two addresses for each endpoint."
-    print " * Recommended netmask for this is /30."
-    print " * Type 'none' if you want to manually configure ip addressing scheme\n"
+def subnet_ring(containers, default = 30, silent = True):
+    """ Prompts user for netmask.
 
-    prompt = "Select the netmask for this network with %s containers (%s): " % (containers, default)
-    response = raw_input(prompt).rstrip().lower()
-    while True:
-        if ( response.isdigit() and response > 2 and response < 32 ):
-            return response
-        elif (response == 'none'):
-        	return None
-        elif (response == '' ):
-         	return default
-        else:
-            response = raw_input(prompt).rstrip().lower()
+    :param containers:
+    :param default:
+    :param silent:
+    :return:
+    """
+    if not silent:
+        print "\n Select netmask. "
+        print " * There are %d containers." % containers
+        print " * In (open)ring topologies, each link between the containers will be configured as a new subnet."
+        print " * For normal (open)ring topologies, each link will need network address, broadcast address and two addresses for each endpoint."
+        print " * Recommended netmask for this is /30."
+        print " * Type 'none' if you want to manually configure ip addressing scheme\n"
 
-def ip_scheme(subnet_config):
-    default = '172.16.0.0'
-
-    prompt = "Select the network address you want to use for the containers (%s)" % default
-    response = raw_input(prompt).rstrip().lower()
-
-    while True:
-    	try:
-            if(response == ''):
+        prompt = "Select the netmask for this network with %s containers (%s): " % (containers, default)
+        response = raw_input(prompt).rstrip().lower()
+        while True:
+            if ( response.isdigit() and response > 2 and response < 32 ):
+                return response
+            elif (response == 'none'):
+                return None
+            elif (response == '' ):
                 return default
             else:
-                ip_address = netaddr.IPAddress(response)
-                return response
-        except Exception, e:
-            response = raw_input(prompt).rstrip().lower()
-        
+                response = raw_input(prompt).rstrip().lower()
+    else:
+        return default
+
+
+def ip_scheme(subnet_config, default = '172.16.0.0', silent = True):
+    """ Prompts user for network address
+
+    :param subnet_config:
+    :param default:
+    :param silent:
+    :return:
+    """
+    if not silent:
+        prompt = "Select the network address you want to use for the containers (%s)" % default
+        response = raw_input(prompt).rstrip().lower()
+
+        while True:
+            try:
+                if(response == ''):
+                    return default
+                else:
+                    ip_address = netaddr.IPAddress(response)
+                    return response
+            except Exception, e:
+                response = raw_input(prompt).rstrip().lower()
+    else:
+        return default

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import itertools
 
 import os, traceback, time, logging
 
@@ -54,3 +55,22 @@ class NetworkInterface(object):
 
     def set_container(self, container_id):
         self.container_id = container_id
+
+
+class NetworkComponent(object):
+    """Represents a part of the network.
+
+    """
+    new_id = itertools.count().next
+
+    def __init__(self):
+        self.component_id           = NetworkComponent.new_id()
+        self.host_id                = None
+        self.type                   = None
+        self.free_link_interfaces   = []
+        self.has_free_interfaces    = []
+
+        self.topology   = {}
+
+        self.topology['containers'] = {}
+        self.topology['bridges']    = {}

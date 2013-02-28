@@ -1,11 +1,17 @@
 #!/usr/bin/env python
 
-import os, traceback, time, logging, argparse
-import topology, cityflow, elements, export
+import os
+import traceback
+import time
+import logging
+import argparse
+
+import elements
+import topology_export
+from examples import cityflow
 
 
-
-def setlogging(logging_level):
+def set_logging(logging_level):
     """ set logging options
 
     :param logging_level: minimal level that should be logged to file
@@ -70,7 +76,7 @@ def set_filename(filename):
 ##########
 def main():
     try:
-        setlogging(logging.DEBUG)
+        set_logging(logging.DEBUG)
     except Exception, e:
         print "Could not configure logging framework."
         #logging.getLogger(__name__).exception("Could not configure logging framework.")
@@ -87,13 +93,12 @@ def main():
     filename = args['file'] or set_filename(filename)
     logging.getLogger(__name__).info("Using %s as output file for the topology.", filename)
 
-    # check for last used container and link
-    used_resources = topology.UsedResources(0,0, 0)
+
 
     # defining details for the topology
-    created_topology = cityflow.define_topology_details(used_resources)
+    created_topology = cityflow.pre_aggregation(0, 0, 0)
 
-    export.write_topology_xml(created_topology, filename)
+    topology_export.write_topology_xml(created_topology, filename)
 
     return 0
 
