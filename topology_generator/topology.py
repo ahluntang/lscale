@@ -126,7 +126,7 @@ def connect_ring_bridge(ring_component, bridge_component):
     ring_container = ring_component.connection_points.pop()
 
     # create new interface for container in ring
-    ring_interface_id = "%s.%s" % (ring_container.container_id , ring_container.get_next_interface() )
+    ring_interface_id = "%s.%03d" % (ring_container.container_id , ring_container.get_next_interface() )
     ring_interface = NetworkInterface( ring_interface_id, link_id )
 
     # get bridge and interface for bridge
@@ -267,10 +267,10 @@ def create_ring(host_id, component, containers_number = 5, silent = True):
             c2              = containers[ previous_container_id ]
             link_id         = used_resources.get_new_link_id()
 
-            interface1_id   = "%s.%s" % (previous_container_id, c2.get_next_interface() )
+            interface1_id   = "%s.%03d" % (previous_container_id, c2.get_next_interface() )
             interface1      = NetworkInterface(interface1_id, link_id)
 
-            interface2_id   = "%s.%s" % (container_id, c.get_next_interface() )
+            interface2_id   = "%s.%03d" % (container_id, c.get_next_interface() )
             interface2      = NetworkInterface(interface2_id, link_id)
 
             # TODO: add code for optional ip addressing
@@ -300,10 +300,10 @@ def create_ring(host_id, component, containers_number = 5, silent = True):
             return
         elif( response == "close" ):
             # close the ring
-            interface1_id   = "%s.%s" % (first_container, containers[first_container].get_next_interface() )
+            interface1_id   = "%s.%03d" % (first_container, containers[first_container].get_next_interface() )
             interface1      = NetworkInterface(interface1_id, link_id)
 
-            interface2_id   = "%s.%s" % (last_container, containers[last_container].get_next_interface() )
+            interface2_id   = "%s.%03d" % (last_container, containers[last_container].get_next_interface() )
             interface2      = NetworkInterface(interface2_id, link_id)
 
             containers[first_container].add_interface(interface1)
