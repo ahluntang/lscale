@@ -8,10 +8,10 @@ from collections import defaultdict
 from elements import Container, Bridge, NetworkInterface
 
 
-def write_topology_xml(topology, output):
+def write_topology_xml(topology_root, output):
     root_tree = Element('data')
     hosts_tree = SubElement(root_tree,'hosts')
-    for host_id, host in topology.items():
+    for host_id, host in topology_root.items():
 
         host_tree        = SubElement(hosts_tree, 'host')
         hid_element      = SubElement(host_tree, 'id')

@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 
 import os, traceback, time, logging, argparse
-import topology, elements, export
+import topology, cityflow, elements, export
 
 
 
-def setlogging(logginglevel):
+def setlogging(logging_level):
+    """ set logging options
 
-    # making sure the log dir exists, if not create it.
+    :param logging_level: minimal level that should be logged to file
+    :raise: when path to logs is not a directory or directory could not be created.
+    """
     logdir = 'logs'
     if not os.path.exists(logdir):
         os.makedirs(logdir)
@@ -26,7 +29,7 @@ def setlogging(logginglevel):
         logformat='%(asctime)s [%(levelname)s] %(message)s'
 
         # configure the logging framework.
-        logging.basicConfig( filename=logfile, format=logformat, datefmt=datetime_format, level=logginglevel)
+        logging.basicConfig( filename=logfile, format=logformat, datefmt=datetime_format, level=logging_level)
 
         # Log INFO and higher to console as well.
         # define a Handler which writes INFO messages or higher to the sys.stderr
@@ -88,7 +91,7 @@ def main():
     used_resources = topology.UsedResources(0,0, 0)
 
     # defining details for the topology
-    created_topology = topology.define_topology_details(used_resources)
+    created_topology = cityflow.define_topology_details(used_resources)
 
     export.write_topology_xml(created_topology, filename)
 

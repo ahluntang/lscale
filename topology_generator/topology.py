@@ -38,10 +38,10 @@ class NetworkComponent(object):
     """Represents a part of the network.
 
     """
-    newid = itertools.count().next
+    new_id = itertools.count().next
 
     def __init__(self):
-        self.component_id           = NetworkComponent.newid()
+        self.component_id           = NetworkComponent.new_id()
         self.host_id                = None
         self.type                   = None
         self.free_link_interfaces   = []
@@ -53,68 +53,31 @@ class NetworkComponent(object):
         self.topology['bridges']    = {}
 
 
-def define_topology_details(resources):
-    global used_resources
-    used_resources = resources
-
-    topology = {}
-    components = {}
-
-    cityflow(topology, components)    
-
-    # merge components into main network topology
-    for component_id, component in components.items():
-        add_component_to_topology(topology, component)
-
-    return topology
-
-def cityflow(topology, components):
-    # adding a host to topology
-    host_id = add_host(topology)
-
-    # create two bridge components, and connect them
-    br1_component = NetworkComponent()
-    create_bridge(host_id, br1_component)
-    components[br1_component.component_id] = br1_component
-
-    br2_component = NetworkComponent()
-    create_bridge(host_id, br2_component)
-    components[br2_component.component_id] = br2_component
-
-    # create link between bridges
-    connect_components(br1_component,br2_component)
-
-    # create a ring component for topology
-    ringcomponent = NetworkComponent()
-    create_ring(host_id, ringcomponent)
-    components[ringcomponent.component_id] = ringcomponent
-
-    # add ring to first bridge
-    connect_components(ringcomponent,br1_component)
-    # add ring to second bridge
-    connect_components(ringcomponent,br2_component)
 
 
-def add_component_to_topology(topology, component):
+def add_component_to_topology(topology_root, component):
     host_id = component.host_id
 
     for container_id, container in component.topology['containers'].items():
-        topology[host_id]['containers'][container.container_id] = container
+        topology_root[host_id]['containers'][container.container_id] = container
 
     for bridge_id, bridge in component.topology['bridges'].items():
-        topology[host_id]['bridges'][bridge.bridge_id] = bridge
+        topology_root[host_id]['bridges'][bridge.bridge_id] = bridge
 
+def set_resources(resources):
+   global used_resources
+   used_resources = resources
 
-def add_host(topology):
+def add_host(topology_root):
     # lets start with adding a host.
     host_id = used_resources.get_new_host_id()
     host = Container(host_id, True)
 
-    topology[host_id]               = {}
-    topology[host_id]['id']         = host
-    topology[host_id]['containers'] = {}
-    #topology[host_id]['links']      = {}
-    topology[host_id]['bridges']    = {}
+    topology_root[host_id]               = {}
+    topology_root[host_id]['id']         = host
+    topology_root[host_id]['containers'] = {}
+    #topology_root[host_id]['links']      = {}
+    topology_root[host_id]['bridges']    = {}
 
     return host_id
 
