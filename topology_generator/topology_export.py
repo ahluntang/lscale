@@ -8,7 +8,7 @@ from collections import defaultdict
 def write_topology_xml(topology_root, output):
     root_tree = Element('data')
     hosts_tree = SubElement(root_tree,'hosts')
-    for host_id, host in topology_root.items():
+    for host_id, host in sorted(topology_root.items()):
 
         host_tree        = SubElement(hosts_tree, 'host')
         hid_element      = SubElement(host_tree, 'id')
@@ -22,7 +22,7 @@ def write_topology_xml(topology_root, output):
         links    = defaultdict(list)
         #bridges  = defaultdict(list)
         
-        for (container_id, container) in host['containers'].items():
+        for (container_id, container) in sorted(host['containers'].items()):
 
             container_tree   = SubElement(containers_tree, 'container')
             cid_element      = SubElement(container_tree, 'id')
@@ -38,7 +38,7 @@ def write_topology_xml(topology_root, output):
         
 
 
-        for bridge_id, bridge in host['bridges'].items():
+        for bridge_id, bridge in sorted(host['bridges'].items()):
             bridge_element      = SubElement(bridges_tree,'bridge')
 
             bid_element         = SubElement(bridge_element, 'id')
@@ -53,7 +53,7 @@ def write_topology_xml(topology_root, output):
 
             interface_element   = SubElement(bridge_element, 'interfaces')
 
-            for interface in bridge.interfaces:
+            for interface in sorted(bridge.interfaces):
                 if_element     = SubElement(interface_element, 'interface')
                 if_element.text= interface.interface_id
 
@@ -62,13 +62,13 @@ def write_topology_xml(topology_root, output):
                 interface.set_container( bridge.container_id )
                 links[link_id].append( interface )
 
-        for link_id, interfaces in links.items():
+        for link_id, interfaces in sorted(links.items()):
             link_tree = None
             link_tree        = SubElement(links_tree, 'link')
             lid_element      = SubElement(link_tree, 'id')
             lid_element.text = link_id
 
-            for interface in interfaces:
+            for interface in sorted(interfaces):
                 if_element              = SubElement(link_tree, 'vinterface')
                 ifid_element            = SubElement(if_element, 'id')
                 ifid_element.text       = interface.interface_id
