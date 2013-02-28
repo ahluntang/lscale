@@ -80,7 +80,7 @@ def main():
 
     parsed_topology = {}
 
-    parse_topology.parse(filename, parsed_topology)
+    parse_topology.parse(filename, parsed_topology, host_id)
     interaction.interact(parsed_topology, host_id)
 
 

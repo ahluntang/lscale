@@ -5,7 +5,7 @@ import time
 
 from lxc_elements import Bridge, Container, VirtualLink
 
-def parse(filename, parsed_topology):
+def parse(filename, parsed_topology, host_id):
     config_tree = etree.parse(filename)
     xml_root = config_tree.getroot()
 
@@ -13,42 +13,46 @@ def parse(filename, parsed_topology):
         h = parse_host( host )
         parsed_topology[h['host_id']] = h
 
-def parse_host(host):
+def parse_host(host, host_id):
     containers  = {}    # Container objects
     bridges     = {}    # Bridge objects
     links       = {}    # VirtualLink objects
     mappings    = {}    # Mapping interfaces to containers
     mappings_ip = {}    # Mapping interfaces to ip
 
-    host_id = host.find("id").text
-    c = Container(host_id, True)
-    containers[host_id] = c
+    current_host_id = host.find("id").text
 
-    for container in host.findall('containers/container'):
-        c = parse_container(container)
-        containers[c.container_id] = c
+    # only make containers for current host
+    if current_host_id == host_id :
+        c = Container(current_host_id, True)
+        containers[current_host_id] = c
+
+        for container in host.findall('containers/container'):
+            c = parse_container(container)
+            containers[c.container_id] = c
 
 
-    for link in host.findall('links/link'):
-        l = parse_link(link, mappings, mappings_ip, containers)
-        #link_id = "%s-%s" % (l.veth0, l.veth1)
-        links[ l.veth0 ] = l
-        links[ l.veth1 ] = l
+        for link in host.findall('links/link'):
+            l = parse_link(link, mappings, mappings_ip, containers)
+            #link_id = "%s-%s" % (l.veth0, l.veth1)
+            links[ l.veth0 ] = l
+            links[ l.veth1 ] = l
 
-    for bridge in host.findall('bridges/bridge'):
-        b = parse_bridge(bridge)
-        bridges[b.bridge_id] = b
+        for bridge in host.findall('bridges/bridge'):
+            b = parse_bridge(bridge)
+            bridges[b.bridge_id] = b
 
-    configured_host = {
-        "host_id"       : host_id,
-        "containers"    : containers,
-        "bridges"       : bridges,
-        "links"         : links,
-        "mappings"      : mappings,
-        "mappings_ip"   : mappings_ip
-    }
+        configured_host = {
+            "host_id"       : current_host_id,
+            "containers"    : containers,
+            "bridges"       : bridges,
+            "links"         : links,
+            "mappings"      : mappings,
+            "mappings_ip"   : mappings_ip
+        }
 
-    move_vinterfaces(configured_host)
+        move_vinterfaces(configured_host)
+
     return configured_host
 
 
