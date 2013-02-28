@@ -41,10 +41,11 @@ class NetworkComponent(object):
     newid = itertools.count().next
 
     def __init__(self):
-        self.component_id       = NetworkComponent.newid()
-        self.host_id            = None
-        self.type               = None
-        self.free_interfaces    = []
+        self.component_id           = NetworkComponent.newid()
+        self.host_id                = None
+        self.type                   = None
+        self.free_link_interfaces   = []
+        self.has_free_interfaces    = []
 
         self.topology   = {}
 
@@ -59,9 +60,17 @@ def define_topology_details(resources):
     topology = {}
     components = {}
 
+    cityflow(topology, components)    
+
+    # merge components into main network topology
+    for component_id, component in components.items():
+        add_component_to_topology(topology, component)
+
+    return topology
+
+def cityflow(topology, components):
     # adding a host to topology
     host_id = add_host(topology)
-
 
     # create two bridge components, and connect them
     br1_component = NetworkComponent()
@@ -80,12 +89,11 @@ def define_topology_details(resources):
     create_ring(host_id, ringcomponent)
     components[ringcomponent.component_id] = ringcomponent
 
+    # add ring to first bridge
+    connect_components(ringcomponent,br1_component)
+    # add ring to second bridge
+    connect_components(ringcomponent,br2_component)
 
-    # merge components into main network topology
-    for component_id, component in components.items():
-        add_component_to_topology(topology, component)
-
-    return topology
 
 def add_component_to_topology(topology, component):
     host_id = component.host_id
@@ -124,15 +132,34 @@ def define_topology_component(component, host_id, connected_to = None):
         create_bridge(component)
     
 def connect_components(comp1, comp2):
-    if(comp1.type == "bridge" and comp2.type == "bridge"):
+    if( comp1.type == "bridge" and comp2.type == "bridge" ):
         connect_bridges(comp1,comp2)
+    elif( comp1.type == "bridge" and comp2.type == "ring" ):
+        connect_ring_bridge(comp2,comp1)
+    elif( comp1.type == "ring" and comp2.type == "bridge" ):
+        connect_ring_bridge(comp1,comp2)
 
-def connect_bridges(bridge1_component, bridge2_component):
-    #TODO: connect bridges
+def connect_ring_bridge(ring_component, bridge_component):
     link_id = used_resources.get_new_link_id()
 
-    br1 = bridge1_component.free_interfaces[0]
-    br2 = bridge2_component.free_interfaces[0]
+    ring_container = ring_component.has_free_interfaces.pop()
+
+    ring_interface = ring_component.free_link_interfaces.pop()
+
+    br = bridge_component.has_free_interfaces[0]
+    bridge_interface_id   = "%s.%03d" % ( br.bridge_id, br.get_next_interface() )
+
+    bridge_interface      = NetworkInterface(bridge_interface_id, link_id)
+
+    br.add_interface(ring_interface)
+    ring_container.add_interface(bridge_interface)
+    
+
+def connect_bridges(bridge1_component, bridge2_component):
+    link_id = used_resources.get_new_link_id()
+
+    br1 = bridge1_component.has_free_interfaces[0]
+    br2 = bridge2_component.has_free_interfaces[0]
 
     interface1_id   = "%s.%03d" % ( br1.bridge_id, br1.get_next_interface() )
     interface1      = NetworkInterface(interface1_id, link_id)
@@ -185,7 +212,7 @@ def create_bridge(host_id, component, connected_to = None):
     component.topology['bridges'][bridge_id] = bridge
     
     # bridges are added to the free interfaces list
-    component.free_interfaces.append(bridge)
+    component.has_free_interfaces.append(bridge)
 
 
 def create_ring(host_id, component):
@@ -214,7 +241,7 @@ def create_ring(host_id, component):
         container_id    = used_resources.get_new_container_id()
         if (i == 0):
             first_container = container_id
-        elif(i == containers_number):
+        elif(i == containers_number-1 ):
             last_container = container_id
         c                           = Container(container_id)
         containers[container_id]    = c
@@ -257,8 +284,10 @@ def create_ring(host_id, component):
     while True:
         if( response == "open" or response == "" ):
             # TODO keep ring open, mark two unused interfaces
-            component.free_interfaces.append(interface1)
-            component.free_interfaces.append(interface2)
+            component.free_link_interfaces.append(interface1)
+            component.free_link_interfaces.append(interface2)
+            component.has_free_interfaces.append(containers[first_container])
+            component.has_free_interfaces.append(containers[last_container])
             return
         elif( response == "close" ):
             # close the ring
