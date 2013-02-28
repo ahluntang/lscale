@@ -11,7 +11,8 @@ def parse(filename, parsed_topology, host_id):
 
     for host in xml_root.findall( "hosts/host" ) :
         h = parse_host( host, host_id )
-        parsed_topology[h['host_id']] = h
+        if h is not None:
+            parsed_topology[h['host_id']] = h
 
 def parse_host(host, host_id):
     containers  = {}    # Container objects
@@ -53,7 +54,9 @@ def parse_host(host, host_id):
 
         move_vinterfaces(configured_host)
 
-    return configured_host
+        return configured_host
+    else:
+        return None
 
 
 def move_vinterfaces(configured_host) :
