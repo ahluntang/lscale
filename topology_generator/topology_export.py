@@ -30,27 +30,13 @@ def write_topology_xml(topology_root, output):
 
             # get interfaces
             for interface in container.interfaces:
+
+                # append to links
                 link_id = interface.link_id
                 interface.set_container(container.container_id)
                 links[link_id].append(interface)
         
-        link_trees = {}
 
-        for link_id, interfaces in links.items():
-            link_tree = None
-            link_tree        = SubElement(links_tree, 'link')
-            lid_element      = SubElement(link_tree, 'id')
-            lid_element.text = link_id
-
-            for interface in interfaces:
-                if_element              = SubElement(link_tree, 'vinterface')
-                ifid_element            = SubElement(if_element, 'id')
-                ifid_element.text       = interface.interface_id
-                container_element       = SubElement(if_element, 'container')
-                container_element.text  = interface.container_id
-                if(interface.address is not None):
-                    address_element     = SubElement(if_element, 'address')
-                    address_element.text= interface.address
 
         for bridge_id, bridge in host['bridges'].items():
             bridge_element      = SubElement(bridges_tree,'bridge')
@@ -71,7 +57,26 @@ def write_topology_xml(topology_root, output):
                 if_element     = SubElement(interface_element, 'interface')
                 if_element.text= interface.interface_id
 
+                # append to links
+                link_id = interface.link_id
+                interface.set_container( bridge.container_id )
+                links[link_id].append( interface )
 
+        for link_id, interfaces in links.items():
+            link_tree = None
+            link_tree        = SubElement(links_tree, 'link')
+            lid_element      = SubElement(link_tree, 'id')
+            lid_element.text = link_id
+
+            for interface in interfaces:
+                if_element              = SubElement(link_tree, 'vinterface')
+                ifid_element            = SubElement(if_element, 'id')
+                ifid_element.text       = interface.interface_id
+                container_element       = SubElement(if_element, 'container')
+                container_element.text  = interface.container_id
+                if(interface.address is not None):
+                    address_element     = SubElement(if_element, 'address')
+                    address_element.text= interface.address
 
 
     print "\n\nEXPORT:\n"

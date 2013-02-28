@@ -16,6 +16,7 @@ class Container(object):
 
     def add_interface(self, interface):
         self.interfaces.append(interface)
+        interface.is_free = False
 
     def add_bridge(self, bridge):
         self.bridges.append(bridge)
@@ -67,8 +68,8 @@ class NetworkComponent(object):
         self.component_id           = NetworkComponent.new_id()
         self.host_id                = None
         self.type                   = None
-        self.free_link_interfaces   = []
-        self.has_free_interfaces    = []
+        #self.free_link_interfaces   = []
+        self.connection_points    = []
 
         self.topology   = {}
 

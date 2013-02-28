@@ -123,14 +123,19 @@ def connect_ring_bridge(ring_component, bridge_component):
     """
     link_id = used_resources.get_new_link_id()
 
-    ring_container = ring_component.has_free_interfaces.pop()
+    ring_container = ring_component.connection_points.pop()
 
-    ring_interface = ring_component.free_link_interfaces.pop()
+    # create new interface for container in ring
+    ring_interface_id = "%s.%s" % (ring_container.container_id , ring_container.get_next_interface() )
+    ring_interface = NetworkInterface( ring_interface_id, link_id )
 
-    br = bridge_component.has_free_interfaces[0]
+    # get bridge and interface for bridge
+    br = bridge_component.connection_points[0]
     bridge_interface_id   = "%s.%03d" % ( br.bridge_id, br.get_next_interface() )
 
     bridge_interface      = NetworkInterface(bridge_interface_id, link_id)
+
+    print "link %s has %s and %s" % (link_id, ring_interface.interface_id, bridge_interface.interface_id)
 
     br.add_interface(ring_interface)
     ring_container.add_interface(bridge_interface)
@@ -145,8 +150,8 @@ def connect_bridges(bridge1_component, bridge2_component):
 
     link_id = used_resources.get_new_link_id()
 
-    br1 = bridge1_component.has_free_interfaces[0]
-    br2 = bridge2_component.has_free_interfaces[0]
+    br1 = bridge1_component.connection_points[0]
+    br2 = bridge2_component.connection_points[0]
 
     interface1_id   = "%s.%03d" % ( br1.bridge_id, br1.get_next_interface() )
     interface1      = NetworkInterface(interface1_id, link_id)
@@ -214,7 +219,7 @@ def create_bridge(host_id, component):
     component.topology['bridges'][bridge_id] = bridge
     
     # bridges are added to the free interfaces list
-    component.has_free_interfaces.append(bridge)
+    component.connection_points.append(bridge)
 
 
 def create_ring(host_id, component, containers_number = 5, silent = True):
@@ -249,8 +254,9 @@ def create_ring(host_id, component, containers_number = 5, silent = True):
         container_id    = used_resources.get_new_container_id()
         if (i == 0):
             first_container = container_id
-        elif(i == containers_number-1 ):
+        elif(i == containers_number - 1 ):
             last_container = container_id
+
         c                           = Container(container_id)
         containers[container_id]    = c
 
@@ -258,13 +264,13 @@ def create_ring(host_id, component, containers_number = 5, silent = True):
 
         # create links between the containers
         if (i > 0):
-            c2              = containers[last_container_id]
+            c2              = containers[ previous_container_id ]
             link_id         = used_resources.get_new_link_id()
 
-            interface1_id   = "%s.1" % last_container_id
+            interface1_id   = "%s.%s" % (previous_container_id, c2.get_next_interface() )
             interface1      = NetworkInterface(interface1_id, link_id)
 
-            interface2_id   = "%s.0" % container_id 
+            interface2_id   = "%s.%s" % (container_id, c.get_next_interface() )
             interface2      = NetworkInterface(interface2_id, link_id)
 
             # TODO: add code for optional ip addressing
@@ -272,9 +278,10 @@ def create_ring(host_id, component, containers_number = 5, silent = True):
             # adding interfaces to the previous and this container
             c2.add_interface(interface1)
             c.add_interface(interface2)
+
             logging.getLogger(__name__).info("Created link %s. Connections: %s->%s and %s->%s ", link_id, interface1.interface_id, c2.container_id, interface2.interface_id, c.container_id)
 
-        last_container_id               = container_id
+        previous_container_id               = container_id
 
     # close ring or not
     if not silent:
@@ -286,21 +293,19 @@ def create_ring(host_id, component, containers_number = 5, silent = True):
     else:
         response = "open"
 
-    interface1_id   = "%s.0" % first_container
-    interface1      = NetworkInterface(interface1_id, link_id)
-
-    interface2_id   = "%s.1" % last_container 
-    interface2      = NetworkInterface(interface2_id, link_id)
-
     while True:
         if( response == "open" or response == "" ):
-            component.free_link_interfaces.append(interface1)
-            component.free_link_interfaces.append(interface2)
-            component.has_free_interfaces.append(containers[first_container])
-            component.has_free_interfaces.append(containers[last_container])
+            component.connection_points.append(containers[first_container])
+            component.connection_points.append(containers[last_container])
             return
         elif( response == "close" ):
             # close the ring
+            interface1_id   = "%s.%s" % (first_container, containers[first_container].get_next_interface() )
+            interface1      = NetworkInterface(interface1_id, link_id)
+
+            interface2_id   = "%s.%s" % (last_container, containers[last_container].get_next_interface() )
+            interface2      = NetworkInterface(interface2_id, link_id)
+
             containers[first_container].add_interface(interface1)
             containers[last_container].add_interface(interface2)
             return
