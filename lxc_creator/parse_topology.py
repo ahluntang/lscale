@@ -10,7 +10,7 @@ def parse(filename, parsed_topology, host_id):
     xml_root = config_tree.getroot()
 
     for host in xml_root.findall( "hosts/host" ) :
-        h = parse_host( host )
+        h = parse_host( host, host_id )
         parsed_topology[h['host_id']] = h
 
 def parse_host(host, host_id):
