@@ -55,7 +55,7 @@ def set_logging(logging_level):
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Topology Generator.')
-    parser.add_argument('-f', '--file', default='', help='output file to write to.', required=False)
+    parser.add_argument('-f', '--file', default='topology.xml', help='output file to write to.', required=False)
     return vars(parser.parse_args())
 
 def set_filename(filename):
@@ -89,8 +89,7 @@ def main():
         raise e
     
     # output filename
-    filename = "topology.xml"
-    filename = args['file'] or set_filename(filename)
+    filename = args['file'] #or set_filename(filename)
     logging.getLogger(__name__).info("Using %s as output file for the topology.", filename)
 
 

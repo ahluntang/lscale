@@ -2,11 +2,8 @@
 
 import os, traceback, time, logging
 
-from xml.etree.ElementTree import ElementTree, Element, SubElement, Comment, tostring
+from lxml.etree import ElementTree, Element, SubElement, tostring
 from collections import defaultdict
-
-from elements import Container, Bridge, NetworkInterface
-
 
 def write_topology_xml(topology_root, output):
     root_tree = Element('data')
@@ -78,5 +75,14 @@ def write_topology_xml(topology_root, output):
 
 
     print "\n\nEXPORT:\n"
-    print tostring(root_tree)
-    ElementTree(root_tree).write(output)
+    print tostring(root_tree, pretty_print=True)
+
+    dir = 'output'
+    if not os.path.exists( dir ) :
+        os.makedirs( dir )
+
+    filename = "%s/%s" % (dir, output)
+
+    print "\nWriting to: %s\n" % filename
+
+    ElementTree(root_tree).write(filename, pretty_print=True)

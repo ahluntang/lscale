@@ -27,6 +27,20 @@ def pre_aggregation(last_host_id, last_container_id, last_link_id) :
     for i in range( 0, 10 ) :
         pre_aggregation_rings( host2_id, components )
 
+    # adding a host to topology root
+    host3_id = topology.add_host( topology_root )
+
+    # create pre aggregation rings connected to bridge
+    for i in range( 0, 10 ) :
+        pre_aggregation_rings( host3_id, components )
+
+    # adding a host to topology root
+    host4_id = topology.add_host( topology_root )
+
+    # create pre aggregation rings connected to bridge
+    for i in range( 0, 9 ) :
+        pre_aggregation_rings( host4_id, components )
+
     # merge components into main network topology
     for component_id, component in components.items( ) :
         topology.add_component_to_topology( topology_root, component )
