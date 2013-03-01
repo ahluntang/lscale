@@ -55,7 +55,7 @@ def interact(configured_hosts, host_id) :
 def sigwinch_passthrough(sig, data) :
     if 'TIOCGWINSZ' in dir( termios ) :
         TIOCGWINSZ = termios.TIOCGWINSZ
-    else :
+    else:
         TIOCGWINSZ = 1074295912 # assume
     s = struct.pack( "HHHH", 0, 0, 0, 0 )
     a = struct.unpack( 'HHHH', fcntl.ioctl( sys.stdout.fileno( ), TIOCGWINSZ, s ) )

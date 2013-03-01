@@ -281,7 +281,7 @@ def create_ring(host_id, component, containers_number = 5, silent = True):
 
             logging.getLogger(__name__).info("Created link %s. Connections: %s->%s and %s->%s ", link_id, interface1.interface_id, c2.container_id, interface2.interface_id, c.container_id)
 
-        previous_container_id               = container_id
+        previous_container_id = container_id
 
     # close ring or not
     if not silent:

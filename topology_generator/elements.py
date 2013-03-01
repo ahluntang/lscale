@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import itertools
 
-import os, traceback, time, logging
+import netaddr
 
 class Container(object):
     """ Represents a container or host.
@@ -75,3 +75,83 @@ class NetworkComponent(object):
 
         self.topology['containers'] = {}
         self.topology['bridges']    = {}
+
+
+class IPComponent( object ) :
+    """ Holds the next free address to use.
+
+    Has methods to calculate the prefix based on how many hosts you need.
+    Has methods to create addressing scheme for certain topology components.
+    """
+
+    def __init__(self, address = "172.16.0.0") :
+        self.address = netaddr.IPAddress( address )
+        self.address -= 1
+
+    def addressing_for_ring_component(self, hosts_per_ring = 5, rings = 5) :
+        """ Creates addressing scheme for a ring component.
+
+        :param hosts_per_ring: the amount of hosts in a ring
+        :param rings: the amount of rings in the ring component.
+        """
+
+        #links from ring to bridge: 2*rings
+        #links between hosts on rings: (hosts_per_ring-1)*rings
+
+        addressing_scheme = { }
+
+        # get subnet for bridge: 2*rings network addresses needed
+        bridge_links = 2 * rings
+        bridge_prefix = self.calculate_prefix( bridge_links )
+        network = netaddr.IPNetwork( self.address )
+        network.prefixlen = bridge_prefix
+        while network.network <= self.address :
+            network = network.next( )
+
+        addressing_scheme['bridge_prefix'] = bridge_prefix
+        addressing_scheme['bridge_links'] = []
+
+        # Available ip's for bridges
+        for ip in network :
+            addressing_scheme['bridge_links'].append( ip )
+
+        # set first address of next network as new networkaddress in instance
+        network = network.next( )
+        self.address = network[0]
+
+        # links between hosts on rings:
+        host_links = (hosts_per_ring - 1) * rings
+
+        host_prefix = 30 # prefix between hosts is always 30
+
+        addressing_scheme['host_prefix'] = host_prefix
+        addressing_scheme['host_links'] = { }
+
+        for host in range( 1, host_links + 1 ) :
+            network = netaddr.IPNetwork( self.address )
+            network.prefixlen = host_prefix
+
+            addressing_scheme['host_links'][host] = []
+            for ip in network :
+                addressing_scheme['host_links'][host].append( ip )
+
+            # set first address of next network as new networkaddress in instance
+            network = network.next( )
+            self.address = network[0]
+
+        return addressing_scheme
+
+    def calculate_prefix(self, hosts) :
+        """ Calculates prefix based on how many hosts/ip addresses are needed.
+
+        :param hosts: amount of hosts that are needed in the network
+        :return: prefix/networkbits as decimal value
+        """
+        bits = 32
+        host_bits = 0
+        h = 1
+        while h < hosts :
+            h = h << 1 # multiply with 2
+            host_bits += 1
+        networkbits = bits - host_bits
+        return networkbits
