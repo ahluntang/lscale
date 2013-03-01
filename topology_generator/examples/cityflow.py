@@ -4,8 +4,8 @@ from elements import NetworkComponent, IPComponent
 import topology
 
 
-def pre_aggregation(last_host_id, last_container_id, last_link_id) :
-    addressing = IPComponent("172.16.0.0")
+def pre_aggregation(last_host_id, last_container_id, last_link_id, starting_address) :
+    addressing = IPComponent(starting_address)
 
     hosts_per_ring = 5
     rings = 5

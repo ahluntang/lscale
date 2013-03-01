@@ -8,7 +8,7 @@ import argparse
 
 import elements
 import topology_export
-from examples import cityflow
+import examples
 
 
 def set_logging(logging_level):
@@ -95,8 +95,17 @@ def main():
 
 
     # defining details for the topology
-    created_topology = cityflow.pre_aggregation(0, 0, 0)
+    # setting base parameters
+    last_host_id      = 0
+    last_container_id = 0
+    last_link_id      = 0
+    starting_address  = "172.16.0.0"
 
+    # create an example topology: cityflow preaggregation phase.
+    # see examples package for more info
+    created_topology = examples.cityflow.pre_aggregation(last_host_id, last_container_id, last_link_id, starting_address)
+
+    # export topology to xml file
     topology_export.write_topology_xml(created_topology, filename)
 
     return 0
