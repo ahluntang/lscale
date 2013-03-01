@@ -53,10 +53,12 @@ def set_logging(logging_level):
     else:
         raise IOError("Log directory not created!")
 
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Topology Generator.')
     parser.add_argument('-f', '--file', default='topology.xml', help='output file to write to.', required=False)
     return vars(parser.parse_args())
+
 
 def set_filename(filename):
     prompt = "Output filename is currently set to %s. Do you want to change this (N)? " % filename
@@ -75,6 +77,8 @@ def set_filename(filename):
 ## Main ##
 ##########
 def main():
+
+    # set logging
     try:
         set_logging(logging.DEBUG)
     except Exception, e:
@@ -82,14 +86,15 @@ def main():
         #logging.getLogger(__name__).exception("Could not configure logging framework.")
         raise e
 
+    # parse arguments
     try:
         args = parse_arguments()
     except Exception, e:
         logging.getLogger(__name__).exception("Could not parse arguments.")
         raise e
     
-    # output filename
-    filename = args['file'] #or set_filename(filename)
+    # set output filename
+    filename = args['file']
     logging.getLogger(__name__).info("Using %s as output file for the topology.", filename)
 
 
@@ -109,6 +114,7 @@ def main():
     topology_export.write_topology_xml(created_topology, filename)
 
     return 0
+
 
 if __name__ == "__main__":
     try:
