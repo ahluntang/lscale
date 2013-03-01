@@ -77,7 +77,35 @@ class NetworkComponent(object):
         self.topology['bridges']    = {}
 
 
-class IPComponent( object ) :
+class UsedResources(object) :
+    """ Saves amount of used resources.
+    Class to track how many items have been created
+    """
+
+    def __init__(self, last_host, last_container_id, last_link_id, addressing) :
+        self.last_host = 0
+        self.last_bridge = 0
+        self.last_container = 0
+        self.last_link = 0
+        self.addressing = addressing
+
+    def get_new_host_id(self) :
+        self.last_host += 1
+        return "h%03d" % self.last_host
+
+    def get_new_bridge_id(self) :
+        self.last_bridge += 1
+        return "b%03d" % self.last_bridge
+
+    def get_new_container_id(self) :
+        self.last_container += 1
+        return "c%03d" % self.last_container
+
+    def get_new_link_id(self) :
+        self.last_link += 1
+        return "l%03d" % self.last_link
+
+class IPComponent(object) :
     """ Holds the next free address to use.
 
     Has methods to calculate the prefix based on how many hosts you need.
@@ -88,7 +116,7 @@ class IPComponent( object ) :
         self.address = netaddr.IPAddress( address )
         self.address -= 1
 
-    def addressing_for_ring_component(self, hosts_per_ring = 5, rings = 5) :
+    def addressing_for_ring_component(self, hosts_per_ring = 5, rings = 5, close_ring = False) :
         """ Creates addressing scheme for a ring component.
 
         :param hosts_per_ring: the amount of hosts in a ring
@@ -99,44 +127,43 @@ class IPComponent( object ) :
         #links between hosts on rings: (hosts_per_ring-1)*rings
 
         addressing_scheme = { }
+        if not close_ring:
+            # get subnet for bridge: 2*rings network addresses needed
+            bridge_links = 2 * rings
+            bridge_prefix = self.calculate_prefix( bridge_links )
+            network = netaddr.IPNetwork( self.address )
+            network.prefixlen = bridge_prefix
 
-        # get subnet for bridge: 2*rings network addresses needed
-        bridge_links = 2 * rings
-        bridge_prefix = self.calculate_prefix( bridge_links )
-        network = netaddr.IPNetwork( self.address )
-        network.prefixlen = bridge_prefix
-        while network.network <= self.address :
-            network = network.next( )
+            #if prefix has changed, make sure the next network is not overlapping the previous
+            while network.network <= self.address :
+                network = network.next( )
 
-        addressing_scheme['bridge_prefix'] = bridge_prefix
-        addressing_scheme['bridge_links'] = []
-
-        # Available ip's for bridges
-        for ip in network :
-            addressing_scheme['bridge_links'].append( ip )
+            addressing_scheme['bridge_prefix'] = bridge_prefix
+            addressing_scheme['bridge_links'] = network
 
         # set first address of next network as new networkaddress in instance
         network = network.next( )
         self.address = network[0]
 
         # links between hosts on rings:
-        host_links = (hosts_per_ring - 1) * rings
+        if close_ring:
+            host_links = hosts_per_ring * rings
+        else:
+            host_links = (hosts_per_ring - 1) * rings
 
         host_prefix = 30 # prefix between hosts is always 30
 
         addressing_scheme['host_prefix'] = host_prefix
-        addressing_scheme['host_links'] = { }
+        addressing_scheme['host_links'] = []
 
         for host in range( 1, host_links + 1 ) :
             network = netaddr.IPNetwork( self.address )
             network.prefixlen = host_prefix
 
-            addressing_scheme['host_links'][host] = []
-            for ip in network :
-                addressing_scheme['host_links'][host].append( ip )
+            addressing_scheme['host_links'].append(network)
 
             # set first address of next network as new networkaddress in instance
-            network = network.next( )
+            network = network.next()
             self.address = network[0]
 
         return addressing_scheme
