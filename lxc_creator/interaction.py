@@ -21,7 +21,7 @@ def interact(configured_hosts, host_id) :
 
     while True :
 
-        available_containers = configured_hosts[host_id]['containers'].keys( )
+        available_containers = sorted(configured_hosts[host_id]['containers'].keys())
         prompt = "\nYou are on '%s'\nAvailable containers:\n%s\nSelect container or type %s%s to stop the script: " % (
             host_id, available_containers, exit_color, bcolors.ENDC)
         response = raw_input( prompt ).rstrip( )
