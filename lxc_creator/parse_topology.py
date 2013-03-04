@@ -182,12 +182,12 @@ def parse_link(link, mappings, mappings_ip, containers):
     if not veth0_ip is None:
         mappings_ip[veth0.veth] = veth0_ip
         c1.config_link(veth0, veth0_ip)
-        c1.routes.extend(routes0)
+        c1.routing['routes'].extend(routes0)
 
 
     if not veth1_ip is None:
         mappings_ip[veth1] = veth1_ip
         c2.config_link(veth1, veth1_ip)
-        c2.routes.extend(routes1)
+        c2.routing['routes'].extend(routes1)
 
     return l
