@@ -22,6 +22,12 @@ class Container( object ):
     For host: set self.host to true or construct with is_host=True
     A container will initialise a bash shell that has it's own
     networking namespace in the kernel.
+
+    Instance variables:
+        self.container_id : identification for container
+        self.is_host : boolean whether this object represents a host (in init space) or container
+        self.shell : holds the pexpect shell object for this instance
+        self.pid : pid of the container (can also be accessed through self.shell.pid)
     """
 
     def __init__(self, container_id, is_host= False) :
@@ -33,12 +39,12 @@ class Container( object ):
 
         print "Creating container %8s" % container_id,
         self.container_id = container_id
-        self.host = is_host
+        self.is_host = is_host
 
         # containers must be cleaned after class destruction
         cleanup_containers.append( self )
 
-        if (self.host) :
+        if (self.is_host) :
             cmd = "/bin/bash"
         else :
             cmd = "unshare --net /bin/bash"
@@ -87,6 +93,12 @@ class Bridge( object ) :
     """Bridge representation
 
     Instances of this class represent a bridge on the system.
+
+    Instance variables:
+        self.bridge_id: identification for bridge
+        self.address: ip address for bridge
+        self.interfaces: list of interfaces for bridge
+        self.shell: holds the pexpect shell object for this instance
     """
 
     def __init__(self, bridge_id, address = '0.0.0.0') :
@@ -159,6 +171,15 @@ class VirtualLink( object ) :
     """Link representation.
 
     Instances of this class represent virtual links on the system.
+
+    Instance variables:
+        self.veth0: first endpoint of the virtual link
+        self.veth1: second endpoint of the virtual link
+        self.shell: holds the pexpect shell object for this instance
+        self.veth0shell: holds the pexpect shell object for the first endpoint of the virtual link.
+            Changes when interface is moved to a different network namespace
+        self.veth1shell: holds the pexpect shell object for the first endpoint of the virtual link.
+            Changes when interface is moved to a different network namespace
     """
 
     def __init__(self, veth0, veth1) :
