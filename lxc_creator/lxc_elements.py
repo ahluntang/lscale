@@ -106,7 +106,7 @@ class Container( object ):
 
         self.interfaces += 1
 
-    def pre_routing(self, template_environment):
+    def run_pre_routing(self, template_environment):
         if self.preroutingscript is not None:
             logging.getLogger( __name__ ).info("Running prerouting script for %s", self.container_id)
 
@@ -117,7 +117,7 @@ class Container( object ):
             logging.getLogger( __name__ ).info("No prerouting script defined for %s", self.container_id)
 
 
-    def routing(self, template_environment):
+    def run_routing(self, template_environment):
         if self.routingscript is not None:
             logging.getLogger( __name__ ).info("Running routing script for %s", self.container_id)
 
@@ -128,7 +128,7 @@ class Container( object ):
             logging.getLogger( __name__ ).info("No routing script defined for %s", self.container_id)
 
 
-    def postrouting(self, template_environment):
+    def run_postrouting(self, template_environment):
         if self.postroutingscript is not None:
             logging.getLogger( __name__ ).info("Running postrouting script for %s", self.container_id)
 
