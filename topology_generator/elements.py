@@ -18,6 +18,7 @@ class Container(object):
         self.preroutingscript   = None
         self.routingscript      = None
         self.postroutingscript  = None
+        self.gateway            = None
 
     def add_interface(self, interface):
         self.interfaces.append(interface)
@@ -58,9 +59,15 @@ class NetworkInterface(object):
         self.interface_id   = interface_id
         self.link_id        = link_id
         self.address        = address
+        self.routes         = []
+        self.gateway        = None
+        self.summarizes     = None
 
     def set_container(self, container_id):
         self.container_id = container_id
+
+    def add_route(self, route):
+        self.routes.append(route)
 
 
 class NetworkComponent(object):
@@ -74,7 +81,8 @@ class NetworkComponent(object):
         self.host_id                = None
         self.type                   = None
         #self.free_link_interfaces   = []
-        self.connection_points    = []
+        self.connection_points      = []
+        self.addresses              = []
 
         self.topology   = {}
 

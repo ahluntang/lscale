@@ -38,6 +38,11 @@ def write_topology_xml(topology_root, output):
             post_element      = SubElement(container_tree, 'postrouting')
             post_element.text = container.postroutingscript
 
+            # adding default gateway
+            if container.gateway is not None:
+                gw_element = SubElement(container_tree, 'gateway')
+                gw_element.text = container.gateway
+
             # get interfaces
             for interface in container.interfaces:
                 # append to links
@@ -78,14 +83,30 @@ def write_topology_xml(topology_root, output):
             lid_element.text = link_id
 
             for interface in sorted(interfaces):
-                if_element              = SubElement(link_tree, 'vinterface')
-                ifid_element            = SubElement(if_element, 'id')
-                ifid_element.text       = interface.interface_id
-                container_element       = SubElement(if_element, 'container')
-                container_element.text  = interface.container_id
+                if_element                = SubElement(link_tree, 'vinterface')
+                ifid_element              = SubElement(if_element, 'id')
+                ifid_element.text         = interface.interface_id
+
+                container_element         = SubElement(if_element, 'container')
+                container_element.text    = interface.container_id
+
                 if(interface.address is not None):
-                    address_element     = SubElement(if_element, 'address')
-                    address_element.text= interface.address
+                    address_element       = SubElement(if_element, 'address')
+                    address_element.text  = interface.address
+
+                sum_tree                  = SubElement(if_element, 'summarizes')
+                if(interface.summarizes is not None):
+                    for ipnetwork in interface.summarizes:
+                        sum_element       = SubElement(sum_tree, 'summary')
+                        sum_element.text  = "%s/%s" % (ipnetwork.network, ipnetwork.prefixlen )
+
+
+                if_routes_element         = SubElement(if_element, 'routes')
+                for route in interface.routes:
+                    if_route_element      = SubElement(if_routes_element, 'route')
+                    if_route_element.text = route
+
+
 
 
     print "\n\nEXPORT:\n"

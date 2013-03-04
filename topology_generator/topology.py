@@ -96,6 +96,14 @@ def connect_ring_bridge(ring_component, bridge_component, addressing_scheme = No
 
     bridge_interface      = NetworkInterface(bridge_interface_id, link_id)
 
+    # summary
+    if addressing_scheme is not None:
+        ip_list = []
+        for i in range(0,(len(ring_component.topology['containers'])-1)):
+            ip_list.append(ring_component.addresses.pop())
+        bridge_interface.summarizes = netaddr.cidr_merge(ip_list)
+
+
     print "link %s has %s and %s" % (link_id, ring_interface.interface_id, bridge_interface.interface_id)
 
     br.add_interface(bridge_interface)
@@ -185,7 +193,7 @@ def create_ring(host_id, component, containers_number = 5, addressing_scheme = N
     last_container = None
     # creating all containers
     for i in range(0, containers_number):
-        container_id    = used_resources.get_new_container_id()
+        container_id    = "r%03d.%s" % (component.component_id, used_resources.get_new_container_id() )
         if (i == 0):
             first_container = container_id
         elif(i == containers_number - 1 ):
@@ -218,6 +226,8 @@ def create_ring(host_id, component, containers_number = 5, addressing_scheme = N
                 if2_ip = "%s/%s" % (network[2], network.prefixlen)
                 interface1.address = if1_ip
                 interface2.address = if2_ip
+                component.addresses.append(if1_ip)
+                component.addresses.append(if2_ip)
 
             # adding interfaces to the previous and this container
             c2.add_interface(interface1)
@@ -247,3 +257,31 @@ def create_ring(host_id, component, containers_number = 5, addressing_scheme = N
     else :
         component.connection_points.append(containers[first_container])
         component.connection_points.append(containers[last_container])
+
+    if addressing_scheme is not None:
+        i = 0
+        for container_id, container in sorted(containers.items()):
+            if(i > 2):
+                if1_routes = component.addresses[0:i-3]
+
+
+            if (i < containers_number-1) :
+                if2_routes = component.addresses[i+2:containers_number]
+                del if2_routes[0]
+
+
+            if i > 2 :
+                container.interfaces[0].routes.extend(if1_routes)
+
+            # if there is no second interface, it is the last in a open ring
+            if len(container.interfaces) > 1 :
+                container.interfaces[1].routes.extend(if2_routes)
+
+            if(i < containers_number/2 ):
+                container.gateway = container.interfaces[0].interface_id
+            elif len(container.interfaces) > 1:
+                container.gateway = container.interfaces[1].interface_id
+
+            i += 2
+
+
