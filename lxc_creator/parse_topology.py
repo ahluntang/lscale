@@ -57,7 +57,7 @@ def parse_host(template_environment, host, host_id):
 
         for container in containers:
             #run pre routing script
-            container.prerouting(template_environment)
+            container.pre_routing(template_environment)
 
         for container in containers :
             #run routing script
@@ -65,7 +65,7 @@ def parse_host(template_environment, host, host_id):
 
         for container in containers :
             #run post routing script
-            container.postrouting(template_environment)
+            container.post_routing(template_environment)
 
         return configured_host
     else:
