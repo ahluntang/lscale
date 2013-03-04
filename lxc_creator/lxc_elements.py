@@ -128,7 +128,7 @@ class Container( object ):
             logging.getLogger( __name__ ).info("No routing script defined for %s", self.container_id)
 
 
-    def run_postrouting(self, template_environment):
+    def run_post_routing(self, template_environment):
         if self.postroutingscript is not None:
             logging.getLogger( __name__ ).info("Running postrouting script for %s", self.container_id)
 
@@ -176,6 +176,9 @@ class Bridge( object ) :
 
         cmd = "ifconfig %s %s up" % (bridge_id, self.address)
         self.shell.sendline( cmd )
+
+        cmd = "brctl stp %s on" % bridge_id
+        self.shell.sendline(cmd)
 
         logger = logging.getLogger( __name__ )
         logger.info( "Added bridge %8s with address %8s", self.bridge_id, self.address )
