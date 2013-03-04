@@ -14,6 +14,8 @@ ip link set {{ if1 }} up
 echo "Enabling routing"
 sysctl -w net.ipv4.ip_forward=1
 
+ip route add default dev {{ gateway }}
+
 {% for route in routes %}
     ip route add {{ route.address }} dev {{ route.interface }}
 {% endfor %}

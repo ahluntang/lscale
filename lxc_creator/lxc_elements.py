@@ -106,6 +106,7 @@ class Container( object ):
 
         self.interfaces += 1
 
+
     def run_pre_routing(self, template_environment):
         if self.preroutingscript is not None:
             logging.getLogger( __name__ ).info("Running prerouting script for %s", self.container_id)
@@ -260,11 +261,11 @@ class VirtualLink( object ) :
         cmd = "ifconfig %s up" % self.veth1
         self.shell.sendline( cmd )
 
-        self.veth0shell = self.shell
-        self.veth1shell = self.shell
+        self.veth0.shell = self.shell
+        self.veth1.shell = self.shell
 
         logger = logging.getLogger( __name__ )
-        logger.info( "Added virtual link %8s - %8s", self.veth0, self.veth1 )
+        logger.info( "Added virtual link %8s - %8s", self.veth0.veth, self.veth1.veth )
 
 
     def __del__(self) :
@@ -278,9 +279,9 @@ class VirtualLink( object ) :
         """
 
         try :
-            cmd = "ip link del %s\n" % self.veth0
+            cmd = "ip link del %s\n" % self.veth0.veth
             self.veth0shell.write( cmd )
-            cmd = "ip link del %s\n" % self.veth1
+            cmd = "ip link del %s\n" % self.veth1.veth
             self.veth1shell.write( cmd )
             sys.stdout.write( "." )
             sys.stdout.flush( )
@@ -291,21 +292,37 @@ class VirtualLink( object ) :
 
     def setns(self, veth, container) :
         if (not container.is_host) :
-            cmd = "ip link set %s netns %s" % (veth, container.pid)
-            print "Moving interface %8s to %8s: %s" % (veth, container.container_id, cmd)
+            cmd = "ip link set %s netns %s" % (veth.veth, container.pid)
+            print "Moving interface %8s to %8s: %s" % (veth.veth, container.container_id, cmd)
             self.shell.sendline( cmd )
 
             logger = logging.getLogger( __name__ )
-            logger.info( "Virtual interface %8s moved to %8s", veth, container.container_id )
+            logger.info( "Virtual interface %8s moved to %8s", veth.veth, container.container_id )
 
-            if (veth == self.veth0) :
-                self.veth0shell = container.shell
-            elif (veth == self.veth1) :
-                self.veth1shell = container.shell
+            if (veth.veth == self.veth0.veth) :
+                self.veth0.shell = container.shell
+            elif (veth.veth == self.veth1.veth) :
+                self.veth1.shell = container.shell
             else :
                 logger = logging.getLogger( __name__ )
-                logger.warn( "Apparently %8s does not belong to virtual link %8s-%8s", veth, self.veth0, self.veth1 )
+                logger.warn( "Apparently %8s does not belong to virtual link %8s-%8s", veth.veth, self.veth0.veth, self.veth1.veth )
 
+
+# TODO: extract veth0 and veth1 from VirtualLink to an interface object
+class VirtualInterface(object):
+
+    def __init__(self, veth):
+        self.veth = veth
+        self.shell = None
+        self.address = None
+        self.routes = []
+
+
+class Route(object):
+
+    def __init__(self, address, device):
+        self.dev = device
+        self.address = address
 
 ###############
 ## FUNCTIONS ##

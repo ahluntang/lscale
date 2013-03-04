@@ -4,7 +4,7 @@
 import lxml.etree as etree
 import time
 
-from lxc_elements import Bridge, Container, VirtualLink
+from lxc_elements import Bridge, Container, VirtualLink, VirtualInterface, Route
 
 def parse(filename, template_environment, parsed_topology, host_id):
     config_tree = etree.parse(filename)
@@ -104,6 +104,10 @@ def parse_container(container):
     if prerouting is not None :
         c.postroutingscript = postrouting.text
 
+    gateway = container.find("gateway")
+    if gateway is not None :
+        c.routing['gateway'] = gateway.text
+
     return c
 
 
@@ -132,6 +136,8 @@ def parse_link(link, mappings, mappings_ip, containers):
     veth1_ip = None
     addresses = {}
     count = 1
+    routes0 = []
+    routes1 = []
     for vinterface in link.findall('vinterface'):
         vinterface_id = vinterface.find("id").text
         container_id = vinterface.find("container").text
@@ -139,31 +145,49 @@ def parse_link(link, mappings, mappings_ip, containers):
 
         mappings[vinterface_id] = container_id
 
+        summaries = vinterface.find("summarizes")
+
+
         if(count == 1):
-            veth0 = vinterface_id
+            veth0 = VirtualLink(vinterface_id)
             if not address is None:
                 veth0_ip = address.text
+                veth0.address = veth0_ip
+                #veth0.routes.extend(routes)
+                for summary in summaries.findall('summary') :
+                    route = Route(summary.text, vinterface_id)
+                    routes0.append(route)
+
         else:
-            veth1 = vinterface_id
+            veth1 = VirtualLink(vinterface_id)
             if not address is None:
                 veth1_ip = address.text
+                veth1.address = address.text
+                #veth1.routes.extend(routes)
+                for summary in summaries.findall('summary') :
+                    route = Route(summary.text, vinterface_id)
+                    routes1.append(route)
+
         count += 1
 
     # creating the link
     l = VirtualLink(veth0, veth1)
 
     # moving virtual interface to containers.
-    c1 = containers[ mappings[veth0] ]
+    c1 = containers[ mappings[veth0.veth] ]
 
-    c2 = containers[ mappings[veth1] ]
+    c2 = containers[ mappings[veth1.veth] ]
 
     # setting ip addresses
     if not veth0_ip is None:
-        mappings_ip[veth0] = veth0_ip
+        mappings_ip[veth0.veth] = veth0_ip
         c1.config_link(veth0, veth0_ip)
+        c1.routes.extend(routes0)
+
 
     if not veth1_ip is None:
         mappings_ip[veth1] = veth1_ip
         c2.config_link(veth1, veth1_ip)
+        c2.routes.extend(routes1)
 
     return l
