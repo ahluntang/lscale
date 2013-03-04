@@ -30,9 +30,16 @@ def write_topology_xml(topology_root, output):
             cid_element      = SubElement(container_tree, 'id')
             cid_element.text = container_id
 
+            # adding template scripts
+            pre_element      = SubElement(container_tree, 'prerouting')
+            pre_element.text = container.preroutingscript
+            routing_element      = SubElement(container_tree, 'routing')
+            routing_element.text = container.routingscript
+            post_element      = SubElement(container_tree, 'postrouting')
+            post_element.text = container.postroutingscript
+
             # get interfaces
             for interface in container.interfaces:
-
                 # append to links
                 link_id = interface.link_id
                 interface.set_container(container.container_id)

@@ -188,8 +188,13 @@ def create_ring(host_id, component, containers_number = 5, addressing_scheme = N
         elif(i == containers_number - 1 ):
             last_container = container_id
 
-        c                           = Container(container_id)
-        containers[container_id]    = c
+        c = Container(container_id)
+
+        c.preroutingscript  = "ring_pre_routing.sh"
+        c.routingscript     = "ring_routing.sh"
+        c.postroutingscript = "ring_post_routing.sh"
+
+        containers[container_id] = c
 
         logging.getLogger(__name__).info("Created container %s in %s", container_id, host_id)
 

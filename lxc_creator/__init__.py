@@ -10,7 +10,7 @@ import argparse
 
 import parse_topology
 import interaction
-
+from jinja2 import Environment, FileSystemLoader
 
 def set_logging(logging_level):
     """ set logging options.
@@ -77,12 +77,14 @@ def main():
         logging.getLogger( __name__ ).exception( "Could not parse arguments." )
         raise e
 
+    template_environment = Environment(loader=FileSystemLoader('templates'))
+
     filename = args['file']
     host_id  = args['id']
 
     parsed_topology = {}
 
-    parse_topology.parse(filename, parsed_topology, host_id)
+    parse_topology.parse(filename, template_environment, parsed_topology, host_id)
     interaction.interact(parsed_topology, host_id)
 
 

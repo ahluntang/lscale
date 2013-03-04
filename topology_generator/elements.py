@@ -15,6 +15,9 @@ class Container(object):
         self.interface_number   = 0
         self.interfaces         = []
         self.bridges            = []
+        self.preroutingscript   = None
+        self.routingscript      = None
+        self.postroutingscript  = None
 
     def add_interface(self, interface):
         self.interfaces.append(interface)

@@ -4,7 +4,7 @@
 import sys
 import logging
 import pexpect
-from subprocess import PIPE
+from jinja2 import Environment
 
 # list of objects that might need cleanup
 cleanup_containers = []
@@ -28,6 +28,13 @@ class Container( object ):
         self.is_host -- boolean whether this object represents a host (in init space) or container
         self.shell -- holds the pexpect shell object for this instance
         self.pid -- pid of the container (can also be accessed through self.shell.pid)
+        self.preroutingscript --  pre routing script for template
+        self.routingscript -- routing script for template
+        self.postroutingscript -- post routing script for template
+        self.prerouting -- template dictionary variable for pre routing script
+        self.routing -- template dictionary variable for routing script
+        self.postrouting -- template dictionary variable for post routing script
+        self.interfaces -- used for routing
     """
 
     def __init__(self, container_id, is_host= False) :
@@ -60,6 +67,15 @@ class Container( object ):
         prompt = "export PS1='%s> '" % container_id
         self.shell.sendline( prompt )
 
+        #setting instance variables
+        self.preroutingscript  = None
+        self.routingscript     = None
+        self.postroutingscript = None
+        self.prerouting        = { 'container_id' : self.container_id }
+        self.routing           = { 'container_id' : self.container_id }
+        self.postrouting       = { 'container_id' : self.container_id }
+        self.interfaces        = 0
+
         logger = logging.getLogger( __name__ )
         logger.info( "Created container %8s with pid %8s", container_id, self.pid )
 
@@ -81,12 +97,47 @@ class Container( object ):
         return True
 
     def config_link(self, endpoint, address) :
-        cmd = "ifconfig %s %s up" % (endpoint, address)
-        print "Configuring link %8s in container %8s: %s " % (endpoint, self.container_id, cmd)
-        self.shell.sendline( cmd )
+        temp_if     = "if%s" % self.interfaces
+        var_address = "%s_address" % temp_if
 
-        logger = logging.getLogger( __name__ )
-        logger.info( "Link configured %8s in container %8s", endpoint, self.container_id )
+        # setting routing template variables
+        self.routing[var_address] = address
+        self.routing[temp_if]     = endpoint
+
+        self.interfaces += 1
+
+    def pre_routing(self, template_environment):
+        if self.preroutingscript is not None:
+            logging.getLogger( __name__ ).info("Running prerouting script for %s", self.container_id)
+
+            template = template_environment.get_template(self.preroutingscript)
+            cmd = template.render(self.prerouting)
+            self.shell.sendline( cmd )
+        else:
+            logging.getLogger( __name__ ).info("No prerouting script defined for %s", self.container_id)
+
+
+    def routing(self, template_environment):
+        if self.routingscript is not None:
+            logging.getLogger( __name__ ).info("Running routing script for %s", self.container_id)
+
+            template = template_environment.get_template(self.routingscript)
+            cmd = template.render(self.routing)
+            self.shell.sendline( cmd )
+        else:
+            logging.getLogger( __name__ ).info("No routing script defined for %s", self.container_id)
+
+
+    def postrouting(self, template_environment):
+        if self.postroutingscript is not None:
+            logging.getLogger( __name__ ).info("Running postrouting script for %s", self.container_id)
+
+            template = template_environment.get_template(self.postroutingscript)
+            cmd = template.render(self.postrouting)
+            self.shell.sendline( cmd )
+        else:
+            logging.getLogger( __name__ ).info("No postrouting script defined for %s", self.container_id)
+
 
 
 class Bridge( object ) :
