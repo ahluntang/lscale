@@ -149,7 +149,7 @@ def parse_link(link, mappings, mappings_ip, containers):
 
 
         if(count == 1):
-            veth0 = VirtualLink(vinterface_id)
+            veth0 = VirtualInterface(vinterface_id)
             if not address is None:
                 veth0_ip = address.text
                 veth0.address = veth0_ip
@@ -159,7 +159,7 @@ def parse_link(link, mappings, mappings_ip, containers):
                     routes0.append(route)
 
         else:
-            veth1 = VirtualLink(vinterface_id)
+            veth1 = VirtualInterface(vinterface_id)
             if not address is None:
                 veth1_ip = address.text
                 veth1.address = address.text
