@@ -243,7 +243,7 @@ class VirtualLink( object ) :
         Arguments are the identification of the virtual interfaces veth0 and veth1
         """
 
-        print "Creating virtual link %8s - %8s" % (veth0, veth1)
+        print "Creating virtual link %8s - %8s" % (veth0.veth, veth1.veth)
         self.veth0 = veth0
         self.veth1 = veth1
 
@@ -253,12 +253,12 @@ class VirtualLink( object ) :
         self.shell = pexpect.spawn( "/bin/bash" )
 
         # create the link
-        create_link_cmd = "ip link add name %s type veth peer name  %s" % (self.veth0, self.veth1)
+        create_link_cmd = "ip link add name %s type veth peer name  %s" % (self.veth0.veth, self.veth1.veth)
         self.shell.sendline( create_link_cmd )
         # set virtual interfaces from link to up
-        cmd = "ifconfig %s up" % self.veth0
+        cmd = "ifconfig %s up" % self.veth0.veth
         self.shell.sendline( cmd )
-        cmd = "ifconfig %s up" % self.veth1
+        cmd = "ifconfig %s up" % self.veth1.veth
         self.shell.sendline( cmd )
 
         self.veth0.shell = self.shell
@@ -280,9 +280,9 @@ class VirtualLink( object ) :
 
         try :
             cmd = "ip link del %s\n" % self.veth0.veth
-            self.veth0shell.write( cmd )
+            self.veth0.shell.write( cmd )
             cmd = "ip link del %s\n" % self.veth1.veth
-            self.veth1shell.write( cmd )
+            self.veth1.shell.write( cmd )
             sys.stdout.write( "." )
             sys.stdout.flush( )
         except Exception, e :
