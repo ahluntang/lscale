@@ -55,15 +55,15 @@ def parse_host(template_environment, host, host_id):
 
         move_vinterfaces(configured_host)
 
-        for container in containers:
+        for container_id, container in containers.items():
             #run pre routing script
             container.pre_routing(template_environment)
 
-        for container in containers :
+        for container_id, container in containers.items() :
             #run routing script
             container.routing(template_environment)
 
-        for container in containers :
+        for container_id, container in containers.items() :
             #run post routing script
             container.post_routing(template_environment)
 
