@@ -96,13 +96,13 @@ class Container( object ):
             pass
         return True
 
-    def config_link(self, endpoint, address) :
+    def config_link(self, virtualinterface) :
         temp_if     = "if%s" % self.interfaces
         var_address = "%s_address" % temp_if
 
         # setting routing template variables
-        self.routing[var_address] = address
-        self.routing[temp_if]     = endpoint
+        self.routing[var_address] = virtualinterface.address
+        self.routing[temp_if]     = virtualinterface.veth
 
         self.interfaces += 1
 
