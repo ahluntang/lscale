@@ -24,10 +24,10 @@ class Container( object ):
     networking namespace in the kernel.
 
     Instance variables:
-        self.container_id : identification for container
-        self.is_host : boolean whether this object represents a host (in init space) or container
-        self.shell : holds the pexpect shell object for this instance
-        self.pid : pid of the container (can also be accessed through self.shell.pid)
+        self.container_id -- identification for container
+        self.is_host -- boolean whether this object represents a host (in init space) or container
+        self.shell -- holds the pexpect shell object for this instance
+        self.pid -- pid of the container (can also be accessed through self.shell.pid)
     """
 
     def __init__(self, container_id, is_host= False) :
@@ -95,10 +95,10 @@ class Bridge( object ) :
     Instances of this class represent a bridge on the system.
 
     Instance variables:
-        self.bridge_id: identification for bridge
-        self.address: ip address for bridge
-        self.interfaces: list of interfaces for bridge
-        self.shell: holds the pexpect shell object for this instance
+        self.bridge_id -- identification for bridge
+        self.address -- ip address for bridge
+        self.interfaces -- list of interfaces for bridge
+        self.shell -- holds the pexpect shell object for this instance
     """
 
     def __init__(self, bridge_id, address = '0.0.0.0') :
@@ -173,12 +173,12 @@ class VirtualLink( object ) :
     Instances of this class represent virtual links on the system.
 
     Instance variables:
-        self.veth0: first endpoint of the virtual link
-        self.veth1: second endpoint of the virtual link
-        self.shell: holds the pexpect shell object for this instance
-        self.veth0shell: holds the pexpect shell object for the first endpoint of the virtual link.
+        self.veth0 -- first endpoint of the virtual link
+        self.veth1 -- second endpoint of the virtual link
+        self.shell -- holds the pexpect shell object for this instance
+        self.veth0shell -- holds the pexpect shell object for the first endpoint of the virtual link.
             Changes when interface is moved to a different network namespace
-        self.veth1shell: holds the pexpect shell object for the first endpoint of the virtual link.
+        self.veth1shell -- holds the pexpect shell object for the first endpoint of the virtual link.
             Changes when interface is moved to a different network namespace
     """
 
