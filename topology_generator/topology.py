@@ -56,7 +56,7 @@ def add_host(topology_root):
     return host_id
 
     
-def connect_components(comp1, comp2):
+def connect_components(comp1, comp2, addressing_scheme = None):
 
     """ Connects two components together.
 
@@ -67,13 +67,13 @@ def connect_components(comp1, comp2):
     :param comp2: second component
     """
     if( comp1.type == "bridge" and comp2.type == "bridge" ):
-        connect_bridges(comp1,comp2)
+        connect_bridges(comp1,comp2, addressing_scheme)
     elif( comp1.type == "bridge" and comp2.type == "ring" ):
-        connect_ring_bridge(comp2,comp1)
+        connect_ring_bridge(comp2,comp1, addressing_scheme)
     elif( comp1.type == "ring" and comp2.type == "bridge" ):
-        connect_ring_bridge(comp1,comp2)
+        connect_ring_bridge(comp1,comp2, addressing_scheme)
 
-def connect_ring_bridge(ring_component, bridge_component):
+def connect_ring_bridge(ring_component, bridge_component, addressing_scheme = None):
     """ Connects a ring to a bridge.
 
     :param ring_component: ring component that will be connected to the bridge. Needs at least two free interfaces
@@ -86,6 +86,9 @@ def connect_ring_bridge(ring_component, bridge_component):
     # create new interface for container in ring
     ring_interface_id = "%s.%03d" % (ring_container.container_id , ring_container.get_next_interface() )
     ring_interface = NetworkInterface( ring_interface_id, link_id )
+    if addressing_scheme is not None:
+        ip = addressing_scheme['bridge_links'].pop()
+        ring_interface.address = "%s/%s" % (ip, addressing_scheme['bridge_prefix'])
 
     # get bridge and interface for bridge
     br = bridge_component.connection_points[0]
@@ -95,11 +98,11 @@ def connect_ring_bridge(ring_component, bridge_component):
 
     print "link %s has %s and %s" % (link_id, ring_interface.interface_id, bridge_interface.interface_id)
 
-    br.add_interface(ring_interface)
-    ring_container.add_interface(bridge_interface)
+    br.add_interface(bridge_interface)
+    ring_container.add_interface(ring_interface)
     
 
-def connect_bridges(bridge1_component, bridge2_component):
+def connect_bridges(bridge1_component, bridge2_component, addressing_scheme = None):
     """ Connects two bridges together
 
     :param bridge1_component: bridge component. Method adds new interface to this bridge.

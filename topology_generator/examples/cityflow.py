@@ -73,7 +73,7 @@ def pre_aggregation_rings(host_id, components, hosts_per_ring, rings) :
     components[br2_component.component_id] = br2_component
 
     # create link between bridges
-    topology.connect_components( br1_component, br2_component )
+    topology.connect_components( br1_component, br2_component, addressing_scheme )
 
     for i in range( 0, rings ) :
         # create ring and add it to bridges
@@ -87,7 +87,7 @@ def pre_aggregation_ring(host_id, components, br1_component, br2_component, host
     components[ring_component.component_id] = ring_component
 
     # add ring to first bridge
-    topology.connect_components( ring_component, br1_component )
+    topology.connect_components( ring_component, br1_component, addressing_scheme )
 
     # add ring to second bridge
-    topology.connect_components( ring_component, br2_component )
+    topology.connect_components( ring_component, br2_component, addressing_scheme )

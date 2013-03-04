@@ -144,7 +144,10 @@ class IPComponent(object) :
                 network = network.next( )
 
             addressing_scheme['bridge_prefix'] = bridge_prefix
-            addressing_scheme['bridge_links'] = network
+            #addressing_scheme['bridge_links'] = network
+            addressing_scheme['bridge_links']  = []
+            for ip in network.iter_hosts():
+                addressing_scheme['bridge_links'].append(ip)
 
         # set first address of next network as new networkaddress in instance
         network = network.next( )
