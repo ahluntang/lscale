@@ -236,7 +236,7 @@ class VirtualLink( object ) :
         return True
 
     def setns(self, veth, container) :
-        if (not container.host) :
+        if (not container.is_host) :
             cmd = "ip link set %s netns %s" % (veth, container.pid)
             print "Moving interface %8s to %8s: %s" % (veth, container.container_id, cmd)
             self.shell.sendline( cmd )
