@@ -274,7 +274,7 @@ def create_ring(host_id, component, containers_number = 5, addressing_scheme = N
                 container.interfaces[0].routes.extend(if1_routes)
 
             # if there is no second interface, it is the last in a open ring
-            if len(container.interfaces) > 1 :
+            if i > 0 and len(container.interfaces) > 1 :
                 container.interfaces[1].routes.extend(if2_routes)
 
             if(i < containers_number/2 ):

@@ -167,7 +167,7 @@ class IPComponent(object) :
         else:
             host_links = (hosts_per_ring - 1) * rings
 
-        host_prefix = 30 # prefix between hosts is always 30
+        host_prefix = 30 # prefix between hosts on ring is always 30
 
         addressing_scheme['host_prefix'] = host_prefix
         addressing_scheme['host_links'] = []
@@ -181,6 +181,24 @@ class IPComponent(object) :
             # set first address of next network as new networkaddress in instance
             network = network.next()
             self.address = network[0]
+
+        #for ring in range(0,rings):
+        #    ring_id  = "ring%s" % ring
+        #    addressing_scheme[ring_id] = {}
+        #    addressing_scheme[ring_id]['host_links'] = []
+        #    ip_list = []
+        #
+        #    for host in range(0,hosts_per_ring):
+        #        network = netaddr.IPNetwork( self.address )
+        #        network.prefixlen = host_prefix
+        #        addressing_scheme[ring_id]['host_links'].append(network)
+        #        ip_list.append(network)
+        #        # set first address of next network as new networkaddress in instance
+        #        network = network.next()
+        #        self.address = network[0]
+        #    summary = netaddr.cidr_merge(ip_list)
+        #    addressing_scheme[ring_id]['summary'] = summary
+
 
         return addressing_scheme
 
