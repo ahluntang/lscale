@@ -10,6 +10,7 @@ import argparse
 
 import parse_topology
 import interaction
+import lxc_elements
 from jinja2 import Environment, FileSystemLoader
 
 def set_logging(logging_level):
@@ -86,7 +87,7 @@ def main():
 
     parse_topology.parse(filename, template_environment, parsed_topology, host_id)
     interaction.interact(parsed_topology, host_id)
-
+    lxc_elements.cleanup()
 
     return 0
 
@@ -101,4 +102,5 @@ if __name__ == "__main__":
         logger = logging.getLogger(__name__)
         logger.exception(str(e))
         traceback.print_exc()
+        lxc_elements.cleanup()
         os._exit(1) 
