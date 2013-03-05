@@ -72,7 +72,8 @@ class Container( object ):
         self.routingscript     = None
         self.postroutingscript = None
         self.prerouting        = { 'container_id' : self.container_id }
-        self.routing           = { 'container_id' : self.container_id, 'routes': list }
+        self.routing           = { 'container_id' : self.container_id }
+        self.routing['routes'] = []
         self.postrouting       = { 'container_id' : self.container_id }
         self.interfaces        = 0
 
