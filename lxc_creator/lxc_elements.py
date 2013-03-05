@@ -292,20 +292,20 @@ class VirtualLink( object ) :
 
     def setns(self, veth, container) :
         if (not container.is_host) :
-            cmd = "ip link set %s netns %s" % (veth.veth, container.pid)
-            print "Moving interface %8s to %8s: %s" % (veth.veth, container.container_id, cmd)
+            cmd = "ip link set %s netns %s" % (veth, container.pid)
+            print "Moving interface %8s to %8s: %s" % (veth, container.container_id, cmd)
             self.shell.sendline( cmd )
 
             logger = logging.getLogger( __name__ )
-            logger.info( "Virtual interface %8s moved to %8s", veth.veth, container.container_id )
+            logger.info( "Virtual interface %8s moved to %8s", veth, container.container_id )
 
-            if (veth.veth == self.veth0.veth) :
+            if (veth == self.veth0.veth) :
                 self.veth0.shell = container.shell
-            elif (veth.veth == self.veth1.veth) :
+            elif (veth == self.veth1.veth) :
                 self.veth1.shell = container.shell
             else :
                 logger = logging.getLogger( __name__ )
-                logger.warn( "Apparently %8s does not belong to virtual link %8s-%8s", veth.veth, self.veth0.veth, self.veth1.veth )
+                logger.warn( "Apparently %8s does not belong to virtual link %8s-%8s", veth, self.veth0.veth, self.veth1.veth )
 
 
 # TODO: extract veth0 and veth1 from VirtualLink to an interface object
