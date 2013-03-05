@@ -321,8 +321,8 @@ class VirtualInterface(object):
 
 class Route(object):
 
-    def __init__(self, address, device):
-        self.dev = device
+    def __init__(self, address, interface):
+        self.interface = interface
         self.address = address
 
 ###############
