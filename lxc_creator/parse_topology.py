@@ -37,8 +37,8 @@ def parse_host(template_environment, host, host_id):
         for link in host.findall('links/link'):
             l = parse_link(link, mappings, mappings_ip, containers)
             #link_id = "%s-%s" % (l.veth0, l.veth1)
-            links[ l.veth0 ] = l
-            links[ l.veth1 ] = l
+            links[ l.veth0.veth ] = l
+            links[ l.veth1.veth ] = l
 
         for bridge in host.findall('bridges/bridge'):
             b = parse_bridge(bridge)
