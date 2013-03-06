@@ -2,9 +2,12 @@
 # -*- coding: utf-8 -*-
 
 
-import logging, netaddr
+import logging
 
-from elements import Container, Bridge, NetworkInterface, UsedResources
+import netaddr
+
+from elements import Container, Bridge, NetworkInterface
+from topology.exceptions import ComponentException
 
 
 def add_component_to_topology(topology_root, component):
@@ -66,12 +69,22 @@ def connect_components(comp1, comp2, addressing_scheme = None):
     :param comp1: first component
     :param comp2: second component
     """
-    if( comp1.type == "bridge" and comp2.type == "bridge" ):
-        connect_bridges(comp1,comp2, addressing_scheme)
-    elif( comp1.type == "bridge" and comp2.type == "ring" ):
-        connect_ring_bridge(comp2,comp1, addressing_scheme)
-    elif( comp1.type == "ring" and comp2.type == "bridge" ):
-        connect_ring_bridge(comp1,comp2, addressing_scheme)
+
+
+    try :
+
+
+        if( comp1.type == "bridge" and comp2.type == "bridge" ):
+            connect_bridges(comp1,comp2, addressing_scheme)
+        elif( comp1.type == "bridge" and comp2.type == "ring" ):
+            connect_ring_bridge(comp2,comp1, addressing_scheme)
+        elif( comp1.type == "ring" and comp2.type == "bridge" ):
+            connect_ring_bridge(comp1,comp2, addressing_scheme)
+
+
+    except Exception, e :
+        raise ComponentException(Exception, e)
+        pass
 
 def connect_ring_bridge(ring_component, bridge_component, addressing_scheme = None):
     """ Connects a ring to a bridge.

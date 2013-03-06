@@ -7,7 +7,7 @@ import time
 import logging
 import argparse
 
-import elements
+from topology import elements
 import topology_export
 
 from examples import cityflow

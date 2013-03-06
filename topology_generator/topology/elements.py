@@ -216,3 +216,4 @@ class IPComponent(object) :
             host_bits += 1
         networkbits = bits - host_bits
         return networkbits
+
