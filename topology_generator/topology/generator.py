@@ -58,7 +58,7 @@ def add_host(topology_root):
 
     return host_id
 
-    
+
 def connect_components(comp1, comp2, addressing_scheme = None):
 
     """ Connects two components together.
@@ -121,7 +121,7 @@ def connect_ring_bridge(ring_component, bridge_component, addressing_scheme = No
 
     br.add_interface(bridge_interface)
     ring_container.add_interface(ring_interface)
-    
+
 
 def connect_bridges(bridge1_component, bridge2_component, addressing_scheme = None):
     """ Connects two bridges together
@@ -180,7 +180,7 @@ def create_bridge(host_id, component):
     bridge.container_id = host_id
 
     component.topology['bridges'][bridge_id] = bridge
-    
+
     # bridges are added to the free interfaces list
     component.connection_points.append(bridge)
 
@@ -309,14 +309,15 @@ def create_star(host_id, component, containers_number = 5, addressing_scheme = N
         center.add_interface(center_interface)
 
 
-def create_ring(host_id, component, containers_number = 5, addressing_scheme = None, close_ring = False):
+def create_ring(host_id, component, containers_number = 5, addressing_scheme = None, is_line = True):
     """ Creates a ring component.
 
     :param host_id: id of the host where the ring should be added
     :param component: component where the ring should be created
     :param containers_number: number of containers the ring should create
     :param addressing_scheme: addressing scheme to use to set ip addresses of the interfaces.
-    :param close_ring: sets whether the ring should be closed or not (keep it open to connect it to a different network)
+    :param is_line: sets whether the ring should be closed or not
+        (acts as line if true, use it to connect the line endpoints to a different network)
     :return:
     """
     component.host_id = host_id
@@ -374,7 +375,7 @@ def create_ring(host_id, component, containers_number = 5, addressing_scheme = N
 
         previous_container_id = container_id
 
-    if close_ring:
+    if not is_line:
         # close the ring
         interface1_id   = "%s.%03d" % (first_container, containers[first_container].get_next_interface() )
         interface1      = NetworkInterface(interface1_id, link_id)
@@ -392,6 +393,7 @@ def create_ring(host_id, component, containers_number = 5, addressing_scheme = N
         containers[first_container].add_interface(interface1)
         containers[last_container].add_interface(interface2)
     else :
+        # acts as line, no need to close, append the endpoints to the connection_points
         component.connection_points.append(containers[first_container])
         component.connection_points.append(containers[last_container])
 
@@ -400,19 +402,16 @@ def create_ring(host_id, component, containers_number = 5, addressing_scheme = N
         for container_id, container in sorted(containers.items()):
             if(i > 2):
                 if1_routes = component.addresses[0:i-3]
+                container.interfaces[0].routes.extend(if1_routes)
 
 
             if (i < containers_number-1) :
                 if2_routes = component.addresses[i+2:containers_number]
                 del if2_routes[0]
+                # if there is no second interface, it is the last in a open ring
+                if i > 0 and len(container.interfaces) > 1 :
+                    container.interfaces[1].routes.extend(if2_routes)
 
-
-            if i > 2 :
-                container.interfaces[0].routes.extend(if1_routes)
-
-            # if there is no second interface, it is the last in a open ring
-            if i > 0 and len(container.interfaces) > 1 :
-                container.interfaces[1].routes.extend(if2_routes)
 
             if(i < containers_number/2 ):
                 container.gateway = container.interfaces[0].interface_id
@@ -420,5 +419,3 @@ def create_ring(host_id, component, containers_number = 5, addressing_scheme = N
                 container.gateway = container.interfaces[1].interface_id
 
             i += 2
-
-
