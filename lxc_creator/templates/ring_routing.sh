@@ -3,13 +3,13 @@
 
 echo "Running ring_routing script for container {{ container_id }}"
 
-echo "Setting ip address {{ if0_address }} for {{ if0 }}"
-ip address add {{ if0_address }} dev {{ if0 }}
-ip link set {{ if0 }} up
 
-echo "Setting ip address {{ if1_address }} for {{ if1 }}"
-ip address add {{ if1_address }} dev {{ if1 }}
-ip link set {{ if1 }} up
+ip link set lo up
+
+{% for address in addresses %}
+    ip address add {{ address.address }} dev {{ address.interface }}
+    ip link set {{ address.interface }} up
+{% endfor %}
 
 echo "Enabling routing"
 sysctl -w net.ipv4.ip_forward=1

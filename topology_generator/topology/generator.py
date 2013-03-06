@@ -185,8 +185,8 @@ def create_bridge(host_id, component):
     component.connection_points.append(bridge)
 
 
-def create_star(host_id, component, containers_number = 5, addressing_scheme = None):
-    """ Creates a star component
+def create_bus(host_id, component, containers_number = 5, addressing_scheme = None):
+    """ Creates a bus component
 
     :param host_id: id of the host where the star should be added
     :param component: component where the star should be created
@@ -194,9 +194,9 @@ def create_star(host_id, component, containers_number = 5, addressing_scheme = N
     :param addressing_scheme: addressing scheme to use to set ip addresses of the interfaces
     """
     component.host_id = host_id
-    component.type = "star"
+    component.type = "bus"
 
-    logging.getLogger(__name__).info("Creating star with %s containers.", containers_number)
+    logging.getLogger(__name__).info("Creating bus with %s containers.", containers_number)
 
     bridge_address = None
     prefix = None
@@ -227,9 +227,9 @@ def create_star(host_id, component, containers_number = 5, addressing_scheme = N
         container_id = "s%03d.%s" % (component.component_id, used_resources.get_new_container_id() )
         c = Container(container_id)
         containers[container_id ] = c
-        c.preroutingscript = "star_pre_routing.sh"
-        c.routingscript = "star_routing.sh"
-        c.postroutingscript = "star_post_routing.sh"
+        c.preroutingscript = "bus_pre_routing.sh"
+        c.routingscript = "bus_routing.sh"
+        c.postroutingscript = "bus_post_routing.sh"
 
         link_id = used_resources.get_new_link_id()
 
@@ -245,6 +245,68 @@ def create_star(host_id, component, containers_number = 5, addressing_scheme = N
 
         c.add_interface(container_interface)
         bridge.add_interface(bridge_interface)
+
+
+def create_star(host_id, component, containers_number = 5, addressing_scheme = None) :
+    """ Creates a star component
+
+    :param host_id: id of the host where the star should be added
+    :param component: component where the star should be created
+    :param containers_number: number of containers the star should create
+    :param addressing_scheme: addressing scheme to use to set ip addresses of the interfaces
+    """
+    component.host_id = host_id
+    component.type = "star"
+
+    logging.getLogger(__name__).info("Creating star with %s containers.", containers_number)
+
+    prefix = None
+
+    if addressing_scheme is not None :
+        prefix = addressing_scheme['host_prefix']
+
+
+    containers = component.topology['containers']
+
+    #create center container in as central point of the star
+    container_id = "s%03d.%s" % (component.component_id, used_resources.get_new_container_id() )
+    center = Container(container_id)
+    center.preroutingscript = "star_pre_routing.sh"
+    center.routingscript = "star_routing.sh"
+    center.postroutingscript = "star_post_routing.sh"
+    containers[container_id] = center
+
+    # make containers and link them to the new bridge
+    for i in range(2, containers_number + 2) :
+        if addressing_scheme is not None:
+            network = addressing_scheme['host_links'].pop()
+
+        container_id = "s%03d.%s" % (component.component_id, used_resources.get_new_container_id() )
+        c = Container(container_id)
+        containers[container_id] = c
+        c.preroutingscript = "star_pre_routing.sh"
+        c.routingscript = "star_routing.sh"
+        c.postroutingscript = "star_post_routing.sh"
+
+        link_id = used_resources.get_new_link_id()
+
+        container_interface_id = "%s.%03d" % (c.container_id, c.get_next_interface() )
+        container_interface = NetworkInterface(container_interface_id, link_id)
+        if addressing_scheme is not None :
+            address = "%s/%s" % (network[2], prefix)
+            container_interface.address = address
+            component.addresses.append(address)
+
+        center_interface_id = "%s.%03d" % (center.container_id, center.get_next_interface() )
+        center_interface = NetworkInterface(center_interface_id, link_id)
+        if addressing_scheme is not None :
+            address = "%s/%s" % (network[1], prefix)
+            center_interface.address = address
+            component.addresses.append(address)
+
+
+        c.add_interface(container_interface)
+        center.add_interface(center_interface)
 
 
 def create_ring(host_id, component, containers_number = 5, addressing_scheme = None, close_ring = False):

@@ -11,7 +11,8 @@ from topology import elements
 import topology_export
 
 from examples import cityflow
-from examples import starcity
+from examples import citybus
+from examples import citystar
 
 
 def set_logging(logging_level):
@@ -114,8 +115,10 @@ def main():
         # create an example topology: cityflow preaggregation phase.
         # see examples package for more info
         created_topology = cityflow.pre_aggregation(last_host_id, last_container_id, last_link_id, starting_address)
+    elif args['example'] == 'citybus':
+        created_topology = citybus.citybus(last_host_id, last_container_id, last_link_id, starting_address)
     else:
-        created_topology = starcity.starcity(last_host_id, last_container_id, last_link_id, starting_address)
+        created_topology = citystar.citystar(last_host_id, last_container_id, last_link_id, starting_address)
     # export topology to xml file
     topology_export.write_topology_xml(created_topology, filename)
 

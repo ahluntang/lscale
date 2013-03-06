@@ -130,10 +130,54 @@ class IPComponent(object) :
         self.address -= 1
 
 
-    def addressing_for_star_component(self, hosts = 5):
+    def addressing_for_bus_component(self, hosts = 5):
         addressing_scheme = { }
 
         host_prefix = self.calculate_prefix(hosts)
+
+        addressing_scheme['host_prefix'] = host_prefix
+        addressing_scheme['host_links'] = []
+
+        network = netaddr.IPNetwork(self.address)
+        network.prefixlen = host_prefix
+        while network.network <= self.address :
+            network = network.next()
+        addressing_scheme['host_links'].append(network)
+
+        network = network.next()
+        self.address = network[0]
+
+        return addressing_scheme
+
+
+    def addressing_for_star_component(self, hosts = 5) :
+        addressing_scheme = {}
+
+
+        host_prefix = 30
+
+        addressing_scheme['host_prefix'] = host_prefix
+        addressing_scheme['host_links'] = []
+
+        network = netaddr.IPNetwork(self.address)
+        network.prefixlen = host_prefix
+        while network.network <= self.address :
+            network = network.next()
+        addressing_scheme['host_links'].append(network)
+        for i in range(1, hosts ):
+            network = network.next()
+            addressing_scheme['host_links'].append(network)
+
+        network = network.next()
+        self.address = network[0]
+
+        return addressing_scheme
+
+    def addressing_for_mesh_component(self, hosts = 5):
+        addressing_scheme = { }
+
+        amount_of_ips = hosts * (hosts-1)
+        host_prefix = self.calculate_prefix(amount_of_ips)
 
         addressing_scheme['host_prefix'] = host_prefix
         addressing_scheme['host_links'] = []

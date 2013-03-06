@@ -70,14 +70,14 @@ class Container( object ):
         self.shell.sendline( prompt )
 
         #setting instance variables
-        self.preroutingscript  = None
-        self.routingscript     = None
-        self.postroutingscript = None
-        self.prerouting        = { 'container_id' : self.container_id }
-        self.routing           = { 'container_id' : self.container_id }
-        self.routing['routes'] = []
-        self.postrouting       = { 'container_id' : self.container_id }
-        self.interfaces        = 0
+        self.preroutingscript     = None
+        self.routingscript        = None
+        self.postroutingscript    = None
+        self.prerouting           = { 'container_id' : self.container_id }
+        self.routing              = { 'container_id' : self.container_id }
+        self.routing['routes']    = []
+        self.routing['addresses'] = []
+        self.postrouting          = { 'container_id' : self.container_id }
 
         logger = logging.getLogger( __name__ )
         logger.info( "Created container %8s with pid %8s", container_id, self.pid )
@@ -100,14 +100,9 @@ class Container( object ):
         return True
 
     def config_link(self, virtualinterface) :
-        temp_if     = "if%s" % self.interfaces
-        var_address = "%s_address" % temp_if
+        address = Route(virtualinterface.address, virtualinterface.veth)
+        self.routing['addresses'].append(address)
 
-        # setting routing template variables
-        self.routing[var_address] = virtualinterface.address
-        self.routing[temp_if]     = virtualinterface.veth
-
-        self.interfaces += 1
 
 
     def run_pre_routing(self, template_environment):

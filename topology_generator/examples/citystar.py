@@ -5,7 +5,7 @@ from topology.elements import NetworkComponent, IPComponent, UsedResources
 
 from topology import generator
 
-def starcity(last_host_id, last_container_id, last_link_id, starting_address) :
+def citystar(last_host_id, last_container_id, last_link_id, starting_address) :
     addressing = IPComponent(starting_address)
 
 
@@ -25,7 +25,7 @@ def starcity(last_host_id, last_container_id, last_link_id, starting_address) :
     addressing = generator.get_resources().addressing
     addressing_scheme = addressing.addressing_for_star_component(5)
 
-    # create a star component in host
+    # create a bus component in host
     star_component = NetworkComponent()
     generator.create_star(host1_id, star_component, 5, addressing_scheme)
     components[star_component.component_id] = star_component
@@ -36,3 +36,4 @@ def starcity(last_host_id, last_container_id, last_link_id, starting_address) :
         generator.add_component_to_topology(topology_root, component)
 
     return topology_root
+
