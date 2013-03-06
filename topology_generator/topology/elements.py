@@ -129,6 +129,27 @@ class IPComponent(object) :
         self.address = netaddr.IPAddress( address )
         self.address -= 1
 
+
+    def addressing_for_star_component(self, hosts = 5):
+        addressing_scheme = { }
+
+        host_prefix = self.calculate_prefix(hosts)
+
+        addressing_scheme['host_prefix'] = host_prefix
+        addressing_scheme['host_links'] = []
+
+        network = netaddr.IPNetwork(self.address)
+        network.prefixlen = host_prefix
+        while network.network <= self.address :
+            network = network.next()
+        addressing_scheme['host_links'].append(network)
+
+        network = network.next()
+        self.address = network[0]
+
+        return addressing_scheme
+
+
     def addressing_for_ring_component(self, hosts_per_ring = 5, rings = 5, close_ring = False) :
         """ Creates addressing scheme for a ring component.
 
@@ -158,7 +179,7 @@ class IPComponent(object) :
                 addressing_scheme['bridge_links'].append(ip)
 
         # set first address of next network as new networkaddress in instance
-        network = network.next( )
+        network = network.next()
         self.address = network[0]
 
         # links between hosts on rings:

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys, signal, fcntl, termios, struct
+import traceback
 
 class bcolors:
     HEADER = '\033[95m'
@@ -37,14 +38,16 @@ def interact(configured_hosts, host_id) :
 
                 signal.signal( signal.SIGWINCH, sigwinch_passthrough )
 
-                interact_message = "Interacting with %s. Type %s (%s) to escape." % (
-                    shell.container_id, escape_char, escape_char__ASCII )
+                interact_message = "Interacting with %s. Type %s (%s) to escape." % ( shell.container_id, escape_char, escape_char__ASCII )
                 print interact_message
                 print interact_warning
 
                 shell.shell.interact( chr( 29 ) )
+                print "Exited shell."
             except Exception, e :
                 print "Error! Are you using the correct container?"
+                print str(e)
+                traceback.print_exc()
         else :
             return 0
 

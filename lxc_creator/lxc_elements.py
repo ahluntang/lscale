@@ -47,6 +47,8 @@ class Container( object ):
         print "Creating container %8s" % container_id,
         self.container_id = container_id
         self.is_host = is_host
+        self.loglocation = "logs/output/%s.log" % container_id
+        self.logfile = file(self.loglocation,'w')
 
         # containers must be cleaned after class destruction
         cleanup_containers.append( self )
@@ -57,7 +59,7 @@ class Container( object ):
             cmd = "unshare --net /bin/bash"
 
         # create the shell
-        self.shell = pexpect.spawn( cmd )
+        self.shell = pexpect.spawn( cmd, logfile=self.logfile )
 
         # get pid of container
         self.pid = self.shell.pid
@@ -309,7 +311,7 @@ class VirtualLink( object ) :
                 logger.warn( "Apparently %8s does not belong to virtual link %8s-%8s", veth, self.veth0.veth, self.veth1.veth )
 
 
-# TODO: extract veth0 and veth1 from VirtualLink to an interface object
+
 class VirtualInterface(object):
 
     def __init__(self, veth):
