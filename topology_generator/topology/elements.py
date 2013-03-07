@@ -207,7 +207,7 @@ class IPComponent(object) :
         addressing_scheme = { }
         if not close_ring:
             # get subnet for bridge: 2*rings network addresses needed
-            bridge_links = 2 * rings
+            bridge_links = 4 * rings
             bridge_prefix = self.calculate_prefix( bridge_links )
             network = netaddr.IPNetwork( self.address )
             network.prefixlen = bridge_prefix
@@ -246,7 +246,7 @@ class IPComponent(object) :
             # set first address of next network as new networkaddress in instance
             network = network.next()
             self.address = network[0]
-
+        print "bridge ips: %s" % len(addressing_scheme['bridge_links'])
         #for ring in range(0,rings):
         #    ring_id  = "ring%s" % ring
         #    addressing_scheme[ring_id] = {}

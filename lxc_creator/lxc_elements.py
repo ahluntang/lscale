@@ -4,6 +4,7 @@
 import sys
 import logging
 import pexpect
+import os
 from jinja2 import Environment
 
 # list of objects that might need cleanup
@@ -47,7 +48,12 @@ class Container( object ):
         print "Creating container %8s" % container_id,
         self.container_id = container_id
         self.is_host = is_host
-        self.loglocation = "logs/output/%s.log" % container_id
+
+        logdir = "logs/output"
+        if not os.path.exists(logdir) :
+            os.makedirs(logdir)
+
+        self.loglocation = "%s/%s.log" % (logdir, container_id)
         self.logfile = file(self.loglocation,'w')
 
         # containers must be cleaned after class destruction
@@ -320,7 +326,9 @@ class Route(object):
 
     def __init__(self, address, interface):
         self.interface = interface
-        self.address = address
+        self.address   = address
+        self.netmask   = None
+        self.via       = None
 
 ###############
 ## FUNCTIONS ##

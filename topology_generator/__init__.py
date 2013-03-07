@@ -7,12 +7,9 @@ import time
 import logging
 import argparse
 
-from topology import elements
-import topology_export
+from topology import elements, exporter
 
-from examples import cityflow
-from examples import citybus
-from examples import citystar
+from examples import *
 
 
 def set_logging(logging_level):
@@ -61,7 +58,7 @@ def set_logging(logging_level):
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Topology Generator.')
     parser.add_argument('-f', '--file', default='topology.xml', help='output file to write to.', required=False)
-    parser.add_argument('-e', '--example', default='cityflow', help='example to create topology for', required=False)
+    parser.add_argument('-e', '--example', default='cityring', help='example to create topology for', required=False)
     return vars(parser.parse_args())
 
 
@@ -114,13 +111,15 @@ def main():
     if args['example'] == 'cityflow':
         # create an example topology: cityflow preaggregation phase.
         # see examples package for more info
-        created_topology = cityflow.pre_aggregation(last_host_id, last_container_id, last_link_id, starting_address)
+        created_topology = cityflow.create(last_host_id, last_container_id, last_link_id, starting_address)
     elif args['example'] == 'citybus':
-        created_topology = citybus.citybus(last_host_id, last_container_id, last_link_id, starting_address)
+        created_topology = citybus.create(last_host_id, last_container_id, last_link_id, starting_address)
+    elif args['example'] == 'citystar':
+        created_topology = citystar.create(last_host_id, last_container_id, last_link_id, starting_address)
     else:
-        created_topology = citystar.citystar(last_host_id, last_container_id, last_link_id, starting_address)
+        created_topology = cityring.create(last_host_id, last_container_id, last_link_id, starting_address)
     # export topology to xml file
-    topology_export.write_topology_xml(created_topology, filename)
+    exporter.write_topology_xml(created_topology, filename)
 
     return 0
 

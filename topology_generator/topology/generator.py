@@ -7,8 +7,7 @@ import logging
 import netaddr
 
 from elements import Container, Bridge, NetworkInterface
-from topology.exceptions import ComponentException
-
+import topology.exceptions as exceptions
 
 def add_component_to_topology(topology_root, component):
     """ Adds component to main topology
@@ -69,22 +68,13 @@ def connect_components(comp1, comp2, addressing_scheme = None):
     :param comp1: first component
     :param comp2: second component
     """
+    if( comp1.type == "bridge" and comp2.type == "bridge" ):
+        connect_bridges(comp1,comp2, addressing_scheme)
+    elif( comp1.type == "bridge" and comp2.type == "ring" ):
+        connect_ring_bridge(comp2,comp1, addressing_scheme)
+    elif( comp1.type == "ring" and comp2.type == "bridge" ):
+        connect_ring_bridge(comp1,comp2, addressing_scheme)
 
-
-    try :
-
-
-        if( comp1.type == "bridge" and comp2.type == "bridge" ):
-            connect_bridges(comp1,comp2, addressing_scheme)
-        elif( comp1.type == "bridge" and comp2.type == "ring" ):
-            connect_ring_bridge(comp2,comp1, addressing_scheme)
-        elif( comp1.type == "ring" and comp2.type == "bridge" ):
-            connect_ring_bridge(comp1,comp2, addressing_scheme)
-
-
-    except Exception, e :
-        raise ComponentException(Exception, e)
-        pass
 
 def connect_ring_bridge(ring_component, bridge_component, addressing_scheme = None):
     """ Connects a ring to a bridge.
@@ -327,71 +317,83 @@ def create_ring(host_id, component, containers_number = 5, addressing_scheme = N
 
 
     containers = component.topology['containers']
+
+    # keep a reference to the first and last container.
     first_container = None
     last_container = None
-    # creating all containers
+
+    # create all containers
     for i in range(0, containers_number):
-        container_id    = "r%03d.%s" % (component.component_id, used_resources.get_new_container_id() )
+        # get id for current container
+        cur_container_id    = "r%03d.%s" % (component.component_id, used_resources.get_new_container_id() )
+
+        # keep a reference to the first and last container.
         if (i == 0):
-            first_container = container_id
+            first_container = cur_container_id
         elif(i == containers_number - 1 ):
-            last_container = container_id
+            last_container = cur_container_id
 
-        c = Container(container_id)
+        cur_container = Container(cur_container_id)
 
-        c.preroutingscript  = "ring_pre_routing.sh"
-        c.routingscript     = "ring_routing.sh"
-        c.postroutingscript = "ring_post_routing.sh"
+        cur_container.preroutingscript  = "ring_pre_routing.sh"
+        cur_container.routingscript     = "ring_routing.sh"
+        cur_container.postroutingscript = "ring_post_routing.sh"
 
-        containers[container_id] = c
+        containers[cur_container_id] = cur_container
 
-        logging.getLogger(__name__).info("Created container %s in %s", container_id, host_id)
+        logging.getLogger(__name__).info("Created container %s in %s", cur_container_id, host_id)
 
         # create links between the containers
+        # each link has two interfaces
         if (i > 0):
-            c2              = containers[ previous_container_id ]
+            prev_container  = containers[ previous_container_id ]
             link_id         = used_resources.get_new_link_id()
 
-            interface1_id   = "%s.%03d" % (previous_container_id, c2.get_next_interface() )
-            interface1      = NetworkInterface(interface1_id, link_id)
+            interface_prev_id = "%s.%03d" % (previous_container_id, prev_container.get_next_interface() )
+            interface_prev    = NetworkInterface(interface_prev_id, link_id)
 
-            interface2_id   = "%s.%03d" % (container_id, c.get_next_interface() )
-            interface2      = NetworkInterface(interface2_id, link_id)
+            interface_cur_id  = "%s.%03d" % (cur_container_id, cur_container.get_next_interface() )
+            interface_cur     = NetworkInterface(interface_cur_id, link_id)
 
             if addressing_scheme is not None:
-                network = addressing_scheme['host_links'].pop()
-                if1_ip = "%s/%s" % (network[1], network.prefixlen)
-                if2_ip = "%s/%s" % (network[2], network.prefixlen)
-                interface1.address = if1_ip
-                interface2.address = if2_ip
-                component.addresses.append(if1_ip)
-                component.addresses.append(if2_ip)
+                try:
+                    network = addressing_scheme['host_links'].pop()
+                    if1_ip = "%s/%s" % (network[1], network.prefixlen)
+                    if2_ip = "%s/%s" % (network[2], network.prefixlen)
+                    interface_prev.address = if1_ip
+                    interface_cur.address = if2_ip
+
+                    # also add addresses to list in component
+                    component.addresses.append(if1_ip)
+                    component.addresses.append(if2_ip)
+                except Exception, e:
+                    raise exceptions.IPComponentException(Exception,e)
 
             # adding interfaces to the previous and this container
-            c2.add_interface(interface1)
-            c.add_interface(interface2)
+            prev_container.add_interface(interface_prev)
+            cur_container.add_interface(interface_cur)
 
-            logging.getLogger(__name__).info("Created link %s. Connections: %s->%s and %s->%s ", link_id, interface1.interface_id, c2.container_id, interface2.interface_id, c.container_id)
+            logging.getLogger(__name__).info("Created link %s. Connections: %s->%s and %s->%s ", link_id, interface_prev.interface_id, prev_container.container_id, interface_cur.interface_id, cur_container.container_id)
 
-        previous_container_id = container_id
+        previous_container_id = cur_container_id
 
     if not is_line:
-        # close the ring
-        interface1_id   = "%s.%03d" % (first_container, containers[first_container].get_next_interface() )
-        interface1      = NetworkInterface(interface1_id, link_id)
+        # close line as ring
+        interface_prev_id   = "%s.%03d" % (first_container, containers[first_container].get_next_interface() )
+        interface_prev      = NetworkInterface(interface_prev_id, link_id)
 
-        interface2_id   = "%s.%03d" % (last_container, containers[last_container].get_next_interface() )
-        interface2      = NetworkInterface(interface2_id, link_id)
+        interface_cur_id   = "%s.%03d" % (last_container, containers[last_container].get_next_interface() )
+        interface_cur      = NetworkInterface(interface_cur_id, link_id)
 
         if addressing_scheme is not None :
             network = addressing_scheme['host_links'].pop()
             if1_ip = "%s/%s" % (network[1], network.prefixlen)
             if2_ip = "%s/%s" % (network[2], network.prefixlen)
-            interface1.address = if1_ip
-            interface2.address = if2_ip
+            interface_prev.address = if1_ip
+            interface_cur.address = if2_ip
 
-        containers[first_container].add_interface(interface1)
-        containers[last_container].add_interface(interface2)
+        containers[first_container].add_interface(interface_prev)
+        containers[last_container].add_interface(interface_cur)
     else :
         # acts as line, no need to close, append the endpoints to the connection_points
         component.connection_points.append(containers[first_container])
@@ -399,23 +401,24 @@ def create_ring(host_id, component, containers_number = 5, addressing_scheme = N
 
     if addressing_scheme is not None:
         i = 0
-        for container_id, container in sorted(containers.items()):
+        for cur_container_id, container in sorted(containers.items()):
             if(i > 2):
-                if1_routes = component.addresses[0:i-3]
+                if1_routes = component.addresses[0:i]
                 container.interfaces[0].routes.extend(if1_routes)
 
-
-            if (i < containers_number-1) :
-                if2_routes = component.addresses[i+2:containers_number]
-                del if2_routes[0]
-                # if there is no second interface, it is the last in a open ring
+            if (i <= containers_number) :
+                if2_routes = component.addresses[i:len(component.addresses)+1]
                 if i > 0 and len(container.interfaces) > 1 :
                     container.interfaces[1].routes.extend(if2_routes)
+                else:
+                    container.interfaces[0].routes.extend(if2_routes)
 
 
             if(i < containers_number/2 ):
                 container.gateway = container.interfaces[0].interface_id
             elif len(container.interfaces) > 1:
                 container.gateway = container.interfaces[1].interface_id
+            else:
+                container.gateway = container.interfaces[0].interface_id
 
             i += 2

@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
@@ -5,14 +6,12 @@ from topology.elements import NetworkComponent, IPComponent, UsedResources
 
 from topology import generator
 
-def create(last_host_id, last_container_id, last_link_id, starting_address) :
-    return pre_aggregation(last_host_id, last_container_id, last_link_id, starting_address)
 
-def pre_aggregation(last_host_id, last_container_id, last_link_id, starting_address) :
+def create(last_host_id, last_container_id, last_link_id, starting_address) :
     addressing = IPComponent(starting_address)
 
     hosts_per_ring = 5
-    rings = 5
+    rings = 2
 
     # set the starting point from where the topology module can create new IDs
     resources = UsedResources( last_host_id, last_container_id, last_link_id, addressing)
@@ -26,30 +25,13 @@ def pre_aggregation(last_host_id, last_container_id, last_link_id, starting_addr
     host1_id = generator.add_host( topology_root )
 
     # create pre aggregation rings connected to bridge
-    for i in range( 0, 10 ) :
-        pre_aggregation_rings( host1_id, components, hosts_per_ring, rings )
+    pre_aggregation_rings( host1_id, components, hosts_per_ring, rings )
 
-    # adding a host to topology root
-    host2_id = generator.add_host( topology_root )
-
-    # create pre aggregation rings connected to bridge
-    for i in range( 0, 10 ) :
-        pre_aggregation_rings( host2_id, components, hosts_per_ring, rings )
-
-    # adding a host to topology root
-    host3_id = generator.add_host( topology_root )
-
-    # create pre aggregation rings connected to bridge
-    for i in range( 0, 10 ) :
-        pre_aggregation_rings( host3_id, components, hosts_per_ring, rings )
-
-    # adding a host to topology root
-    host4_id = generator.add_host( topology_root )
-
-    # create pre aggregation rings connected to bridge
-    for i in range( 0, 9 ) :
-        pre_aggregation_rings( host4_id, components, hosts_per_ring, rings )
-
+    # create a ring component for topology
+    #addressing_scheme = addressing.addressing_for_ring_component(hosts_per_ring, rings)
+    #ring_component = NetworkComponent()
+    #generator.create_ring( host1_id, ring_component, hosts_per_ring, addressing_scheme, True )
+    #components[ring_component.component_id] = ring_component
 
     # after every component has been created
     # merge components into main network topology
@@ -84,7 +66,7 @@ def pre_aggregation_rings(host_id, components, hosts_per_ring, rings) :
 
 def pre_aggregation_ring(host_id, components, br1_component, br2_component, hosts_per_ring, addressing_scheme) :
     # create a ring component for topology
-    ring_component = NetworkComponent( )
+    ring_component = NetworkComponent()
     generator.create_ring( host_id, ring_component, hosts_per_ring, addressing_scheme, True )
     components[ring_component.component_id] = ring_component
 

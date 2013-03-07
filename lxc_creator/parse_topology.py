@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import lxml.etree as etree
-import time
+import time, netaddr
 
 from lxc_elements import Bridge, Container, VirtualLink, VirtualInterface, Route
 
@@ -146,7 +146,7 @@ def parse_link(link, mappings, mappings_ip, containers):
         mappings[vinterface_id] = container_id
 
         summaries = vinterface.find("summarizes")
-
+        routes = vinterface.find("routes")
 
         if(count == 1):
             veth0 = VirtualInterface(vinterface_id)
@@ -154,21 +154,28 @@ def parse_link(link, mappings, mappings_ip, containers):
                 veth0_ip = address.text
                 veth0.address = veth0_ip
                 #veth0.routes.extend(routes)
-                for summary in summaries.findall('summary') :
-                    route = Route(summary.text, vinterface_id)
+                for route_element in routes.findall('route'):
+                    network = netaddr.IPNetwork(route_element.text)
+                    route_address = "%s/%s" % (network.network, network.netmask)
+                    route           = Route(route_address, vinterface_id)
                     routes0.append(route)
-
         else:
             veth1 = VirtualInterface(vinterface_id)
             if not address is None:
                 veth1_ip = address.text
                 veth1.address = address.text
                 #veth1.routes.extend(routes)
-                for summary in summaries.findall('summary') :
-                    route = Route(summary.text, vinterface_id)
+                for route_element in routes.findall('route') :
+                    network = netaddr.IPNetwork(route_element.text)
+                    route_address = "%s/%s" % (network.network, network.netmask)
+                    route           = Route(route_address, vinterface_id)
                     routes1.append(route)
 
         count += 1
+    for route in routes0:
+        route.via = netaddr.IPNetwork(veth1.address).ip
+    for route in routes1 :
+        route.via = netaddr.IPNetwork(veth0.address).ip
 
     # creating the link
     l = VirtualLink(veth0, veth1)
@@ -178,7 +185,7 @@ def parse_link(link, mappings, mappings_ip, containers):
 
     c2 = containers[ mappings[veth1.veth] ]
 
-    # setting ip addresses
+    # setting ip addresses and routing
     if not veth0_ip is None:
         mappings_ip[veth0.veth] = veth0_ip
         c1.config_link(veth0)
