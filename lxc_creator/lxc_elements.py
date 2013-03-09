@@ -84,6 +84,7 @@ class Container( object ):
         self.routing['routes']    = []
         self.routing['addresses'] = []
         self.postrouting          = { 'container_id' : self.container_id }
+        self.gateway              = None
 
         logger = logging.getLogger( __name__ )
         logger.info( "Created container %8s with pid %8s", container_id, self.pid )

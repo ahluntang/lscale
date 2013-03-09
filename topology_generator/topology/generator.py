@@ -125,6 +125,7 @@ def connect_ring_bridge(ring_component, bridge_component, addressing_scheme = No
 
     br.add_interface(bridge_interface)
     ring_container.add_interface(ring_interface)
+    ring_container.gateway = ring_interface.interface_id
 
 
 def connect_bridges(bridge1_component, bridge2_component, addressing_scheme = None):
