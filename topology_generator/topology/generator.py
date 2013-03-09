@@ -101,18 +101,22 @@ def connect_ring_bridge(ring_component, bridge_component, addressing_scheme = No
 
     # summary
     if addressing_scheme is not None:
+        containers = len(ring_component.topology['containers'])
+        print "amount of containers: %s " % containers
         other_container = None
         if len(ring_component.connection_points) > 0 :
             other_container = ring_component.connection_points[0]
-
             ring_component.addresses = sorted(ring_component.addresses)
 
         if other_container is not None and netaddr.IPNetwork(ring_container.interfaces[0].address) > netaddr.IPNetwork(other_container.interfaces[0].address) :
-            summary = netaddr.cidr_merge(ring_component.addresses[len(ring_component.addresses) / 2 :len(ring_component.addresses)])
-            ring_component.addresses = ring_component.addresses[0 :len(ring_component.addresses) / 2]
+            summary = netaddr.cidr_merge(ring_component.addresses[(containers-1) :len(ring_component.addresses)])
+            ring_component.addresses = ring_component.addresses[0 : containers-2 ]
+            print "2: ",
+            for address in ring_component.addresses:
+                print address,
         else :
-            summary = netaddr.cidr_merge(ring_component.addresses[0 :len(ring_component.addresses) / 2])
-            ring_component.addresses = ring_component.addresses[len(ring_component.addresses) / 2 :len(ring_component.addresses)]
+            summary = netaddr.cidr_merge(ring_component.addresses[0 :containers - 2])
+            ring_component.addresses = ring_component.addresses[containers-1 :len(ring_component.addresses)]
 
         ring_interface.summarizes = summary
 
