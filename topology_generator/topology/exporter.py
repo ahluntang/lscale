@@ -104,8 +104,7 @@ def write_topology_xml(topology_root, output):
                 if_routes_element         = SubElement(if_element, 'routes')
                 for route in interface.routes:
                     if_route_element      = SubElement(if_routes_element, 'route')
-                    if_route_element.text = route
-
+                    if_route_element.text = str(route)
 
 
 

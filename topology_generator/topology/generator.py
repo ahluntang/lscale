@@ -101,10 +101,20 @@ def connect_ring_bridge(ring_component, bridge_component, addressing_scheme = No
 
     # summary
     if addressing_scheme is not None:
-        ip_list = []
-        for i in range(0,(len(ring_component.topology['containers'])-1)):
-            ip_list.append(ring_component.addresses.pop())
-        bridge_interface.summarizes = netaddr.cidr_merge(ip_list)
+        other_container = None
+        if len(ring_component.connection_points) > 0 :
+            other_container = ring_component.connection_points[0]
+
+            ring_component.addresses = sorted(ring_component.addresses)
+
+        if other_container is not None and netaddr.IPNetwork(ring_container.interfaces[0].address) > netaddr.IPNetwork(other_container.interfaces[0].address) :
+            summary = netaddr.cidr_merge(ring_component.addresses[len(ring_component.addresses) / 2 :len(ring_component.addresses)])
+            ring_component.addresses = ring_component.addresses[0 :len(ring_component.addresses) / 2]
+        else :
+            summary = netaddr.cidr_merge(ring_component.addresses[0 :len(ring_component.addresses) / 2])
+            ring_component.addresses = ring_component.addresses[len(ring_component.addresses) / 2 :len(ring_component.addresses)]
+
+        ring_interface.summarizes = summary
 
 
     print "link %s has %s and %s" % (link_id, ring_interface.interface_id, bridge_interface.interface_id)
