@@ -66,17 +66,19 @@ def parse_arguments():
 ## Main ##
 ##########
 def main():
-    try :
-        set_logging( logging.DEBUG )
-    except Exception, e :
-        print "Could not configure logging framework."
-        raise e
 
     try :
         args = parse_arguments( )
     except Exception, e :
         logging.getLogger( __name__ ).exception( "Could not parse arguments." )
         raise e
+
+    try :
+        set_logging( logging.DEBUG )
+    except Exception, e :
+        print "Could not configure logging framework."
+        raise e
+
 
     template_environment = Environment(loader=FileSystemLoader('templates'))
 

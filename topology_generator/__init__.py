@@ -58,7 +58,7 @@ def set_logging(logging_level):
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Topology Generator.')
     parser.add_argument('-f', '--file', default='topology.xml', help='output file to write to.', required=False)
-    parser.add_argument('-e', '--example', default='cityring', help='example to create topology for', required=False)
+    parser.add_argument('-e', '--example', default='cityflow', help='example to create topology for', required=False)
     return vars(parser.parse_args())
 
 

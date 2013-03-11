@@ -45,7 +45,7 @@ def pre_aggregation_rings(host_id, components, hosts_per_ring, rings) :
 
     addressing = generator.get_resources().addressing
 
-    addressing_scheme = addressing.addressing_for_ring_component(hosts_per_ring, rings)
+    addressing_scheme = addressing.addressing_for_line_component(hosts_per_ring, rings)
 
     # create two bridge components, and connect them
     br1_component = NetworkComponent( )
@@ -67,7 +67,7 @@ def pre_aggregation_rings(host_id, components, hosts_per_ring, rings) :
 def pre_aggregation_ring(host_id, components, br1_component, br2_component, hosts_per_ring, addressing_scheme) :
     # create a ring component for topology
     ring_component = NetworkComponent()
-    generator.create_ring( host_id, ring_component, hosts_per_ring, addressing_scheme, True )
+    generator.create_line( host_id, ring_component, hosts_per_ring, addressing_scheme )
     components[ring_component.component_id] = ring_component
 
     # add ring to first bridge

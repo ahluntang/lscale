@@ -150,25 +150,6 @@ def connect_bridges(bridge1_component, bridge2_component, addressing_scheme = No
     br2.add_interface(interface1)
 
 
-def topology_type():
-    """ Prompts user for type of component
-    Valid inputs are 'ring', 'star' or 'mesh'.
-
-    :return: type of component: 'ring', 'star' or 'mesh'
-    """
-    default     = 'ring'
-    prompt      = "Select type of component: ring, star or mesh (%s): " % default
-    response    = raw_input(prompt).rstrip().lower()
-
-    while True:
-        if ( response == 'ring' or response == 'star' or  response == 'mesh'):
-            return response
-        elif (response == '' ):
-            return default
-        else:
-            response = raw_input(prompt).rstrip().lower()
-
-
 def create_bridge(host_id, component):
     """Creates a bridge.
     Optionally adds an interface from connected_to to the bridge.
@@ -313,8 +294,10 @@ def create_star(host_id, component, containers_number = 5, addressing_scheme = N
         c.add_interface(container_interface)
         center.add_interface(center_interface)
 
+def create_line(host_id, component, containers_number = 5, addressing_scheme = None):
+    create_ring(host_id, component, containers_number, addressing_scheme, True)
 
-def create_ring(host_id, component, containers_number = 5, addressing_scheme = None, is_line = True):
+def create_ring(host_id, component, containers_number = 5, addressing_scheme = None, is_line = False):
     """ Creates a ring component.
 
     :param host_id: id of the host where the ring should be added

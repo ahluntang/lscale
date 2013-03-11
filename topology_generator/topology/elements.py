@@ -193,8 +193,10 @@ class IPComponent(object) :
 
         return addressing_scheme
 
+    def addressing_for_line_component(self, hosts_per_line = 5, lines = 5):
+        return self.addressing_for_ring_component(hosts_per_line, lines, False)
 
-    def addressing_for_ring_component(self, hosts_per_ring = 5, rings = 5, close_ring = False) :
+    def addressing_for_ring_component(self, hosts_per_ring = 5, rings = 5, close_ring = True) :
         """ Creates addressing scheme for a ring component.
 
         :param hosts_per_ring: the amount of hosts in a ring
@@ -205,11 +207,11 @@ class IPComponent(object) :
         #links between hosts on rings: (hosts_per_ring-1)*rings
 
         addressing_scheme = { }
+        network = netaddr.IPNetwork( self.address )
         if not close_ring:
             # get subnet for bridge: 2*rings network addresses needed
             bridge_links = 4 * rings
             bridge_prefix = self.calculate_prefix( bridge_links )
-            network = netaddr.IPNetwork( self.address )
             network.prefixlen = bridge_prefix
 
             #if prefix has changed, make sure the next network is not overlapping the previous
@@ -222,9 +224,9 @@ class IPComponent(object) :
             for ip in network.iter_hosts():
                 addressing_scheme['bridge_links'].append(ip)
 
-        # set first address of next network as new networkaddress in instance
-        network = network.next()
-        self.address = network[0]
+            # set first address of next network as new networkaddress in instance
+            network = network.next()
+            self.address = network[0]
 
         # links between hosts on rings:
         if close_ring:
@@ -246,23 +248,7 @@ class IPComponent(object) :
             # set first address of next network as new networkaddress in instance
             network = network.next()
             self.address = network[0]
-        print "bridge ips: %s" % len(addressing_scheme['bridge_links'])
-        #for ring in range(0,rings):
-        #    ring_id  = "ring%s" % ring
-        #    addressing_scheme[ring_id] = {}
-        #    addressing_scheme[ring_id]['host_links'] = []
-        #    ip_list = []
-        #
-        #    for host in range(0,hosts_per_ring):
-        #        network = netaddr.IPNetwork( self.address )
-        #        network.prefixlen = host_prefix
-        #        addressing_scheme[ring_id]['host_links'].append(network)
-        #        ip_list.append(network)
-        #        # set first address of next network as new networkaddress in instance
-        #        network = network.next()
-        #        self.address = network[0]
-        #    summary = netaddr.cidr_merge(ip_list)
-        #    addressing_scheme[ring_id]['summary'] = summary
+
 
 
         return addressing_scheme

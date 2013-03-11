@@ -102,9 +102,8 @@ def set_summaries(configured_host) :
         if interface.address is not None :
             print interface_id
             for summary, via in configured_host["mappings_summaries"].items() :
-                #same_ip = (netaddr.IPNetwork(via).ip == netaddr.IPNetwork(interface.address).ip)
-                #if same_ip:
-                print " checking for:  %s, via %s" % (summary, via)
+                #print " checking for:  %s, via %s" % (summary, via)
+
                 # via must be in same subnet as address in this interface
                 same_subnet_via = (netaddr.IPNetwork(via) == netaddr.IPNetwork(interface.address))
 
@@ -116,13 +115,8 @@ def set_summaries(configured_host) :
                 route_exists = False
                 for route in existing_summaries :
                     if route.network == netaddr.IPNetwork(summary).network :
-                        print "%s is the same as %s" % ( route.network, netaddr.IPNetwork(summary).network)
                         route_exists = True
-                    else :
-                        print "%s is NOT the same as %s" % ( route.network, netaddr.IPNetwork(summary).network)
 
-                # via must be a different ip than the interface ip
-                same_ip = (netaddr.IPNetwork(via).ip == netaddr.IPNetwork(interface.address).ip)
                 if same_subnet_via and not route_exists :
                     network = netaddr.IPNetwork(summary)
                     address = "%s/%s" % (network.network, network.prefixlen)
