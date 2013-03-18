@@ -66,6 +66,11 @@ def parse_host(template_environment, host, host_id) :
         move_vinterfaces(configured_host)
         set_summaries(configured_host)
         set_gateways(configured_host)
+
+
+        #print "sleeping one minute before running pre routing scripts"
+        #time.sleep(60)
+
         for interface_id, gateway in mappings_gateways.items():
             print "%s->%s" % (interface_id, gateway)
 
@@ -73,9 +78,15 @@ def parse_host(template_environment, host, host_id) :
             #run pre routing script
             container.run_pre_routing(template_environment)
 
+        #print "sleeping one minute before running routing scripts"
+        #time.sleep(60)
+
         for container_id, container in containers.items() :
             #run routing script
             container.run_routing(template_environment)
+
+        #print "sleeping one minute before running post routing scripts"
+        #time.sleep(60)
 
         for container_id, container in containers.items() :
             #run post routing script
@@ -138,7 +149,10 @@ def set_gateways(configured_host):
 
 def parse_container(container) :
     container_id = container.find("id").text
-    c = Container(container_id)
+    is_host = False
+    if container.find("is_host") is not None:
+        is_host = True
+    c = Container(container_id, is_host)
 
     prerouting = container.find("prerouting")
     if prerouting is not None :
@@ -151,6 +165,10 @@ def parse_container(container) :
     postrouting = container.find("postrouting")
     if prerouting is not None :
         c.postroutingscript = postrouting.text
+
+    cleanup = container.find("cleanup")
+    if cleanup is not None :
+        c.cleanupscript = cleanup.text
 
     gateway = container.find("gateway")
     if gateway is not None :

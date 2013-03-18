@@ -6,7 +6,7 @@ import logging
 
 import netaddr
 
-from elements import Container, Bridge, NetworkInterface
+from elements import NetworkComponent, Container, Bridge, NetworkInterface
 import topology.exceptions as exceptions
 
 def add_component_to_topology(topology_root, component):
@@ -21,7 +21,6 @@ def add_component_to_topology(topology_root, component):
 
     for container_id, container in component.topology['containers'].items():
         topology_root[host_id]['containers'][container.container_id] = container
-
     for bridge_id, bridge in component.topology['bridges'].items():
         topology_root[host_id]['bridges'][bridge.bridge_id] = bridge
 
@@ -49,14 +48,47 @@ def add_host(topology_root):
     host_id = used_resources.get_new_host_id()
     host = Container(host_id, True)
 
+    host.preroutingscript = "host_pre_routing.sh"
+    host.routingscript = "host_routing.sh"
+    host.postroutingscript = "host_post_routing.sh"
+    host.cleanupscript = "host_cleanup.sh"
+
     topology_root[host_id]               = {}
     topology_root[host_id]['id']         = host
     topology_root[host_id]['containers'] = {}
+    topology_root[host_id]['containers'][host_id] = host
     #topology_root[host_id]['links']      = {}
     topology_root[host_id]['bridges']    = {}
 
+
     return host_id
 
+def add_management_interface(host,component, addressing_scheme = None):
+    link_id = used_resources.get_new_link_id()
+    host_interface_id = "m%s.%03d" % (host.container_id , host.get_next_interface() )
+    host_interface = NetworkInterface( host_interface_id, link_id )
+
+    if addressing_scheme is not None :
+        ip = addressing_scheme['bridge_links'].pop()
+        host_interface.address = "%s/%s" % (ip, addressing_scheme['bridge_prefix'])
+
+    bridge = None
+    if component.type == "bridge":
+        bridge = component.connection_points[0]
+        interface_id = bridge.bridge_id
+        pass
+
+    # get bridge and interface for bridge
+    br = component.connection_points[0]
+    bridge_interface_id   = "%s.%03d" % ( br.bridge_id, br.get_next_interface() )
+
+    bridge_interface      = NetworkInterface(bridge_interface_id, link_id)
+
+    host_interface.summarizes = [netaddr.IPNetwork("0.0.0.0/0")]
+    print "link %s has %s and %s" % (link_id, host_interface.interface_id, bridge_interface.interface_id)
+
+    br.add_interface(bridge_interface)
+    host.add_interface(host_interface)
 
 def connect_components(comp1, comp2, addressing_scheme = None):
 
@@ -150,39 +182,57 @@ def connect_bridges(bridge1_component, bridge2_component, addressing_scheme = No
     br2.add_interface(interface1)
 
 
-def create_bridge(host_id, component):
+def create_bridge(host):
     """Creates a bridge.
     Optionally adds an interface from connected_to to the bridge.
 
     :param host_id: id of the host where the bridge should be added.
-    :param component: component where the bridge should be created.
     """
+    component = NetworkComponent()
     logging.getLogger(__name__).info("Creating bridgecomponent (%s)", component.component_id)
-    component.host_id   = host_id
+    component.host_id   = host.container_id
     component.type      = "bridge"
 
     bridge_id           = used_resources.get_new_bridge_id()
     bridge              = Bridge(bridge_id)
-    bridge.container_id = host_id
+    bridge.container_id = host.container_id
 
     component.topology['bridges'][bridge_id] = bridge
 
-    # bridges are added to the free interfaces list
+    # bridges are added to the connection points list
     component.connection_points.append(bridge)
+    return component
 
 
-def create_bus(host_id, component, containers_number = 5, addressing_scheme = None):
+def create_container(host):
+    component = NetworkComponent()
+    logging.getLogger(__name__).info("Creating containercomponent (%s)", component.component_id)
+    component.host_id   = host.container_id
+    component.type      = "container"
+
+    container_id           = used_resources.get_new_container_id()
+    container              = Bridge(container_id)
+    container.container_id = host.container_id
+
+    component.topology['containers'][container_id] = container
+
+    # add container to the connection points list
+    component.connection_points.append(container)
+    return component
+
+def create_bus(host, amount_of_containers = 5, addressing_scheme = None):
     """ Creates a bus component
 
     :param host_id: id of the host where the star should be added
     :param component: component where the star should be created
-    :param containers_number: number of containers the star should create
+    :param amount_of_containers: number of containers the star should create
     :param addressing_scheme: addressing scheme to use to set ip addresses of the interfaces
     """
-    component.host_id = host_id
+    component = NetworkComponent()
+    component.host_id = host.container_id
     component.type = "bus"
 
-    logging.getLogger(__name__).info("Creating bus with %s containers.", containers_number)
+    logging.getLogger(__name__).info("Creating bus with %s containers.", amount_of_containers)
 
     bridge_address = None
     prefix = None
@@ -209,7 +259,7 @@ def create_bus(host_id, component, containers_number = 5, addressing_scheme = No
     containers = component.topology['containers']
 
     # make containers and link them to the new bridge
-    for i in range(2, containers_number + 2) :
+    for i in range(2, amount_of_containers + 2) :
         container_id = "s%03d.%s" % (component.component_id, used_resources.get_new_container_id() )
         c = Container(container_id)
         containers[container_id ] = c
@@ -231,20 +281,22 @@ def create_bus(host_id, component, containers_number = 5, addressing_scheme = No
 
         c.add_interface(container_interface)
         bridge.add_interface(bridge_interface)
+    return component
 
 
-def create_star(host_id, component, containers_number = 5, addressing_scheme = None) :
+def create_star(host, amount_of_containers = 5, addressing_scheme = None) :
     """ Creates a star component
 
     :param host_id: id of the host where the star should be added
     :param component: component where the star should be created
-    :param containers_number: number of containers the star should create
+    :param amount_of_containers: number of containers the star should create
     :param addressing_scheme: addressing scheme to use to set ip addresses of the interfaces
     """
-    component.host_id = host_id
+    component = NetworkComponent()
+    component.host_id = host.container_id
     component.type = "star"
 
-    logging.getLogger(__name__).info("Creating star with %s containers.", containers_number)
+    logging.getLogger(__name__).info("Creating star with %s containers.", amount_of_containers)
 
     prefix = None
 
@@ -263,7 +315,7 @@ def create_star(host_id, component, containers_number = 5, addressing_scheme = N
     containers[container_id] = center
 
     # make containers and link them to the new bridge
-    for i in range(2, containers_number + 2) :
+    for i in range(2, amount_of_containers + 2) :
         if addressing_scheme is not None:
             network = addressing_scheme['host_links'].pop()
 
@@ -293,25 +345,28 @@ def create_star(host_id, component, containers_number = 5, addressing_scheme = N
 
         c.add_interface(container_interface)
         center.add_interface(center_interface)
+    return component
 
-def create_line(host_id, component, containers_number = 5, addressing_scheme = None):
-    create_ring(host_id, component, containers_number, addressing_scheme, True)
+def create_line(host, amount_of_containers = 5, addressing_scheme = None):
+    return create_ring(host, amount_of_containers, addressing_scheme, True)
 
-def create_ring(host_id, component, containers_number = 5, addressing_scheme = None, is_line = False):
+def create_ring(host, amount_of_containers = 5, addressing_scheme = None, is_line = False):
     """ Creates a ring component.
 
-    :param host_id: id of the host where the ring should be added
+    :param host:  the host where the ring should be added
     :param component: component where the ring should be created
-    :param containers_number: number of containers the ring should create
+    :param amount_of_containers: number of containers the ring should create
     :param addressing_scheme: addressing scheme to use to set ip addresses of the interfaces.
     :param is_line: sets whether the ring should be closed or not
         (acts as line if true, use it to connect the line endpoints to a different network)
     :return:
     """
-    component.host_id = host_id
+
+    component = NetworkComponent()
+    component.host_id = host.container_id
     component.type = "ring"
 
-    logging.getLogger(__name__).info("Creating ring with %s containers.", containers_number)
+    logging.getLogger(__name__).info("Creating ring with %s containers.", amount_of_containers)
 
 
     containers = component.topology['containers']
@@ -321,14 +376,14 @@ def create_ring(host_id, component, containers_number = 5, addressing_scheme = N
     last_container = None
 
     # create all containers
-    for i in range(0, containers_number):
+    for i in range(0, amount_of_containers):
         # get id for current container
         cur_container_id    = "r%03d.%s" % (component.component_id, used_resources.get_new_container_id() )
 
         # keep a reference to the first and last container.
         if (i == 0):
             first_container = cur_container_id
-        elif(i == containers_number - 1 ):
+        elif(i == amount_of_containers - 1 ):
             last_container = cur_container_id
 
         cur_container = Container(cur_container_id)
@@ -339,7 +394,7 @@ def create_ring(host_id, component, containers_number = 5, addressing_scheme = N
 
         containers[cur_container_id] = cur_container
 
-        logging.getLogger(__name__).info("Created container %s in %s", cur_container_id, host_id)
+        logging.getLogger(__name__).info("Created container %s in %s", cur_container_id, host.container_id)
 
         # create links between the containers
         # each link has two interfaces
@@ -404,7 +459,7 @@ def create_ring(host_id, component, containers_number = 5, addressing_scheme = N
                 if1_routes = component.addresses[0:i]
                 container.interfaces[0].routes.extend(if1_routes)
 
-            if (i <= containers_number) :
+            if (i <= amount_of_containers) :
                 if2_routes = component.addresses[i:len(component.addresses)+1]
                 if i > 0 and len(container.interfaces) > 1 :
                     container.interfaces[1].routes.extend(if2_routes)
@@ -412,7 +467,7 @@ def create_ring(host_id, component, containers_number = 5, addressing_scheme = N
                     container.interfaces[0].routes.extend(if2_routes)
 
 
-            if(i < containers_number/2 ):
+            if(i < amount_of_containers/2 ):
                 container.gateway = container.interfaces[0].interface_id
             elif len(container.interfaces) > 1:
                 container.gateway = container.interfaces[1].interface_id
@@ -420,3 +475,4 @@ def create_ring(host_id, component, containers_number = 5, addressing_scheme = N
                 container.gateway = container.interfaces[0].interface_id
 
             i += 2
+    return component

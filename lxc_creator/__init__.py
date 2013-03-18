@@ -89,7 +89,7 @@ def main():
 
     parse_topology.parse(filename, template_environment, parsed_topology, host_id)
     interaction.interact(parsed_topology, host_id)
-    lxc_elements.cleanup()
+    lxc_elements.cleanup(template_environment)
 
     return 0
 

@@ -37,6 +37,11 @@ def write_topology_xml(topology_root, output):
             routing_element.text = container.routingscript
             post_element      = SubElement(container_tree, 'postrouting')
             post_element.text = container.postroutingscript
+            clean_element      = SubElement(container_tree, 'cleanup')
+            clean_element.text = container.cleanupscript
+
+            if container.is_host :
+                host_element = SubElement(container_tree, 'is_host')
 
             # adding default gateway
             if container.gateway is not None:
@@ -98,6 +103,7 @@ def write_topology_xml(topology_root, output):
                 if(interface.summarizes is not None):
                     for ipnetwork in interface.summarizes:
                         sum_element       = SubElement(sum_tree, 'summary')
+                        print str(ipnetwork)
                         sum_element.text  = "%s/%s" % (ipnetwork.network, ipnetwork.prefixlen )
 
 

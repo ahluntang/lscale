@@ -18,6 +18,7 @@ class Container(object):
         self.preroutingscript   = None
         self.routingscript      = None
         self.postroutingscript  = None
+        self.cleanupscript      = None
         self.gateway            = None
 
     def add_interface(self, interface):

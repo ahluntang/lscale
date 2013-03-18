@@ -79,11 +79,13 @@ class Container( object ):
         self.preroutingscript     = None
         self.routingscript        = None
         self.postroutingscript    = None
+        self.cleanupscript        = None
         self.prerouting           = { 'container_id' : self.container_id }
         self.routing              = { 'container_id' : self.container_id }
         self.routing['routes']    = []
         self.routing['addresses'] = []
         self.postrouting          = { 'container_id' : self.container_id }
+        self.cleanupsettings      = { 'container_id' : self.container_id }
         self.gateway              = None
 
         logger = logging.getLogger( __name__ )
@@ -92,12 +94,13 @@ class Container( object ):
     def __del__(self) :
         self.cleanup( )
 
-    def cleanup(self) :
+    def cleanup(self, template_environment = None) :
         """Cleans up resources on destruction.
 
         Containers will open a new shell, cleanup will exit this shell.
         """
-
+        if template_environment is not None:
+            self.run_cleanup(template_environment)
         try :
             self.shell.write( "exit\n" )
             sys.stdout.write( "." )
@@ -143,6 +146,17 @@ class Container( object ):
             self.shell.sendline( cmd )
         else:
             logging.getLogger( __name__ ).info("No postrouting script defined for %s", self.container_id)
+
+
+    def run_cleanup(self, template_environment) :
+        if self.postroutingscript is not None :
+            logging.getLogger(__name__).info("Running cleanup script for %s", self.container_id)
+
+            template = template_environment.get_template(self.cleanupscript)
+            cmd = template.render(self.cleanupsettings)
+            self.shell.sendline(cmd)
+        else :
+            logging.getLogger(__name__).info("No cleanup script defined for %s", self.container_id)
 
 
 
@@ -335,7 +349,7 @@ class Route(object):
 ## FUNCTIONS ##
 ###############
 
-def cleanup() :
+def cleanup(template_environment) :
     """Cleanup the system.
 
     Will check the cleanup lists and remove all objects.
@@ -351,4 +365,4 @@ def cleanup() :
     cleanup_bridges[:] = [obj for obj in cleanup_bridges if obj.cleanup( )]
 
     print "\n\nCleaning containers [3/3]"
-    cleanup_containers[:] = [obj for obj in cleanup_containers if obj.cleanup( )]
+    cleanup_containers[:] = [obj for obj in cleanup_containers if obj.cleanup(template_environment)]
