@@ -102,28 +102,28 @@ def connect_components(comp1, comp2, addressing_scheme = None):
     """
     if( comp1.type == "bridge" and comp2.type == "bridge" ):
         connect_bridges(comp1,comp2, addressing_scheme)
-    elif( comp1.type == "bridge" and comp2.type == "ring" ):
-        connect_ring_bridge(comp2,comp1, addressing_scheme)
-    elif( comp1.type == "ring" and comp2.type == "bridge" ):
-        connect_ring_bridge(comp1,comp2, addressing_scheme)
+    elif( comp1.type == "bridge" and comp2.type == "line" ):
+        connect_line_bridge(comp2,comp1, addressing_scheme)
+    elif( comp1.type == "line" and comp2.type == "bridge" ):
+        connect_line_bridge(comp1,comp2, addressing_scheme)
 
 
-def connect_ring_bridge(ring_component, bridge_component, addressing_scheme = None):
+def connect_line_bridge(line_component, bridge_component, addressing_scheme = None):
     """ Connects a ring to a bridge.
 
-    :param ring_component: ring component that will be connected to the bridge. Needs at least two free interfaces
+    :param line_component: ring component that will be connected to the bridge. Needs at least two free interfaces
     :param bridge_component: bridge component that will be connected to the ring. Will add new interfaces to the bridge.
     """
     link_id = used_resources.get_new_link_id()
 
-    ring_container = ring_component.connection_points.pop()
+    line_container = line_component.connection_points.pop()
 
-    # create new interface for container in ring
-    ring_interface_id = "%s.%03d" % (ring_container.container_id , ring_container.get_next_interface() )
-    ring_interface = NetworkInterface( ring_interface_id, link_id )
+    # create new interface for container in line
+    line_interface_id = "%s.%03d" % (line_container.container_id , line_container.get_next_interface() )
+    line_interface = NetworkInterface( line_interface_id, link_id )
     if addressing_scheme is not None:
         ip = addressing_scheme['bridge_links'].pop()
-        ring_interface.address = "%s/%s" % (ip, addressing_scheme['bridge_prefix'])
+        line_interface.address = "%s/%s" % (ip, addressing_scheme['bridge_prefix'])
 
     # get bridge and interface for bridge
     br = bridge_component.connection_points[0]
@@ -133,31 +133,32 @@ def connect_ring_bridge(ring_component, bridge_component, addressing_scheme = No
 
     # summary
     if addressing_scheme is not None:
-        containers = len(ring_component.topology['containers'])
+        containers = len(line_component.topology['containers'])
         print "amount of containers: %s " % containers
         other_container = None
-        if len(ring_component.connection_points) > 0 :
-            other_container = ring_component.connection_points[0]
-            ring_component.addresses = sorted(ring_component.addresses)
+        if len(line_component.connection_points) > 0 :
+            other_container = line_component.connection_points[0]
+            line_component.addresses = sorted(line_component.addresses)
 
-        if other_container is not None and netaddr.IPNetwork(ring_container.interfaces[0].address) > netaddr.IPNetwork(other_container.interfaces[0].address) :
-            summary = netaddr.cidr_merge(ring_component.addresses[(containers-1) :len(ring_component.addresses)])
-            ring_component.addresses = ring_component.addresses[0 : containers-2 ]
+        if other_container is not None and netaddr.IPNetwork(line_container.interfaces[0].address) > netaddr.IPNetwork(other_container.interfaces[0].address) :
+            summary = netaddr.cidr_merge(line_component.addresses[(containers-1) :len(line_component.addresses)])
+            line_component.addresses = line_component.addresses[0 : containers-2 ]
             print "2: ",
-            for address in ring_component.addresses:
+            for address in line_component.addresses:
                 print address,
         else :
-            summary = netaddr.cidr_merge(ring_component.addresses[0 :containers - 2])
-            ring_component.addresses = ring_component.addresses[containers-1 :len(ring_component.addresses)]
+            summary = netaddr.cidr_merge(line_component.addresses[0 :containers - 2])
+            line_component.addresses = line_component.addresses[containers-1 :len(line_component.addresses)]
 
-        ring_interface.summarizes = summary
+        line_interface.summarizes = summary
 
 
-    print "link %s has %s and %s" % (link_id, ring_interface.interface_id, bridge_interface.interface_id)
+    print "link %s has %s and %s" % (link_id, line_interface.interface_id, bridge_interface.interface_id)
 
     br.add_interface(bridge_interface)
-    ring_container.add_interface(ring_interface)
-    ring_container.gateway = ring_interface.interface_id
+    line_container.add_interface(line_interface)
+    line_container.gateway = line_interface.interface_id
+
 
 
 def connect_bridges(bridge1_component, bridge2_component, addressing_scheme = None):
@@ -364,7 +365,10 @@ def create_ring(host, amount_of_containers = 5, addressing_scheme = None, is_lin
 
     component = NetworkComponent()
     component.host_id = host.container_id
-    component.type = "ring"
+    if is_line:
+        component.type = "ring"
+    else:
+        component.type = "line"
 
     logging.getLogger(__name__).info("Creating ring with %s containers.", amount_of_containers)
 
