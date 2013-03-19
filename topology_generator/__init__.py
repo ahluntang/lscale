@@ -116,6 +116,8 @@ def main():
         created_topology = citybus.create(last_host_id, last_container_id, last_link_id, starting_address)
     elif args['example'] == 'citystar':
         created_topology = citystar.create(last_host_id, last_container_id, last_link_id, starting_address)
+    elif args['example'] == 'smalltop' :
+        created_topology = smalltop.create(last_host_id, last_container_id, last_link_id, starting_address)
     else:
         created_topology = cityring.create(last_host_id, last_container_id, last_link_id, starting_address)
     # export topology to xml file

@@ -19,6 +19,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address) :
 
     # adding a host to topology root
     host1_id = generator.add_host(topology_root)
+    host = topology_root[host1_id]['id']
 
 
     # create addressing scheme for star component
@@ -26,7 +27,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address) :
     addressing_scheme = addressing.addressing_for_bus_component(5)
 
     # create a bus component in host
-    bus_component = generator.create_bus(host1_id, 5, addressing_scheme)
+    bus_component = generator.create_bus(host, 5, addressing_scheme)
     components[bus_component.component_id] = bus_component
 
     # after every component has been created
