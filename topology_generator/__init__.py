@@ -62,18 +62,6 @@ def parse_arguments():
     return vars(parser.parse_args())
 
 
-def set_filename(filename):
-    prompt = "Output filename is currently set to %s. Do you want to change this (N)? " % filename
-    response = raw_input(prompt).rstrip().lower()
-    while True:
-        if (response == 'y' or response == 'yes' ):
-            prompt = 'Type the filename: '
-            filename = raw_input(prompt).rstrip()
-            return filename
-        elif (response == 'n' or response == 'no' or response == '' ):
-            return filename
-        else:
-            response = raw_input(prompt).rstrip().lower()
 
 ##########
 ## Main ##
