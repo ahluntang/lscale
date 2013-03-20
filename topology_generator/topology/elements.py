@@ -194,6 +194,28 @@ class IPComponent(object) :
 
         return addressing_scheme
 
+    def addressing_for_container_connection(self):
+        addressing_scheme = { }
+
+        host_prefix = 30
+
+        addressing_scheme['host_prefix'] = host_prefix
+        addressing_scheme['host_links'] = []
+
+        network = netaddr.IPNetwork(self.address)
+        network.prefixlen = host_prefix
+        while network.network <= self.address :
+            network = network.next()
+        addressing_scheme['host_links'].append(network)
+        for i in range(1, 2) :
+            network = network.next()
+            addressing_scheme['host_links'].append(network)
+
+        network = network.next()
+        self.address = network[0]
+
+        return addressing_scheme
+
     def addressing_for_line_component(self, hosts_per_line = 5, lines = 5):
         return self.addressing_for_ring_component(hosts_per_line, lines, False)
 
@@ -249,7 +271,6 @@ class IPComponent(object) :
             # set first address of next network as new networkaddress in instance
             network = network.next()
             self.address = network[0]
-
 
 
         return addressing_scheme

@@ -50,6 +50,7 @@ def parse_host(template_environment, host, host_id) :
             b = parse_bridge(bridge)
             bridges[b.bridge_id] = b
 
+
         configured_host = {
             "host_id" : current_host_id,
             "containers" : containers,

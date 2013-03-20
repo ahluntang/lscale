@@ -87,6 +87,9 @@ class Container( object ):
         self.postrouting          = { 'container_id' : self.container_id }
         self.cleanupsettings      = { 'container_id' : self.container_id }
         self.gateway              = None
+        self.is_managed           = False
+        self.management_interface = "%s.m" % self.container_id
+        self.management_address   = None
 
         logger = logging.getLogger( __name__ )
         logger.info( "Created container %8s with pid %8s", container_id, self.pid )
@@ -310,7 +313,7 @@ class VirtualLink( object ) :
         return True
 
     def setns(self, veth, container) :
-        if (not container.is_host) :
+        if not container.is_host :
             cmd = "ip link set %s netns %s" % (veth, container.pid)
             print "Moving interface %8s to %8s: %s" % (veth, container.container_id, cmd)
             self.shell.sendline( cmd )
@@ -354,15 +357,18 @@ def cleanup(template_environment) :
 
     Will check the cleanup lists and remove all objects.
     """
+    try:
 
-    print "Cleanup the system."
-    print "This may take a while. Grab a coffee."
+        print "Cleanup the system."
+        print "This may take a while. Grab a coffee."
 
-    print "\n\nCleaning links [1/3]"
-    cleanup_links[:] = [obj for obj in cleanup_links if obj.cleanup( )]
+        print "\n\nCleaning links [1/3]"
+        cleanup_links[:] = [obj for obj in cleanup_links if obj.cleanup( )]
 
-    print "\n\nCleaning bridges [2/3]"
-    cleanup_bridges[:] = [obj for obj in cleanup_bridges if obj.cleanup( )]
+        print "\n\nCleaning bridges [2/3]"
+        cleanup_bridges[:] = [obj for obj in cleanup_bridges if obj.cleanup( )]
 
-    print "\n\nCleaning containers [3/3]"
-    cleanup_containers[:] = [obj for obj in cleanup_containers if obj.cleanup(template_environment)]
+        print "\n\nCleaning containers [3/3]"
+        cleanup_containers[:] = [obj for obj in cleanup_containers if obj.cleanup(template_environment)]
+    except Exception:
+        pass

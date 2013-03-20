@@ -3,6 +3,7 @@
 
 
 import logging
+import time
 
 import netaddr
 
@@ -76,7 +77,6 @@ def add_management_interface(host,component, addressing_scheme = None):
     if component.type == "bridge":
         bridge = component.connection_points[0]
         interface_id = bridge.bridge_id
-        pass
 
     # get bridge and interface for bridge
     br = component.connection_points[0]
@@ -91,7 +91,6 @@ def add_management_interface(host,component, addressing_scheme = None):
     host.add_interface(host_interface)
 
 def connect_components(comp1, comp2, addressing_scheme = None):
-
     """ Connects two components together.
 
     If each of the components has 1 or more free interfaces, this method will create a link between them using
@@ -101,11 +100,90 @@ def connect_components(comp1, comp2, addressing_scheme = None):
     :param comp2: second component
     """
     if( comp1.type == "bridge" and comp2.type == "bridge" ):
-        connect_bridges(comp1,comp2, addressing_scheme)
+        # two bridges, both are single element components, directly select the bridge from the connection_points list.
+        connect_bridges(comp1.connection_points[0],comp2.connection_points[0])
     elif( comp1.type == "bridge" and comp2.type == "line" ):
         connect_line_bridge(comp2,comp1, addressing_scheme)
     elif( comp1.type == "line" and comp2.type == "bridge" ):
         connect_line_bridge(comp1,comp2, addressing_scheme)
+
+
+def connect_elements(element_from, element_to, component_from = None, component_to = None, addressing_scheme = None):
+    """
+
+    :param element_from:
+    :param component_from:
+    :param element_to:
+    :param component_to:
+    :return:
+    """
+    both_containers = type(element_from) is Container and type(element_to) is Container
+    container_and_bridge = type(element_from) is Container and type(element_to) is Bridge
+    bridge_and_container = type(element_from) is Bridge and type(element_to) is Container
+    both_bridges = type(element_from) is Bridge and type(element_to) is Container
+    if both_containers:
+        connect_containers(element_from, element_to, component_from, component_to, addressing_scheme)
+    elif container_and_bridge:
+        connect_container_bridge(element_from, element_to, component_from, addressing_scheme)
+    elif bridge_and_container :
+        connect_container_bridge(element_to, element_from, component_to, addressing_scheme)
+    elif both_bridges :
+        connect_bridges(element_from, element_to)
+    else:
+        pass
+
+def connect_containers(c1, c2, c1_component = None, c2_component = None, addressing_scheme = None):
+
+    link_id = used_resources.get_new_link_id()
+
+    c1_interface_id = "%s.%03d" % (c1.container_id, c1.get_next_interface() )
+    c1_interface = NetworkInterface(c1_interface_id, link_id)
+
+    c2_interface_id = "%s.%03d" % (c2.container_id, c2.get_next_interface() )
+    c2_interface = NetworkInterface(c2_interface_id, link_id)
+
+    if addressing_scheme is not None:
+        prefix = addressing_scheme['host_prefix']
+        network = addressing_scheme['host_links'].pop()
+
+        address = "%s/%s" % (network[1], prefix)
+        c1_interface.address = address
+        if c1_component is not None:
+            c1_component.addresses.append(address)
+
+        address = "%s/%s" % (network[2], prefix)
+        c2_interface.address = address
+        if c2_component is not None:
+            c2_component.addresses.append(address)
+
+    c1.add_interface(c1_interface)
+    c2.add_interface(c2_interface)
+
+
+def connect_container_bridge(container, bridge, container_component = None, addressing_scheme = None):
+
+    link_id = used_resources.get_new_link_id()
+
+    container_interface_id = "%s.%03d" % (container.container_id, container.get_next_interface() )
+    container_interface = NetworkInterface(container_interface_id, link_id)
+
+    bridge_interface_id = "%s.%03d" % (bridge.bridge_id, bridge.get_next_interface() )
+    bridge_interface = NetworkInterface(bridge_interface_id, link_id)
+
+    if addressing_scheme is not None:
+        prefix = addressing_scheme['bridge_links']
+        network = addressing_scheme['bridge_links'].pop()
+
+        address = "%s/%s" % (network[0], prefix)
+        container_interface.address = address
+
+        if container_component is not None:
+            container_component.addresses.append(address)
+
+
+    container.add_interface(container_interface)
+    bridge.add_interface(bridge_interface)
+
 
 
 def connect_line_bridge(line_component, bridge_component, addressing_scheme = None):
@@ -161,26 +239,23 @@ def connect_line_bridge(line_component, bridge_component, addressing_scheme = No
 
 
 
-def connect_bridges(bridge1_component, bridge2_component, addressing_scheme = None):
+def connect_bridges(bridge_from, bridge_to):
     """ Connects two bridges together
 
-    :param bridge1_component: bridge component. Method adds new interface to this bridge.
-    :param bridge2_component: bridge component. Method adds new interface to this bridge.
+    :param bridge_from: bridge component. Method adds new interface to this bridge.
+    :param bridge_to: bridge component. Method adds new interface to this bridge.
     """
 
     link_id = used_resources.get_new_link_id()
 
-    br1 = bridge1_component.connection_points[0]
-    br2 = bridge2_component.connection_points[0]
+    interface_from_id   = "%s.%03d" % ( bridge_from.bridge_id, bridge_from.get_next_interface() )
+    interface_from      = NetworkInterface(interface_from_id, link_id)
 
-    interface1_id   = "%s.%03d" % ( br1.bridge_id, br1.get_next_interface() )
-    interface1      = NetworkInterface(interface1_id, link_id)
+    interface_to_id   = "%s.%03d" % ( bridge_to.bridge_id, bridge_to.get_next_interface() )
+    interface_to      = NetworkInterface(interface_to_id, link_id)
 
-    interface2_id   = "%s.%03d" % ( br2.bridge_id, br2.get_next_interface() )
-    interface2      = NetworkInterface(interface2_id, link_id)
-
-    br1.add_interface(interface2)
-    br2.add_interface(interface1)
+    bridge_from.add_interface(interface_from)
+    bridge_to.add_interface(interface_to)
 
 
 def create_bridge(host):
@@ -366,11 +441,13 @@ def create_ring(host, amount_of_containers = 5, addressing_scheme = None, is_lin
     component = NetworkComponent()
     component.host_id = host.container_id
     if is_line:
-        component.type = "ring"
-    else:
         component.type = "line"
+        logging.getLogger(__name__).info("Creating line with %s containers.", amount_of_containers)
+    else:
+        component.type = "ring"
+        logging.getLogger(__name__).info("Creating ring with %s containers.", amount_of_containers)
 
-    logging.getLogger(__name__).info("Creating ring with %s containers.", amount_of_containers)
+
 
 
     containers = component.topology['containers']

@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys, signal, fcntl, termios, struct
+import sys, signal, fcntl, termios, struct, netaddr
 import traceback
+
+from lxc_elements import VirtualInterface, VirtualLink
 
 class bcolors:
     HEADER = '\033[95m'
@@ -13,11 +15,90 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = "\033[1m"
 
+escape_char = "%s^]%s" % (bcolors.WARNING, bcolors.ENDC )
+escape_char__ASCII = "%sASCII 29%s" % (bcolors.WARNING, bcolors.ENDC )
+exit_color = "%sexit%s" % (bcolors.FAIL, bcolors.WARNING)
 
 def interact(configured_hosts, host_id) :
-    escape_char = "%s^]%s" % (bcolors.WARNING, bcolors.ENDC )
-    escape_char__ASCII = "%sASCII 29%s" % (bcolors.WARNING, bcolors.ENDC )
-    exit_color = "%sexit%s" % (bcolors.FAIL, bcolors.WARNING)
+    # set starting network for ssh management
+    configured_hosts[host_id]['containers'][host_id].management_address = netaddr.IPNetwork("192.168.0.0/30")
+
+    prompt = "Available commands: connect, addssh, %s%s: " % (exit_color, bcolors.ENDC)
+    response = raw_input(prompt).rstrip()
+    while True:
+        if ( response == "connect" ) :
+            connect_container(configured_hosts, host_id)
+            response = raw_input(prompt).rstrip()
+        elif(response == "addssh") :
+            add_ssh(configured_hosts, host_id)
+            response = raw_input(prompt).rstrip()
+        elif(response == "exit"):
+            return 0
+        else:
+            print "Sorry, I could not recognise that command."
+            response = raw_input(prompt).rstrip()
+
+def add_ssh(configured_hosts, host_id):
+    available_containers = sorted(configured_hosts[host_id]['containers'].keys())
+    prompt = "\nYou are on '%s'\nAvailable containers:\n%s\nSelect container to add ssh connection to: " % (
+        host_id, available_containers)
+    response = raw_input(prompt).rstrip()
+    try:
+
+        container = configured_hosts[host_id]['containers'][response]
+        if container.is_host :
+            print "This is the host, there's no point in adding an additional management interface to the host..."
+        else:
+            host = configured_hosts[host_id]['containers'][host_id]
+
+            # create interface on host
+            # move endpoint to container
+            # start ssh
+
+            #network:
+            network = host.management_address
+
+            host_address = network[1]
+            container_address = network[2]
+
+            container.is_managed = True
+            management_interface_id = "m.%s" % container.container_id
+            container.management_address = container_address
+
+            # create interface
+            hif = VirtualInterface(management_interface_id)
+            hif.address = host_address
+            cif = VirtualInterface(container.management_interface)
+            cif.address = container_address
+
+            # create link
+            link = VirtualLink(hif,cif)
+
+            link.setns(cif.veth,container)
+            cmd = "ip address add %s/30 brd + dev %s" % (hif.address, hif.veth )
+            host.shell.sendline(cmd)
+            cmd = "ip link set %s up" % hif.veth
+            host.shell.sendline(cmd)
+            cmd = "ip address add %s/30 brd + dev %s" % (cif.address, cif.veth )
+            container.shell.sendline(cmd)
+            cmd = "ip link set %s up" % cif.veth
+            container.shell.sendline(cmd)
+            container.shell.sendline("/usr/sbin/sshd -f /etc/ssh/sshd_config &")
+
+            container.shell.sendline("SSHPID=$!")
+            container.shell.sendline("((SSHPID++))") # daemon in next pid
+
+            print "Created link to %s, reachable through %s" % (container.container_id, container_address)
+
+            host.management_address = host.management_address.next()
+    except Exception, e :
+        print " %s Error! Could not create ssh connection. Have you selected the correct container id? %s" % ( bcolors.WARNING, bcolors.ENDC )
+        traceback.print_exc()
+    finally:
+        return 0
+
+def connect_container(configured_hosts, host_id):
+
 
     interact_warning = "  %s warning: if you type %s, you will close the container and all its subprocesses!!! %s" % (
         bcolors.WARNING, exit_color, bcolors.ENDC )
@@ -25,29 +106,29 @@ def interact(configured_hosts, host_id) :
     while True :
 
         available_containers = sorted(configured_hosts[host_id]['containers'].keys())
-        prompt = "\nYou are on '%s'\nAvailable containers:\n%s\nSelect container or type %s%s to stop the script: " % (
+        prompt = "\nYou are on '%s'\nAvailable containers:\n%s\nSelect container or type %s%s to go back to main options: " % (
             host_id, available_containers, exit_color, bcolors.ENDC)
         response = raw_input( prompt ).rstrip( )
         if ( response != "exit" ) :
             try :
 
-                shell = configured_hosts[host_id]['containers'][response]
+                container = configured_hosts[host_id]['containers'][response]
 
                 global global_pexpect_instance
-                global_pexpect_instance = shell
+                global_pexpect_instance = container.shell
 
                 signal.signal( signal.SIGWINCH, sigwinch_passthrough )
 
-                interact_message = "Interacting with %s. Type %s (%s) to escape." % ( shell.container_id, escape_char, escape_char__ASCII )
+                interact_message = "Interacting with %s. Type %s (%s) to escape." % ( container.container_id, escape_char, escape_char__ASCII )
                 print interact_message
                 print interact_warning
 
-                shell.shell.interact( chr( 29 ) )
-                print "Exited shell."
+                container.shell.interact( chr( 29 ) )
+                print "Shell sent to background."
             except Exception, e :
-                print "Error! Are you using the correct container?"
-                print str(e)
-                traceback.print_exc()
+                print " %s Error! Have you selected the correct container id? %s" % ( bcolors.WARNING, bcolors.ENDC )
+                #print str(e)
+                #traceback.print_exc()
         else :
             return 0
 
