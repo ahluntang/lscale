@@ -4,7 +4,7 @@
 import sys, signal, fcntl, termios, struct, netaddr
 import traceback
 
-from lxc_elements import VirtualInterface, VirtualLink
+from elements import VirtualInterface, VirtualLink
 
 class bcolors:
     HEADER = '\033[95m'

@@ -4,7 +4,7 @@
 import lxml.etree as etree
 import time, netaddr
 
-from lxc_elements import Bridge, Container, VirtualLink, VirtualInterface, Route
+from elements import Bridge, Container, VirtualLink, VirtualInterface, Route
 
 
 def parse(filename, template_environment, parsed_topology, host_id) :
