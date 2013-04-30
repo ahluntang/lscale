@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 
 import os
 import traceback
@@ -6,13 +8,13 @@ import time
 import logging
 import argparse
 
+import parser
+import interaction
 import elements
-import topology_export
-from examples import cityflow
-
+from jinja2 import Environment, FileSystemLoader
 
 def set_logging(logging_level):
-    """ set logging options
+    """ set logging options.
 
     :param logging_level: minimal level that should be logged to file
     :raise: when path to logs is not a directory or directory could not be created.
@@ -26,10 +28,10 @@ def set_logging(logging_level):
 
         # datetime format
         datetime_format = '%d/%m/%Y %H:%M:%S'
-        datetime_format_file = '%d-%m-%Y_%H-%M-%S' 
+        datetime_format_file = '%d-%m-%Y_%H-%M-%S'
 
         # location for logfile.
-        logfile = "%s/%s_topology_generator.log" % (logdir, time.strftime(datetime_format_file, time.gmtime() ) )
+        logfile = "%s/%s_lxc_creator.log" % (logdir, time.strftime(datetime_format_file, time.gmtime() ) )
 
         # logformat for each line
         logformat='%(asctime)s [%(levelname)s] %(message)s'
@@ -46,7 +48,7 @@ def set_logging(logging_level):
 
         # add the handler to the root logger
         logging.getLogger('').addHandler(console)
-    
+
     elif ( os.path.exists(logdir) ):
         raise IOError("Path to logs is not a directory!")
 
@@ -54,50 +56,40 @@ def set_logging(logging_level):
         raise IOError("Log directory not created!")
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='Topology Generator.')
-    parser.add_argument('-f', '--file', default='topology.xml', help='output file to write to.', required=False)
+    parser = argparse.ArgumentParser(description='LXC Creator.')
+    parser.add_argument('-f', '--file', default='topology.xml', help='input file.', required=False)
+    parser.add_argument('-i', '--id', default='h001', help='host id that should be used to parse and create containers for', required=False)
     return vars(parser.parse_args())
 
-def set_filename(filename):
-    prompt = "Output filename is currently set to %s. Do you want to change this (N)? " % filename
-    response = raw_input(prompt).rstrip().lower()
-    while True:
-        if (response == 'y' or response == 'yes' ):
-            prompt = 'Type the filename: '
-            filename = raw_input(prompt).rstrip()
-            return filename
-        elif (response == 'n' or response == 'no' or response == '' ):
-            return filename
-        else:
-            response = raw_input(prompt).rstrip().lower()
 
 ##########
 ## Main ##
 ##########
 def main():
-    try:
-        set_logging(logging.DEBUG)
-    except Exception, e:
+
+    try :
+        args = parse_arguments( )
+    except Exception, e :
+        logging.getLogger( __name__ ).exception( "Could not parse arguments." )
+        raise e
+
+    try :
+        set_logging( logging.DEBUG )
+    except Exception, e :
         print "Could not configure logging framework."
-        #logging.getLogger(__name__).exception("Could not configure logging framework.")
         raise e
 
-    try:
-        args = parse_arguments()
-    except Exception, e:
-        logging.getLogger(__name__).exception("Could not parse arguments.")
-        raise e
-    
-    # output filename
-    filename = args['file'] #or set_filename(filename)
-    logging.getLogger(__name__).info("Using %s as output file for the topology.", filename)
 
+    template_environment = Environment(loader=FileSystemLoader('templates'))
 
+    filename = args['file']
+    host_id  = args['id']
 
-    # defining details for the topology
-    created_topology = cityflow.pre_aggregation(0, 0, 0)
+    parsed_topology = {}
 
-    topology_export.write_topology_xml(created_topology, filename)
+    parser.parse(filename, template_environment, parsed_topology, host_id)
+    interaction.interact(parsed_topology, host_id)
+    elements.cleanup(template_environment)
 
     return 0
 
@@ -112,4 +104,5 @@ if __name__ == "__main__":
         logger = logging.getLogger(__name__)
         logger.exception(str(e))
         traceback.print_exc()
+        elements.cleanup()
         os._exit(1) 
