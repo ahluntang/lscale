@@ -3,7 +3,6 @@
 
 
 import os
-import traceback
 import time
 import logging
 import argparse
@@ -62,47 +61,10 @@ def parse_arguments():
     return vars(parser.parse_args())
 
 
-##########
-## Main ##
-##########
-def main():
-
-    try :
-        args = parse_arguments( )
-    except Exception, e :
-        logging.getLogger( __name__ ).exception( "Could not parse arguments." )
-        raise e
-
-    try :
-        set_logging( logging.DEBUG )
-    except Exception, e :
-        print "Could not configure logging framework."
-        raise e
-
+def emulate(filename, host_id, parsed_topology):
 
     template_environment = Environment(loader=FileSystemLoader('templates'))
-
-    filename = args['file']
-    host_id  = args['id']
-
-    parsed_topology = {}
 
     parser.parse(filename, template_environment, parsed_topology, host_id)
     interaction.interact(parsed_topology, host_id)
     elements.cleanup(template_environment)
-
-    return 0
-
-if __name__ == "__main__":
-    try:
-        main()
-    except SystemExit, e:
-        raise e
-    except Exception, e:
-        print "ERROR"
-        print str(e)
-        logger = logging.getLogger(__name__)
-        logger.exception(str(e))
-        traceback.print_exc()
-        elements.cleanup()
-        os._exit(1) 

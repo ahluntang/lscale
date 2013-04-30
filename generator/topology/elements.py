@@ -5,21 +5,25 @@ import itertools
 
 import netaddr
 
+class ContainerType:
+    UNSHARED, LXC, LXCLVM = range(3)
+
 class Container(object):
     """ Represents a container or host.
     """
 
-    def __init__(self, container_id, is_host = False):
-        self.container_id       = container_id
-        self.is_host            = is_host
-        self.interface_number   = 0
-        self.interfaces         = []
-        self.bridges            = []
-        self.preroutingscript   = None
-        self.routingscript      = None
-        self.postroutingscript  = None
-        self.cleanupscript      = None
-        self.gateway            = None
+    def __init__(self, container_id, is_host = False, virtualization_type = ContainerType.UNSHARED):
+        self.container_id        = container_id
+        self.is_host             = is_host
+        self.virtualization_type = virtualization_type
+        self.interface_number    = 0
+        self.interfaces          = []
+        self.bridges             = []
+        self.preroutingscript    = None
+        self.routingscript       = None
+        self.postroutingscript   = None
+        self.cleanupscript       = None
+        self.gateway             = None
 
     def add_interface(self, interface):
         self.interfaces.append(interface)

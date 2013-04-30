@@ -30,6 +30,9 @@ def write_topology_xml(topology_root, output):
             cid_element      = SubElement(container_tree, 'id')
             cid_element.text = container_id
 
+            virtype_element  = SubElement(container_tree, 'virtualizationtype')
+            virtype_element.text = str(container.virtualization_type)
+
             # adding template scripts
             pre_element      = SubElement(container_tree, 'prerouting')
             pre_element.text = container.preroutingscript

@@ -2,14 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import os
-import traceback
 import time
 import logging
 import argparse
 
-from topology import elements, exporter
+from generator.topology import elements, exporter
 
-from examples import *
+from generator.examples import *
 
 
 def set_logging(logging_level):
@@ -57,72 +56,25 @@ def set_logging(logging_level):
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Topology Generator.')
-    parser.add_argument('-f', '--file', default='topology.xml', help='output file to write to.', required=False)
-    parser.add_argument('-e', '--example', default='cityflow', help='example to create topology for', required=False)
+    parser.add_argument('-f', '--file', default='../../topology.xml', help='output file to write to.', required=False)
+    parser.add_argument('-e', '--example', default='smalltop', help='example to create topology for', required=False)
     return vars(parser.parse_args())
 
 
+def generate(example, filename, starting_address = "172.16.0.0", last_host_id = 0, last_container_id = 0, last_link_id = 0 ):
 
-##########
-## Main ##
-##########
-def main():
-
-    # set logging
-    try:
-        set_logging(logging.DEBUG)
-    except Exception, e:
-        print "Could not configure logging framework."
-        #logging.getLogger(__name__).exception("Could not configure logging framework.")
-        raise e
-
-    # parse arguments
-    try:
-        args = parse_arguments()
-    except Exception, e:
-        logging.getLogger(__name__).exception("Could not parse arguments.")
-        raise e
-    
-    # set output filename
-    filename = args['file']
-    logging.getLogger(__name__).info("Using %s as output file for the topology.", filename)
-
-
-
-    # defining details for the topology
-    # setting base parameters
-    last_host_id      = 0
-    last_container_id = 0
-    last_link_id      = 0
-    starting_address  = "172.16.0.0"
-
-    if args['example'] == 'cityflow':
+    if example == 'cityflow' :
         # create an example topology: cityflow preaggregation phase.
         # see examples package for more info
         created_topology = cityflow.create(last_host_id, last_container_id, last_link_id, starting_address)
-    elif args['example'] == 'citybus':
+    elif example == 'citybus' :
         created_topology = citybus.create(last_host_id, last_container_id, last_link_id, starting_address)
-    elif args['example'] == 'citystar':
+    elif example == 'citystar' :
         created_topology = citystar.create(last_host_id, last_container_id, last_link_id, starting_address)
-    elif args['example'] == 'smalltop' :
+    elif example == 'smalltop' :
         created_topology = smalltop.create(last_host_id, last_container_id, last_link_id, starting_address)
-    else:
+    else :
         created_topology = cityring.create(last_host_id, last_container_id, last_link_id, starting_address)
-    # export topology to xml file
+        # export topology to xml file
     exporter.write_topology_xml(created_topology, filename)
 
-    return 0
-
-
-if __name__ == "__main__":
-    try:
-        main()
-    except SystemExit, e:
-        raise e
-    except Exception, e:
-        print "ERROR"
-        print str(e)
-        logger = logging.getLogger(__name__)
-        logger.exception(str(e))
-        traceback.print_exc()
-        os._exit(1) 

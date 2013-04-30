@@ -16,6 +16,9 @@ cleanup_bridges = []
 ## CLASSES ##
 #############
 
+class ContainerType:
+    UNSHARED, LXC, LXCLVM = range(3)
+
 class Container( object ):
     """Container representation.
 
@@ -38,7 +41,7 @@ class Container( object ):
         self.interfaces -- used for routing
     """
 
-    def __init__(self, container_id, is_host= False) :
+    def __init__(self, container_id, is_host= False, virtualization_type = ContainerType.UNSHARED) :
         """Constructs a new Container instance.
 
         Argument is identification for the container.
@@ -61,15 +64,29 @@ class Container( object ):
 
         if (self.is_host) :
             cmd = "/bin/bash"
-        else :
+        elif virtualization_type == ContainerType.LXC :
+            cmd = "lxc-create -t ubuntu -n %s" % container_id
+        elif virtualization_type == ContainerType.LXCLVM :
+            #cmd = "lxc-create -t ubuntu -B lvm -n %s" % container_id
+            cmd = "lxc-create -t ubuntu -B lvm -n base\nlxc-clone -s -o base -n %s" % container_id
+        else: # elif virtualization_type == ContainerType.UNSHARED :
             cmd = "unshare --net /bin/bash"
 
         # create the shell
         self.shell = pexpect.spawn( cmd, logfile=self.logfile )
 
         # get pid of container
-        self.pid = self.shell.pid
-        print " (pid: %8s)" % self.pid
+        if virtualization_type == ContainerType.UNSHARED :
+            self.pid = self.shell.pid
+            print " (pid: %8s)" % self.pid
+        else:
+            cmd = "sudo lxc-info -n c002 | awk 'END{print $NF}'" % container_id
+            readpid = pexpect.spawn( cmd )
+            self.pid = readpid.readline()
+
+            # log into the lxc shell
+            self.shell.sendline("ubuntu")
+            self.shell.sendline("ubuntu")
 
         #set prompt
         prompt = "export PS1='%s> '" % container_id
