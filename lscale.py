@@ -58,7 +58,7 @@ def main():
     elif args['subparser_name'] == "emulate" :
         parsed_topology = {}
         try:
-            emulator.emulate(args['file'],args['id'],parsed_topology)
+            emulator.emulate(args['file'], args['id'], parsed_topology)
         except exceptions.InsufficientRightsException :
             logging.getLogger(__name__).exception("Could not emulate topology.")
         except Exception, e:

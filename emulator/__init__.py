@@ -59,7 +59,7 @@ from utilities import exceptions
 #     return vars(parser.parse_args())
 
 
-def emulate(filename, host_id, parsed_topology):
+def emulate(filename, host_id, parsed_topology = {}):
 
     if os.geteuid() == 0:
         template_environment = Environment(loader=FileSystemLoader('emulator/templates'))
