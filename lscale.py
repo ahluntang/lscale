@@ -57,10 +57,6 @@ def main():
     else:
         raise "Error: check your arguments."
 
-    # set output filename
-    filename = args['file']
-    logging.getLogger(__name__).info("Using %s as output file for the topology.", filename)
-
     return 0
 
 
