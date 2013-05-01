@@ -109,10 +109,12 @@ def connect_container(configured_hosts, host_id):
         prompt = "\nYou are on '%s'\nAvailable containers:\n%s\nSelect container or type %s%s to go back to main options: " % (
             host_id, available_containers, exit_color, bcolors.ENDC)
         response = raw_input( prompt ).rstrip( )
-        if ( response != "exit" ) :
+        if (response != "exit"):
             try :
 
                 container = configured_hosts[host_id]['containers'][response]
+                if container is None:
+                    raise "Container not found!"
 
                 global global_pexpect_instance
                 global_pexpect_instance = container.shell
@@ -123,7 +125,7 @@ def connect_container(configured_hosts, host_id):
                 print interact_message
                 print interact_warning
 
-                container.shell.interact( chr( 29 ) )
+                container.shell.interact(chr(29))
                 print "Shell sent to background."
             except Exception, e :
                 print " %s Error! Have you selected the correct container id? %s" % ( bcolors.WARNING, bcolors.ENDC )
