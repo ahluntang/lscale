@@ -169,7 +169,7 @@ class Container( object ):
 
 
     def run_cleanup(self, template_environment) :
-        if self.postroutingscript is not None :
+        if self.postroutingscript is not None and not self.is_host:
             logging.getLogger(__name__).info("Running cleanup script for %s", self.container_id)
 
             template = template_environment.get_template(self.cleanupscript)
