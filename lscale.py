@@ -55,7 +55,7 @@ def main():
         parsed_topology = {}
         emulator.emulate(args['file'],args['id'],parsed_topology)
     else:
-        print "Error: check your arguments."
+        raise "Error: check your arguments."
 
     # set output filename
     filename = args['file']
