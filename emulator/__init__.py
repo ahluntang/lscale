@@ -63,7 +63,7 @@ from jinja2 import Environment, FileSystemLoader
 
 def emulate(filename, host_id, parsed_topology):
 
-    template_environment = Environment(loader=FileSystemLoader('templates'))
+    template_environment = Environment(loader=FileSystemLoader('emulator/templates'))
 
     parser.parse(filename, template_environment, parsed_topology, host_id)
     interaction.interact(parsed_topology, host_id)
