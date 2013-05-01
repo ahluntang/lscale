@@ -2,7 +2,8 @@
 *.out
 *.pyc
 *.log
+*.xml
 .DS_Store
 .idea/
 logs/
-output/*
+#output/*
