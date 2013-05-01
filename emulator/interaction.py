@@ -113,6 +113,7 @@ def connect_container(configured_hosts, host_id):
             try :
 
                 container = configured_hosts[host_id]['containers'][response]
+                print "length: %s" % len(configured_hosts[host_id]['containers'])
                 if container is None:
                     raise "Container not found!"
 

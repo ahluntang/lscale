@@ -137,46 +137,48 @@ class Container( object ):
 
     def run_pre_routing(self, template_environment):
         if self.preroutingscript is not None:
-            logging.getLogger( __name__ ).info("Running prerouting script for %s", self.container_id)
+            logging.getLogger( __name__ ).info("# Running prerouting script for %s", self.container_id)
 
             template = template_environment.get_template(self.preroutingscript)
             cmd = template.render(self.prerouting)
             self.shell.sendline( cmd )
         else:
-            logging.getLogger( __name__ ).info("No prerouting script defined for %s", self.container_id)
+            logging.getLogger( __name__ ).info("# No prerouting script defined for %s", self.container_id)
 
 
     def run_routing(self, template_environment):
         if self.routingscript is not None:
-            logging.getLogger( __name__ ).info("Running routing script for %s", self.container_id)
+            logging.getLogger( __name__ ).info("# Running routing script for %s", self.container_id)
 
             template = template_environment.get_template(self.routingscript)
             cmd = template.render(self.routing)
             self.shell.sendline( cmd )
         else:
-            logging.getLogger( __name__ ).info("No routing script defined for %s", self.container_id)
+            logging.getLogger( __name__ ).info("# No routing script defined for %s", self.container_id)
 
 
     def run_post_routing(self, template_environment):
         if self.postroutingscript is not None:
-            logging.getLogger( __name__ ).info("Running postrouting script for %s", self.container_id)
+            logging.getLogger( __name__ ).info("# Running postrouting script for %s", self.container_id)
 
             template = template_environment.get_template(self.postroutingscript)
             cmd = template.render(self.postrouting)
             self.shell.sendline( cmd )
         else:
-            logging.getLogger( __name__ ).info("No postrouting script defined for %s", self.container_id)
+            logging.getLogger( __name__ ).info("# No postrouting script defined for %s", self.container_id)
 
 
     def run_cleanup(self, template_environment) :
         if self.postroutingscript is not None and not self.is_host:
-            logging.getLogger(__name__).info("Running cleanup script for %s", self.container_id)
+            cleanup_msg = "# Running cleanup script for %s", self.container_id
+            logging.getLogger(__name__).info(cleanup_msg)
 
             template = template_environment.get_template(self.cleanupscript)
             cmd = template.render(self.cleanupsettings)
+            self.shell.sendline(cleanup_msg)
             self.shell.sendline(cmd)
         else :
-            logging.getLogger(__name__).info("No cleanup script defined for %s", self.container_id)
+            logging.getLogger(__name__).info("# No cleanup script defined for %s", self.container_id)
 
 
 
