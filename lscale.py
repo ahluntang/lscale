@@ -23,7 +23,7 @@ def parse_arguments():
 
 
     # parser for emulating topologies
-    emparser = subparsers.add_parser('emulator', help='help for emulating topologies')
+    emparser = subparsers.add_parser('emulate', help='help for emulating topologies')
     emparser.add_argument('-f', '--file', default = 'output/topology.xml', help = 'input file.', required = False)
     emparser.add_argument('-i', '--id', default = 'h001', help = 'host id that should be used to parse and create containers for', required = False)
 
@@ -51,7 +51,7 @@ def main():
 
     if args['subparser_name'] == "generate" :
         generator.generate(args['example'],args['file'])
-    elif args['subparser_name'] == "emulator" :
+    elif args['subparser_name'] == "emulate" :
         parsed_topology = {}
         emulator.emulate(args['file'],args['id'],parsed_topology)
     else:

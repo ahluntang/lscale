@@ -3,12 +3,11 @@
 
 
 import logging
-import time
 
 import netaddr
 
 from elements import NetworkComponent, Container, Bridge, NetworkInterface
-import generator.topology.exceptions as exceptions
+import utilities.exceptions as exceptions
 
 def add_component_to_topology(topology_root, component):
     """ Adds component to main topology

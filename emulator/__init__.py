@@ -3,14 +3,12 @@
 
 
 import os
-import time
-import logging
-import argparse
 
 import parser
 import interaction
 import elements
 from jinja2 import Environment, FileSystemLoader
+from utilities import exceptions
 
 # def set_logging(logging_level):
 #     """ set logging options.
@@ -63,8 +61,11 @@ from jinja2 import Environment, FileSystemLoader
 
 def emulate(filename, host_id, parsed_topology):
 
-    template_environment = Environment(loader=FileSystemLoader('emulator/templates'))
+    if os.geteuid() == 0:
+        template_environment = Environment(loader=FileSystemLoader('emulator/templates'))
 
-    parser.parse(filename, template_environment, parsed_topology, host_id)
-    interaction.interact(parsed_topology, host_id)
-    elements.cleanup(template_environment)
+        parser.parse(filename, template_environment, parsed_topology, host_id)
+        interaction.interact(parsed_topology, host_id)
+        elements.cleanup(template_environment)
+    else:
+        raise exceptions.InsufficientRightsException("Emulating requires root privileges")

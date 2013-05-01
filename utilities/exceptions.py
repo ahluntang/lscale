@@ -42,3 +42,7 @@ class IPComponentException(Exception) :
     def __init__(self, message, Errors) :
         TopologyException.__init__(self, message, Errors)
 
+
+class InsufficientRightsException(Exception) :
+    def __init__(self, message, Errors) :
+        TopologyException.__init__(self, message, Errors)
