@@ -18,7 +18,7 @@ def parse_arguments():
 
     #parser for generating topologies
     genparser = subparsers.add_parser('generate', help='help for generating topologies')
-    genparser.add_argument('-f', '--file', default = '../../topology.xml', help = 'output file to write to.', required = False)
+    genparser.add_argument('-f', '--file', default = 'topology.xml', help = 'output file to write to.', required = False)
     genparser.add_argument('-e', '--example', default = 'smalltop', help = 'example to create topology for', required = False)
 
 
