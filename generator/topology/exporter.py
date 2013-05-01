@@ -120,12 +120,12 @@ def write_topology_xml(topology_root, output):
     print "\n\nEXPORT:\n"
     print tostring(root_tree, pretty_print=True)
 
-    dir = 'output'
-    if not os.path.exists( dir ) :
-         os.makedirs( dir )
+    # dir = 'output'
+    # if not os.path.exists( dir ) :
+    #      os.makedirs( dir )
+    #
+    # filename = "%s/%s" % (dir, output)
 
-    filename = "%s/%s" % (dir, output)
+    print "\nWriting to: %s\n" % output
 
-    print "\nWriting to: %s\n" % filename
-
-    ElementTree(root_tree).write(filename, pretty_print=True)
+    ElementTree(root_tree).write(output, pretty_print=True)

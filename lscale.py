@@ -18,13 +18,13 @@ def parse_arguments():
 
     #parser for generating topologies
     genparser = subparsers.add_parser('generate', help='help for generating topologies')
-    genparser.add_argument('-f', '--file', default = 'topology.xml', help = 'output file to write to.', required = False)
+    genparser.add_argument('-f', '--file', default = 'output/topology.xml', help = 'output file to write to.', required = False)
     genparser.add_argument('-e', '--example', default = 'smalltop', help = 'example to create topology for', required = False)
 
 
     # parser for emulating topologies
     emparser = subparsers.add_parser('emulator', help='help for emulating topologies')
-    emparser.add_argument('-f', '--file', default = 'topology.xml', help = 'input file.', required = False)
+    emparser.add_argument('-f', '--file', default = 'output/topology.xml', help = 'input file.', required = False)
     emparser.add_argument('-i', '--id', default = 'h001', help = 'host id that should be used to parse and create containers for', required = False)
 
     return vars(parser.parse_args())
