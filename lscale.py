@@ -6,6 +6,7 @@ import traceback
 import argparse
 
 from utilities import logger
+from utilities import exceptions
 import logging
 import generator
 import emulator
@@ -50,10 +51,20 @@ def main():
         raise e
 
     if args['subparser_name'] == "generate" :
-        generator.generate(args['example'],args['file'])
+        try:
+            generator.generate(args['example'],args['file'])
+        except Exception, e :
+            logging.getLogger(__name__).exception("Could not generate topology.")
     elif args['subparser_name'] == "emulate" :
         parsed_topology = {}
-        emulator.emulate(args['file'],args['id'],parsed_topology)
+        try:
+            emulator.emulate(args['file'],args['id'],parsed_topology)
+        except exceptions.InsufficientRightsException :
+            logging.getLogger(__name__).exception("Could not emulate topology.")
+        except Exception, e:
+            logging.getLogger(__name__).exception("Could not emulate topology.")
+            raise e
+
     else:
         raise "Error: check your arguments."
 
