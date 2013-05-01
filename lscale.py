@@ -11,8 +11,6 @@ import logging
 import generator
 import emulator
 
-
-
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Large-Scale Framework.')
     subparsers = parser.add_subparsers(help='sub-command help',dest='subparser_name')
@@ -50,36 +48,43 @@ def main():
         logging.getLogger(__name__).exception("Could not parse arguments.")
         raise e
 
+
+    # run generator or emulator based on arguments
     if args['subparser_name'] == "generate" :
         try:
             generator.generate(args['example'],args['file'])
         except Exception, e :
             logging.getLogger(__name__).exception("Could not generate topology.")
+
     elif args['subparser_name'] == "emulate" :
         parsed_topology = {}
         try:
             emulator.emulate(args['file'], args['id'], parsed_topology)
         except exceptions.InsufficientRightsException :
             logging.getLogger(__name__).exception("Could not emulate topology.")
+            os._exit(1)
         except Exception, e:
             logging.getLogger(__name__).exception("Could not emulate topology.")
             raise e
-
     else:
-        raise "Error: check your arguments."
+        raise exceptions.IncorrectArgumentsException("Error: check your arguments.")
+        os._exit(1)
 
     return 0
 
 
 if __name__ == "__main__":
     try:
+
         main()
+
     except SystemExit, e:
         raise e
+        os._exit(1)
+
     except Exception, e:
-        print "ERROR"
-        print str(e)
         logger = logging.getLogger(__name__)
         logger.exception(str(e))
+        logger.exception(traceback.print_exc())
         traceback.print_exc()
         os._exit(1)

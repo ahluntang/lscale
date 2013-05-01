@@ -63,7 +63,6 @@ def emulate(filename, host_id, parsed_topology = {}):
 
     if os.geteuid() == 0:
         template_environment = Environment(loader=FileSystemLoader('emulator/templates'))
-
         parser.parse(filename, template_environment, parsed_topology, host_id)
         interaction.interact(parsed_topology, host_id)
         elements.cleanup(template_environment)

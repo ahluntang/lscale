@@ -45,3 +45,8 @@ class IPComponentException(LargeScaleException) :
 class InsufficientRightsException(LargeScaleException) :
     def __init__(self, message, Errors = None) :
         LargeScaleException.__init__(self, message, Errors)
+
+
+class IncorrectArgumentsException(LargeScaleException) :
+    def __init__(self, message, Errors = None) :
+        LargeScaleException.__init__(self, message, Errors)
