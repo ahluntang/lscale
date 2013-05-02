@@ -134,8 +134,6 @@ class Container( object ):
         address = Route(virtualinterface.address, virtualinterface.veth)
         self.routing['addresses'].append(address)
 
-
-
     def run_pre_routing(self, template_environment):
         if self.preroutingscript is not None:
             logging.getLogger( __name__ ).info("# Running prerouting script for %s", self.container_id)
@@ -146,7 +144,6 @@ class Container( object ):
         else:
             logging.getLogger( __name__ ).info("# No prerouting script defined for %s", self.container_id)
 
-
     def run_routing(self, template_environment):
         if self.routingscript is not None:
             logging.getLogger( __name__ ).info("# Running routing script for %s", self.container_id)
@@ -154,9 +151,10 @@ class Container( object ):
             template = template_environment.get_template(self.routingscript)
             cmd = template.render(self.routing)
             self.shell.sendline( cmd )
+
+            logging.getLogger( __name__ ).info("# Done postrouting for %s", self.container_id)
         else:
             logging.getLogger( __name__ ).info("# No routing script defined for %s", self.container_id)
-
 
     def run_post_routing(self, template_environment):
         if self.postroutingscript is not None:
