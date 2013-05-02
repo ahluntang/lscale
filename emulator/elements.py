@@ -152,7 +152,6 @@ class Container( object ):
             cmd = template.render(self.routing)
             self.shell.sendline( cmd )
 
-            logging.getLogger( __name__ ).info("# Done postrouting for %s", self.container_id)
         else:
             logging.getLogger( __name__ ).info("# No routing script defined for %s", self.container_id)
 
@@ -163,6 +162,7 @@ class Container( object ):
             template = template_environment.get_template(self.postroutingscript)
             cmd = template.render(self.postrouting)
             self.shell.sendline( cmd )
+            logging.getLogger( __name__ ).info("# Done postrouting for %s", self.container_id)
         else:
             logging.getLogger( __name__ ).info("# No postrouting script defined for %s", self.container_id)
 
