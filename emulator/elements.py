@@ -58,7 +58,7 @@ class Container( object ):
             os.makedirs(logdir)
 
         self.loglocation = "%s/%s.log" % (logdir, container_id)
-        self.logfile = open(self.loglocation, 'wb+')
+        self.logfile = open(self.loglocation, 'wb')
 
         # containers must be cleaned after class destruction
         cleanup_containers.append( self )
