@@ -173,7 +173,7 @@ class Container( object ):
 
             template = template_environment.get_template(self.cleanupscript)
             cmd = template.render(self.cleanupsettings)
-            
+
             self.shell.sendline(cmd)
         else :
             logging.getLogger(__name__).info("# No cleanup script defined for %s", self.container_id)
@@ -221,31 +221,32 @@ class Bridge( object ) :
         self.shell.sendline(cmd)
 
         logger = logging.getLogger( __name__ )
-        logger.info( "Added bridge %8s with address %8s", self.bridge_id, self.address )
+        logger.info("Added bridge %8s with address %8s", self.bridge_id, self.address)
 
-        # setting bridges may take a while
-        #time.sleep(0.5)
+    def __del__(self):
+        try:
+            self.cleanup()
+        except exceptions.CleanupException as e:
+            pass
 
-
-    def __del__(self) :
-        self.cleanup( )
-
-    def cleanup(self) :
+    def cleanup(self):
         """Cleans up resources on destruction.
 
         Bridges will create bridges on the system, cleanup will attempt to
         shut down the bridge and remove them.
         """
 
-        try :
+        try:
             cmd = "ifconfig %s down" % self.bridge_id
-            self.shell.sendline( cmd )
+            self.shell.sendline(cmd)
 
             cmd = "brctl delbr %s\n" % self.bridge_id
-            self.shell.write( cmd )
-            sys.stdout.write( "." )
-            sys.stdout.flush( )
+            self.shell.write(cmd)
+            sys.stdout.write(".")
+            sys.stdout.flush()
         except pexpect.ExceptionPexpect as e:
+            raise exceptions.CleanupException(e)
+        except Exception as e:
             raise exceptions.CleanupException(e)
 
         return True
