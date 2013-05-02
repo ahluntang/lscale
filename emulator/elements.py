@@ -115,7 +115,7 @@ class Container( object ):
     def __del__(self) :
         try:
             self.cleanup()
-        except exceptions.CleanupException as e:
+        except BaseExceptions.CleanupException as e:
             pass
 
     def cleanup(self, template_environment = None) :
@@ -131,7 +131,7 @@ class Container( object ):
             sys.stdout.flush()
         except pexpect.ExceptionPexpect as e:
             pass
-        except Exception as e:
+        except BaseException as e:
             pass
         return True
 
@@ -231,7 +231,7 @@ class Bridge( object ) :
     def __del__(self):
         try:
             self.cleanup()
-        except exceptions.CleanupException as e:
+        except BaseExceptions.CleanupException as e:
             pass
 
     def cleanup(self):
@@ -251,7 +251,7 @@ class Bridge( object ) :
             sys.stdout.flush()
         except pexpect.ExceptionPexpect as e:
             pass
-        except Exception as e:
+        except BaseException as e:
             pass
 
         return True
@@ -316,7 +316,7 @@ class VirtualLink( object ) :
     def __del__(self) :
         try:
             self.cleanup()
-        except exceptions.CleanupException as e:
+        except BaseExceptions.CleanupException as e:
             pass
 
     def cleanup(self) :
@@ -335,7 +335,7 @@ class VirtualLink( object ) :
             sys.stdout.flush( )
         except pexpect.ExceptionPexpect as e:
             pass
-        except Exception as e:
+        except BaseException as e:
             pass
 
         return True
@@ -397,9 +397,9 @@ def cleanup(template_environment) :
 
         print("\n\nCleaning containers [3/3]")
         cleanup_containers[:] = [obj for obj in cleanup_containers if obj.cleanup(template_environment)]
-    except exceptions.CleanupException as e:
+    except BaseExceptions.CleanupException as e:
         pass
     except pexpect.ExceptionPexpect as e:
         pass
-    except Exception as e:
+    except BaseException as e:
         pass
