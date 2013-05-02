@@ -118,7 +118,7 @@ class Container( object ):
         except exceptions.CleanupException as e:
             pass
 
-    def cleanup(self, template_environment = None) :
+    def cleanup(self, template_environment=None) :
         """Cleans up resources on destruction.
 
         Containers will open a new shell, cleanup will exit this shell.
@@ -169,9 +169,9 @@ class Container( object ):
         else:
             logging.getLogger( __name__ ).info("# No postrouting script defined for %s", self.container_id)
 
-    def run_cleanup(self, template_environment=None):
+    def run_cleanup(self, template_environment):
         if self.cleanupscript is not None and template_environment is not None:
-            cleanup_msg = "# Running cleanup script for %s", self.container_id
+            cleanup_msg = "# Running cleanup script for %s" % self.container_id
             logging.getLogger(__name__).info(cleanup_msg)
 
             template = template_environment.get_template(self.cleanupscript)
