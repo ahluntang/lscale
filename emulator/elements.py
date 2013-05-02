@@ -173,7 +173,7 @@ class Container( object ):
 
             template = template_environment.get_template(self.cleanupscript)
             cmd = template.render(self.cleanupsettings)
-            self.shell.sendline(cleanup_msg)
+            #self.shell.sendline(cleanup_msg)
             self.shell.sendline(cmd)
         else :
             logging.getLogger(__name__).info("# No cleanup script defined for %s", self.container_id)
