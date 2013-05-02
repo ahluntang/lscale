@@ -5,10 +5,7 @@
 import os
 
 from jinja2 import Environment, FileSystemLoader
-
-import emulator.parser
-import emulator.interaction
-import emulator.elements
+from emulator import parser, interaction, elements
 from utilities import exceptions
 
 
