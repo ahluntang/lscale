@@ -115,7 +115,7 @@ class Container( object ):
     def __del__(self) :
         try:
             self.cleanup()
-        except BaseExceptions.CleanupException as e:
+        except exceptions.CleanupException as e:
             pass
 
     def cleanup(self, template_environment = None) :
@@ -231,7 +231,7 @@ class Bridge( object ) :
     def __del__(self):
         try:
             self.cleanup()
-        except BaseExceptions.CleanupException as e:
+        except exceptions.CleanupException as e:
             pass
 
     def cleanup(self):
@@ -316,7 +316,7 @@ class VirtualLink( object ) :
     def __del__(self) :
         try:
             self.cleanup()
-        except BaseExceptions.CleanupException as e:
+        except exceptions.CleanupException as e:
             pass
 
     def cleanup(self) :
@@ -397,7 +397,7 @@ def cleanup(template_environment) :
 
         print("\n\nCleaning containers [3/3]")
         cleanup_containers[:] = [obj for obj in cleanup_containers if obj.cleanup(template_environment)]
-    except BaseExceptions.CleanupException as e:
+    except exceptions.CleanupException as e:
         pass
     except pexpect.ExceptionPexpect as e:
         pass
