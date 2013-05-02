@@ -167,13 +167,13 @@ class Container( object ):
             logging.getLogger( __name__ ).info("# No postrouting script defined for %s", self.container_id)
 
     def run_cleanup(self, template_environment):
-        if self.postroutingscript is not None:
+        if self.cleanupscript is not None:
             cleanup_msg = "# Running cleanup script for %s", self.container_id
             logging.getLogger(__name__).info(cleanup_msg)
 
             template = template_environment.get_template(self.cleanupscript)
             cmd = template.render(self.cleanupsettings)
-            #self.shell.sendline(cleanup_msg)
+            self.shell.sendline(cleanup_msg)
             self.shell.sendline(cmd)
         else :
             logging.getLogger(__name__).info("# No cleanup script defined for %s", self.container_id)
