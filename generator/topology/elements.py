@@ -85,10 +85,11 @@ class NetworkComponent(object):
     """Represents a part of the network.
 
     """
-    new_id = itertools.count()
+    new_id = 1
 
     def __init__(self):
-        self.component_id           = NetworkComponent.new_id.__next__()
+        NetworkComponent.new_id += 1
+        self.component_id           = NetworkComponent.new_id
         self.host_id                = None
         self.type                   = None
         #self.free_link_interfaces   = []
