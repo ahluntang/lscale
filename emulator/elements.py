@@ -126,7 +126,7 @@ class Container( object ):
         if template_environment is not None:
             self.run_cleanup(template_environment)
         try:
-            self.shell.write("exit\n")
+            #self.shell.write("exit\n")
             sys.stdout.write(".")
             sys.stdout.flush()
         except BaseException as e:
