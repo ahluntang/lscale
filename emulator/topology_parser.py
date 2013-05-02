@@ -17,7 +17,8 @@ def parse(filename, template_environment, parsed_topology, host_id):
     :param parsed_topology:
     :param host_id:
     """
-    config_tree = etree.parse(filename)
+    #config_tree = etree.parse(filename)
+    config_tree = etree.ElementTree.parse(filename)
     xml_root = config_tree.getroot()
 
     for host in xml_root.findall("hosts/host"):
