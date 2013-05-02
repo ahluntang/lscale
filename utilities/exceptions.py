@@ -44,6 +44,16 @@ class ContainerNotFoundException(LargeScaleException):
         LargeScaleException.__init__(self, message, Errors)
 
 
+class CleanupException(EmulatorException):
+    def __init__(self, message, Errors=None):
+        EmulatorException.__init__(self, message, Errors)
+
+
+class SSHLinkException(EmulatorException):
+    def __init__(self, message, Errors=None):
+        EmulatorException.__init__(self, message, Errors)
+
+
 class BridgeNotFoundException(LargeScaleException):
     def __init__(self, message, Errors=None):
         LargeScaleException.__init__(self, message, Errors)

@@ -6,6 +6,7 @@ import logging
 import pexpect
 import os
 from jinja2 import Environment
+from utilities import exceptions
 
 # list of objects that might need cleanup
 cleanup_containers = []
@@ -48,16 +49,16 @@ class Container( object ):
         Optional argument is a boolean whether it is a container or host.
         """
 
-        print "Creating container %8s" % container_id,
+        print("Creating container %8s" % container_id,)
         self.container_id = container_id
         self.is_host = is_host
 
-        logdir = "logs/output"
-        if not os.path.exists(logdir) :
+        logdir = "logs/container_logs"
+        if not os.path.exists(logdir):
             os.makedirs(logdir)
 
         self.loglocation = "%s/%s.log" % (logdir, container_id)
-        self.logfile = file(self.loglocation,'w')
+        self.logfile = open(self.loglocation, 'w')
 
         # containers must be cleaned after class destruction
         cleanup_containers.append( self )
@@ -78,7 +79,7 @@ class Container( object ):
         # get pid of container
         if virtualization_type == ContainerType.UNSHARED :
             self.pid = self.shell.pid
-            print " (pid: %8s)" % self.pid
+            print(" (pid: %8s)" % self.pid)
         else:
             cmd = "sudo lxc-info -n c002 | awk 'END{print $NF}'" % container_id
             readpid = pexpect.spawn( cmd )
@@ -121,12 +122,12 @@ class Container( object ):
         """
         if template_environment is not None:
             self.run_cleanup(template_environment)
-        try :
-            self.shell.write( "exit\n" )
-            sys.stdout.write( "." )
-            sys.stdout.flush( )
-        except Exception, e :
-            pass
+        try:
+            self.shell.write("exit\n")
+            sys.stdout.write(".")
+            sys.stdout.flush()
+        except pexpect.ExceptionPexpect as e:
+            raise exceptions.CleanupException(e)
         return True
 
     def config_link(self, virtualinterface) :
@@ -202,7 +203,7 @@ class Bridge( object ) :
             Default value: 0.0.0.0
         """
 
-        print "Creating bridge %8s" % bridge_id
+        print("Creating bridge %8s" % bridge_id)
         self.bridge_id = bridge_id
         self.address = address
         self.interfaces = []
@@ -247,15 +248,15 @@ class Bridge( object ) :
             self.shell.write( cmd )
             sys.stdout.write( "." )
             sys.stdout.flush( )
-        except Exception, e :
-            pass
+        except pexpect.ExceptionPexpect as e:
+            raise exceptions.CleanupException(e)
 
         return True
 
     def addif(self, endpoint) :
         self.interfaces.append( endpoint )
         cmd = "brctl addif %s %s" % (self.bridge_id, endpoint)
-        print "Adding interface %8s to bridge %8s: %s" % (endpoint, self.bridge_id, cmd)
+        print("Adding interface %8s to bridge %8s: %s" % (endpoint, self.bridge_id, cmd))
 
         logger = logging.getLogger( __name__ )
         logger.info( "Adding interface %8s to bridge %8s", endpoint, self.bridge_id )
@@ -284,7 +285,7 @@ class VirtualLink( object ) :
         Arguments are the identification of the virtual interfaces veth0 and veth1
         """
 
-        print "Creating virtual link %8s - %8s" % (veth0.veth, veth1.veth)
+        print("Creating virtual link %8s - %8s" % (veth0.veth, veth1.veth))
         self.veth0 = veth0
         self.veth1 = veth1
 
@@ -326,15 +327,15 @@ class VirtualLink( object ) :
             self.veth1.shell.write( cmd )
             sys.stdout.write( "." )
             sys.stdout.flush( )
-        except Exception, e :
-            pass
+        except pexpect.ExceptionPexpect as e:
+            raise exceptions.CleanupException(e)
 
         return True
 
     def setns(self, veth, container) :
         if not container.is_host :
             cmd = "ip link set %s netns %s" % (veth, container.pid)
-            print "Moving interface %8s to %8s: %s" % (veth, container.container_id, cmd)
+            print("Moving interface %8s to %8s: %s" % (veth, container.container_id, cmd))
             self.shell.sendline( cmd )
 
             logger = logging.getLogger( __name__ )
@@ -377,17 +378,16 @@ def cleanup(template_environment) :
     Will check the cleanup lists and remove all objects.
     """
     try:
+        print("Cleanup the system.")
+        print("This may take a while. Grab a coffee.")
 
-        print "Cleanup the system."
-        print "This may take a while. Grab a coffee."
-
-        print "\n\nCleaning links [1/3]"
+        print("\n\nCleaning links [1/3]")
         cleanup_links[:] = [obj for obj in cleanup_links if obj.cleanup( )]
 
-        print "\n\nCleaning bridges [2/3]"
+        print("\n\nCleaning bridges [2/3]")
         cleanup_bridges[:] = [obj for obj in cleanup_bridges if obj.cleanup( )]
 
-        print "\n\nCleaning containers [3/3]"
+        print("\n\nCleaning containers [3/3]")
         cleanup_containers[:] = [obj for obj in cleanup_containers if obj.cleanup(template_environment)]
-    except Exception:
-        pass
+    except pexpect.ExceptionPexpect as e:
+        raise exceptions.CleanupException(e)

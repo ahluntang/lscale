@@ -4,10 +4,10 @@
 import os
 import traceback
 import argparse
+import logging
 
 from utilities import logger
 from utilities import exceptions
-import logging
 import generator
 import emulator
 
@@ -21,7 +21,6 @@ def parse_arguments():
     genparser.add_argument('-f', '--file', default='output/topology.xml', help='output file to write to.',
                            required=False)
     genparser.add_argument('-e', '--example', default='smalltop', help='example to create topology for', required=False)
-
 
     # parser for emulating topologies
     emparser = subparsers.add_parser('emulate', help='help for emulating topologies')
@@ -66,16 +65,15 @@ def main():
         try:
             emulator.emulate(args['file'], args['id'], parsed_topology)
         except exceptions.InsufficientRightsException as e:
-            err_msg = "Could not emulate topology."
+            err_msg = "Could not emulate topology. %s" % str(e)
             logging.getLogger(__name__).exception(err_msg)
             os._exit(1)
         except exceptions.GeneratorException as e:
-            err_msg = "Could not emulate topology."
+            err_msg = "Could not emulate topology. %s" % str(e)
             logging.getLogger(__name__).exception(err_msg)
             raise e
     else:
         raise exceptions.IncorrectArgumentsException("Error: check your arguments.")
-        os._exit(1)
 
     return 0
 
@@ -84,8 +82,7 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        logger = logging.getLogger(__name__)
-        logger.exception(str(e))
-        logger.exception(traceback.print_exc())
+        logging.getLogger(__name__).exception(str(e))
+        logging.getLogger(__name__).exception(traceback.print_exc())
         traceback.print_exc()
         os._exit(1)
