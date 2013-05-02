@@ -133,7 +133,7 @@ class Container( object ):
             pass
         return True
 
-    def config_link(self, virtualinterface) :
+    def config_link(self, virtualinterface):
         address = Route(virtualinterface.address, virtualinterface.veth)
         self.routing['addresses'].append(address)
 
@@ -169,21 +169,20 @@ class Container( object ):
         else:
             logging.getLogger( __name__ ).info("# No postrouting script defined for %s", self.container_id)
 
-    def run_cleanup(self, template_environment):
-        if self.cleanupscript is not None:
+    def run_cleanup(self, template_environment=None):
+        if self.cleanupscript is not None and template_environment is not None:
             cleanup_msg = "# Running cleanup script for %s", self.container_id
             logging.getLogger(__name__).info(cleanup_msg)
 
-            #template = template_environment.get_template(self.cleanupscript)
-            #cmd = template.render(self.cleanupsettings)
+            template = template_environment.get_template(self.cleanupscript)
+            cmd = template.render(self.cleanupsettings)
 
-            #self.shell.sendline(cmd)
+            self.shell.sendline(cmd)
         else:
             logging.getLogger(__name__).info("# No cleanup script defined for %s", self.container_id)
 
 
-
-class Bridge( object ) :
+class Bridge(object):
     """Bridge representation
 
     Instances of this class represent a bridge on the system.
@@ -291,7 +290,7 @@ class VirtualLink( object ) :
         # links must be cleaned after class destruction
         cleanup_links.append( self )
 
-        self.shell = pexpect.spawn( "/bin/bash" )
+        self.shell = pexpect.spawn("/bin/bash")
 
         # create the link
         create_link_cmd = "ip link add name %s type veth peer name  %s" % (self.veth0.veth, self.veth1.veth)
@@ -384,10 +383,10 @@ def cleanup(template_environment) :
         print("This may take a while. Grab a coffee.")
 
         print("\n\nCleaning links [1/3]")
-        cleanup_links[:] = [obj for obj in cleanup_links if obj.cleanup( )]
+        cleanup_links[:] = [obj for obj in cleanup_links if obj.cleanup()]
 
         print("\n\nCleaning bridges [2/3]")
-        cleanup_bridges[:] = [obj for obj in cleanup_bridges if obj.cleanup( )]
+        cleanup_bridges[:] = [obj for obj in cleanup_bridges if obj.cleanup()]
 
         print("\n\nCleaning containers [3/3]")
         cleanup_containers[:] = [obj for obj in cleanup_containers if obj.cleanup(template_environment)]
