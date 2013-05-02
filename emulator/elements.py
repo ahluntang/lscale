@@ -58,12 +58,12 @@ class Container( object ):
             os.makedirs(logdir)
 
         self.loglocation = "%s/%s.log" % (logdir, container_id)
-        self.logfile = open(self.loglocation, 'w')
+        self.logfile = open(self.loglocation, 'wb+')
 
         # containers must be cleaned after class destruction
         cleanup_containers.append( self )
 
-        if (self.is_host) :
+        if self.is_host:
             cmd = "/bin/bash"
         elif virtualization_type == ContainerType.LXC :
             cmd = "lxc-create -t ubuntu -n %s" % container_id
