@@ -74,7 +74,7 @@ class Container( object ):
             cmd = "unshare --net /bin/bash"
 
         # create the shell
-        self.shell = pexpect.spawn(cmd)   #, logfile=self.logfile)
+        self.shell = pexpect.spawn(cmd, logfile=self.logfile)
 
         # get pid of container
         if virtualization_type == ContainerType.UNSHARED :
