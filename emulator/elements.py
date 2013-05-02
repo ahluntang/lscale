@@ -113,7 +113,10 @@ class Container( object ):
         logger.info( "Created container %8s with pid %8s", container_id, self.pid )
 
     def __del__(self) :
-        self.cleanup( )
+        try:
+            self.cleanup()
+        except exceptions.CleanupException as e:
+            pass
 
     def cleanup(self, template_environment = None) :
         """Cleans up resources on destruction.
@@ -127,7 +130,9 @@ class Container( object ):
             sys.stdout.write(".")
             sys.stdout.flush()
         except pexpect.ExceptionPexpect as e:
-            raise exceptions.CleanupException(e)
+            pass
+        except Exception as e:
+            pass
         return True
 
     def config_link(self, virtualinterface) :
@@ -245,9 +250,9 @@ class Bridge( object ) :
             sys.stdout.write(".")
             sys.stdout.flush()
         except pexpect.ExceptionPexpect as e:
-            raise exceptions.CleanupException(e)
+            pass
         except Exception as e:
-            raise exceptions.CleanupException(e)
+            pass
 
         return True
 
@@ -329,9 +334,9 @@ class VirtualLink( object ) :
             sys.stdout.write( "." )
             sys.stdout.flush( )
         except pexpect.ExceptionPexpect as e:
-            raise exceptions.CleanupException(e)
+            pass
         except Exception as e:
-            raise exceptions.CleanupException(e)
+            pass
 
         return True
 
@@ -344,13 +349,13 @@ class VirtualLink( object ) :
             logger = logging.getLogger( __name__ )
             logger.info( "Virtual interface %8s moved to %8s", veth, container.container_id )
 
-            if (veth == self.veth0.veth) :
+            if veth == self.veth0.veth:
                 self.veth0.shell = container.shell
-            elif (veth == self.veth1.veth) :
+            elif veth == self.veth1.veth:
                 self.veth1.shell = container.shell
-            else :
+            else:
                 logger = logging.getLogger( __name__ )
-                logger.warn( "Apparently %8s does not belong to virtual link %8s-%8s", veth, self.veth0.veth, self.veth1.veth )
+                logger.warn("Apparently %8s does not belong to virtual link %8s-%8s", veth, self.veth0.veth, self.veth1.veth )
 
 
 
