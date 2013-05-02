@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import sys, signal, fcntl, termios, struct, netaddr
-import traceback
+import logging
 
 from emulator.elements import VirtualInterface, VirtualLink
-from utilities.compability import input
+from utilities.compability import read_input
 from pexpect import ExceptionPexpect
 from utilities import exceptions
 
@@ -28,28 +28,28 @@ exit_color = "%sexit%s" % (bcolors.FAIL, bcolors.WARNING)
 def interact(configured_hosts, host_id):
     # set starting network for ssh management
     configured_hosts[host_id]['containers'][host_id].management_address = netaddr.IPNetwork("192.168.0.0/30")
-
+    
     prompt = "Available commands: connect, addssh, %s%s: " % (exit_color, bcolors.ENDC)
-    response = input(prompt).rstrip()
+    response = read_input(prompt).rstrip()
     while True:
         if ( response == "connect" ):
             connect_container(configured_hosts, host_id)
-            response = input(prompt).rstrip()
+            response = read_input(prompt).rstrip()
         elif (response == "addssh"):
             add_ssh(configured_hosts, host_id)
-            response = input(prompt).rstrip()
+            response = read_input(prompt).rstrip()
         elif (response == "exit"):
             return 0
         else:
             print("Sorry, I could not recognise that command.")
-            response = input(prompt).rstrip()
+            response = read_input(prompt).rstrip()
 
 
 def add_ssh(configured_hosts, host_id):
     available_containers = sorted(configured_hosts[host_id]['containers'].keys())
     prompt = "\nYou are on '%s'\nAvailable containers:\n%s\nSelect container to add ssh connection to: " % (
         host_id, available_containers)
-    response = input(prompt).rstrip()
+    response = read_input(prompt).rstrip()
     try:
 
         container = configured_hosts[host_id]['containers'][response]
@@ -115,14 +115,14 @@ def connect_container(configured_hosts, host_id):
         available_containers = sorted(configured_hosts[host_id]['containers'].keys())
         prompt = "\nYou are on '%s'\nAvailable containers:\n%s\nSelect container or type %s%s to go back to main options: " % (
             host_id, available_containers, exit_color, bcolors.ENDC)
-        response = input(prompt).rstrip()
+        response = read_input(prompt).rstrip()
         if (response != "exit"):
             try:
 
                 container = configured_hosts[host_id]['containers'][response]
                 print("length: %s" % len(configured_hosts[host_id]['containers']))
                 if container is None:
-                    raise "Container not found!"
+                    raise exceptions.ContainerNotFoundException("Container %s not found!" % response)
 
                 global global_pexpect_instance
                 global_pexpect_instance = container.shell

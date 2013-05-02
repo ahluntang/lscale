@@ -26,7 +26,8 @@ def parse(filename, template_environment, parsed_topology, host_id):
         if h is not None:
             parsed_topology[h['host_id']] = h
 
-    logging.getLogger( __name__ ).info("Done parsing file for %s", host_id)
+    logging.getLogger(__name__).info("Done parsing file for %s", host_id)
+
 
 def parse_host(template_environment, host, host_id):
     containers = {}             # Container objects

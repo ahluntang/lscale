@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-def input(string):
+def read_input(string):
     try:
         return raw_input(string)
     except NameError:
