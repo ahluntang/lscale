@@ -6,13 +6,13 @@ Python libraries needed
 
 * argparse
 * lxml
-* Pexpect
+* Pexpect (pexpect-u fork has supprt for python 3)
 * netaddr
 * jinja2
 * markupsafe (optional, speeds up jinja2)
 
 ```
-pip install argparse lxml pexpect netaddr jinja2 markupsafe
+pip install argparse lxml pexpect-u netaddr jinja2 markupsafe
 ```
 
 **Note**: to install some of the libraries (such as lxml) you will need gcc compiler and Python headers, in debian, you can get the required packages from `build-essential` and `python-dev`.
