@@ -58,23 +58,23 @@ class Container( object ):
             os.makedirs(logdir)
 
         self.loglocation = "%s/%s.log" % (logdir, container_id)
-        self.logfile = open(self.loglocation, 'wb')
+        self.logfile = open(self.loglocation, 'w+')
 
         # containers must be cleaned after class destruction
-        cleanup_containers.append( self )
+        cleanup_containers.append(self)
 
         if self.is_host:
             cmd = "/bin/bash"
-        elif virtualization_type == ContainerType.LXC :
+        elif virtualization_type == ContainerType.LXC:
             cmd = "lxc-create -t ubuntu -n %s" % container_id
-        elif virtualization_type == ContainerType.LXCLVM :
+        elif virtualization_type == ContainerType.LXCLVM:
             #cmd = "lxc-create -t ubuntu -B lvm -n %s" % container_id
             cmd = "lxc-create -t ubuntu -B lvm -n base\nlxc-clone -s -o base -n %s" % container_id
         else: # elif virtualization_type == ContainerType.UNSHARED :
             cmd = "unshare --net /bin/bash"
 
         # create the shell
-        self.shell = pexpect.spawn( cmd, logfile=self.logfile )
+        self.shell = pexpect.spawn(cmd, logfile=self.logfile)
 
         # get pid of container
         if virtualization_type == ContainerType.UNSHARED :
