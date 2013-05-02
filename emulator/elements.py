@@ -309,7 +309,10 @@ class VirtualLink( object ) :
 
 
     def __del__(self) :
-        self.cleanup( )
+        try:
+            self.cleanup()
+        except exceptions.CleanupException as e:
+            pass
 
     def cleanup(self) :
         """Cleans up resources on destruction.
@@ -326,6 +329,8 @@ class VirtualLink( object ) :
             sys.stdout.write( "." )
             sys.stdout.flush( )
         except pexpect.ExceptionPexpect as e:
+            raise exceptions.CleanupException(e)
+        except Exception as e:
             raise exceptions.CleanupException(e)
 
         return True
@@ -387,5 +392,9 @@ def cleanup(template_environment) :
 
         print("\n\nCleaning containers [3/3]")
         cleanup_containers[:] = [obj for obj in cleanup_containers if obj.cleanup(template_environment)]
+    except exceptions.CleanupException as e:
+        pass
     except pexpect.ExceptionPexpect as e:
-        raise exceptions.CleanupException(e)
+        pass
+    except Exception as e:
+        pass
