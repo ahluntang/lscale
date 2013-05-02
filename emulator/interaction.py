@@ -134,7 +134,7 @@ def connect_container(configured_hosts, host_id):
                 print(interact_message)
                 print(interact_warning)
 
-                container.shell.interact(chr(29))
+                container.shell.interact()
                 print("Shell sent to background.")
             except KeyError as e:
                 print(" %s Error! Have you selected the correct container id? %s" % ( bcolors.WARNING, bcolors.ENDC ))
