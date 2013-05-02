@@ -12,8 +12,8 @@ ip link set lo up
     ip link set {{ address.interface }} up
 {% endfor %}
 
-echo "Enabling routing"
-sysctl -w net.ipv4.ip_forward=1
+#echo "Enabling routing"
+#sysctl -w net.ipv4.ip_forward=1
 
 
 {% for route in routes %}
