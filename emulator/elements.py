@@ -112,7 +112,7 @@ class Container( object ):
         logger = logging.getLogger( __name__ )
         logger.info( "Created container %8s with pid %8s", container_id, self.pid )
 
-    def __del__(self) :
+    def __del__(self):
         try:
             self.cleanup()
         except exceptions.CleanupException as e:
@@ -129,8 +129,6 @@ class Container( object ):
             self.shell.write("exit\n")
             sys.stdout.write(".")
             sys.stdout.flush()
-        except pexpect.ExceptionPexpect as e:
-            pass
         except BaseException as e:
             pass
         return True
@@ -249,8 +247,6 @@ class Bridge( object ) :
             self.shell.write(cmd)
             sys.stdout.write(".")
             sys.stdout.flush()
-        except pexpect.ExceptionPexpect as e:
-            pass
         except BaseException as e:
             pass
 
@@ -333,8 +329,6 @@ class VirtualLink( object ) :
             self.veth1.shell.write( cmd )
             sys.stdout.write( "." )
             sys.stdout.flush( )
-        except pexpect.ExceptionPexpect as e:
-            pass
         except BaseException as e:
             pass
 
