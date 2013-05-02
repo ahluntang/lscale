@@ -74,15 +74,21 @@ class NetworkInterface(object):
     def add_route(self, route):
         self.routes.append(route)
 
+    def __lt__(self, other):
+        return self.interface_id < other.interface_id
+    # and so on for other comparators, as above, plus:
+    def __hash__(self):
+        return hash(self.__key__())
+
 
 class NetworkComponent(object):
     """Represents a part of the network.
 
     """
-    new_id = itertools.count().next
+    new_id = itertools.count()
 
     def __init__(self):
-        self.component_id           = NetworkComponent.new_id()
+        self.component_id           = NetworkComponent.new_id.__next__()
         self.host_id                = None
         self.type                   = None
         #self.free_link_interfaces   = []

@@ -6,7 +6,7 @@ import logging
 
 import netaddr
 
-from elements import NetworkComponent, Container, Bridge, NetworkInterface
+from generator.topology.elements import NetworkComponent, Container, Bridge, NetworkInterface
 import utilities.exceptions as exceptions
 
 def add_component_to_topology(topology_root, component):
@@ -84,7 +84,7 @@ def add_management_interface(host,component, addressing_scheme = None):
     bridge_interface      = NetworkInterface(bridge_interface_id, link_id)
 
     host_interface.summarizes = [netaddr.IPNetwork("0.0.0.0/0")]
-    print "link %s has %s and %s" % (link_id, host_interface.interface_id, bridge_interface.interface_id)
+    print("link %s has %s and %s" % (link_id, host_interface.interface_id, bridge_interface.interface_id))
 
     br.add_interface(bridge_interface)
     host.add_interface(host_interface)
@@ -211,7 +211,7 @@ def connect_line_bridge(line_component, bridge_component, addressing_scheme = No
     # summary
     if addressing_scheme is not None:
         containers = len(line_component.topology['containers'])
-        print "amount of containers: %s " % containers
+        print("amount of containers: %s " % containers)
         other_container = None
         if len(line_component.connection_points) > 0 :
             other_container = line_component.connection_points[0]
@@ -220,9 +220,9 @@ def connect_line_bridge(line_component, bridge_component, addressing_scheme = No
         if other_container is not None and netaddr.IPNetwork(line_container.interfaces[0].address) > netaddr.IPNetwork(other_container.interfaces[0].address) :
             summary = netaddr.cidr_merge(line_component.addresses[(containers-1) :len(line_component.addresses)])
             line_component.addresses = line_component.addresses[0 : containers-2 ]
-            print "2: ",
+            print("2: ",)
             for address in line_component.addresses:
-                print address,
+                print(address,)
         else :
             summary = netaddr.cidr_merge(line_component.addresses[0 :containers - 2])
             line_component.addresses = line_component.addresses[containers-1 :len(line_component.addresses)]
@@ -230,7 +230,7 @@ def connect_line_bridge(line_component, bridge_component, addressing_scheme = No
         line_interface.summarizes = summary
 
 
-    print "link %s has %s and %s" % (link_id, line_interface.interface_id, bridge_interface.interface_id)
+    print("link %s has %s and %s" % (link_id, line_interface.interface_id, bridge_interface.interface_id))
 
     br.add_interface(bridge_interface)
     line_container.add_interface(line_interface)
@@ -499,8 +499,8 @@ def create_ring(host, amount_of_containers = 5, addressing_scheme = None, is_lin
                     # also add addresses to list in component
                     component.addresses.append(if1_ip)
                     component.addresses.append(if2_ip)
-                except Exception, e:
-                    raise exceptions.IPComponentException(Exception,e)
+                except Exception as e:
+                    raise exceptions.IPComponentException(e)
 
             # adding interfaces to the previous and this container
             prev_container.add_interface(interface_prev)
