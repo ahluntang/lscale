@@ -109,8 +109,7 @@ class Container( object ):
         self.management_interface = "%s.m" % self.container_id
         self.management_address   = None
 
-        logger = logging.getLogger( __name__ )
-        logger.info( "Created container %8s with pid %8s", container_id, self.pid )
+        logging.getLogger( __name__ ).info( "Created container %8s with pid %8s", container_id, self.pid )
 
     def __del__(self):
         try:
@@ -126,7 +125,6 @@ class Container( object ):
         if template_environment is not None:
             self.run_cleanup(template_environment)
         try:
-            #self.shell.write("exit\n")
             sys.stdout.write(".")
             sys.stdout.flush()
         except BaseException as e:

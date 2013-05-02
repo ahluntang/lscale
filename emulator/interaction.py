@@ -140,6 +140,9 @@ def connect_container(configured_hosts, host_id):
                 print(" %s Error! Have you selected the correct container id? %s" % ( bcolors.WARNING, bcolors.ENDC ))
                 #
                 # raise e
+            except TypeError as e:
+                logging.getLogger(__name__).info("Closing interactive mode")
+
         else:
             return 0
 
