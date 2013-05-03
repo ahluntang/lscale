@@ -4,3 +4,7 @@ pexpect-u
 netaddr 
 jinja2 
 markupsafe
+mock
+nose
+coverage 
+pylint
