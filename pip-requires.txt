@@ -8,3 +8,4 @@ mock
 nose
 coverage 
 pylint
+nosexcover
