@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys, signal, fcntl, termios, struct, netaddr
+import sys
+import signal
+import fcntl
+import termios
+import struct
+import netaddr
 import logging
 
 from emulator.elements import VirtualInterface, VirtualLink
@@ -116,7 +121,7 @@ def connect_container(configured_hosts, host_id):
         prompt = "\nYou are on '%s'\nAvailable containers:\n%s\nSelect container or type %s%s to go back to main options: " % (
             host_id, available_containers, exit_color, bcolors.ENDC)
         response = read_input(prompt).rstrip()
-        if (response != "exit"):
+        if response != "exit":
             try:
 
                 container = configured_hosts[host_id]['containers'][response]

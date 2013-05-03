@@ -7,3 +7,7 @@
 .idea/
 logs/
 #output/*
+coverage.xml
+nosetests.xml
+.coverage
+htmlcov/

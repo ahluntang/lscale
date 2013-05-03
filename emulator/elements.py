@@ -3,10 +3,12 @@
 
 import sys
 import logging
-import pexpect
 import os
-from jinja2 import Environment
+
+import pexpect
+
 from utilities import exceptions
+
 
 # list of objects that might need cleanup
 cleanup_containers = []
@@ -17,10 +19,12 @@ cleanup_bridges = []
 ## CLASSES ##
 #############
 
+
 class ContainerType:
     UNSHARED, LXC, LXCLVM = range(3)
 
-class Container( object ):
+
+class Container(object):
     """Container representation.
 
     Instances of this class represent a container or host.
@@ -42,14 +46,14 @@ class Container( object ):
         self.interfaces -- used for routing
     """
 
-    def __init__(self, container_id, is_host= False, virtualization_type = ContainerType.UNSHARED) :
+    def __init__(self, container_id, is_host=False, virtualization_type=ContainerType.UNSHARED):
         """Constructs a new Container instance.
 
         Argument is identification for the container.
         Optional argument is a boolean whether it is a container or host.
         """
 
-        print("Creating container %8s" % container_id,)
+        print("Creating container %8s" % container_id, )
         self.container_id = container_id
         self.is_host = is_host
 
@@ -77,12 +81,12 @@ class Container( object ):
         self.shell = pexpect.spawn(cmd, logfile=self.logfile)
 
         # get pid of container
-        if virtualization_type == ContainerType.UNSHARED :
+        if virtualization_type == ContainerType.UNSHARED:
             self.pid = self.shell.pid
             print(" (pid: %8s)" % self.pid)
         else:
             cmd = "sudo lxc-info -n c002 | awk 'END{print $NF}'" % container_id
-            readpid = pexpect.spawn( cmd )
+            readpid = pexpect.spawn(cmd)
             self.pid = readpid.readline()
 
             # log into the lxc shell
@@ -91,25 +95,25 @@ class Container( object ):
 
         #set prompt
         prompt = "export PS1='%s> '" % container_id
-        self.shell.sendline( prompt )
+        self.shell.sendline(prompt)
 
         #setting instance variables
-        self.preroutingscript     = None
-        self.routingscript        = None
-        self.postroutingscript    = None
-        self.cleanupscript        = None
-        self.prerouting           = { 'container_id' : self.container_id }
-        self.routing              = { 'container_id' : self.container_id }
-        self.routing['routes']    = []
+        self.preroutingscript = None
+        self.routingscript = None
+        self.postroutingscript = None
+        self.cleanupscript = None
+        self.prerouting = {'container_id': self.container_id}
+        self.routing = {'container_id': self.container_id}
+        self.routing['routes'] = []
         self.routing['addresses'] = []
-        self.postrouting          = { 'container_id' : self.container_id }
-        self.cleanupsettings      = { 'container_id' : self.container_id }
-        self.gateway              = None
-        self.is_managed           = False
+        self.postrouting = {'container_id': self.container_id}
+        self.cleanupsettings = {'container_id': self.container_id}
+        self.gateway = None
+        self.is_managed = False
         self.management_interface = "%s.m" % self.container_id
-        self.management_address   = None
+        self.management_address = None
 
-        logging.getLogger( __name__ ).info( "Created container %8s with pid %8s", container_id, self.pid )
+        logging.getLogger(__name__).info("Created container %8s with pid %8s", container_id, self.pid)
 
     def __del__(self):
         try:
@@ -117,7 +121,7 @@ class Container( object ):
         except exceptions.CleanupException as e:
             pass
 
-    def cleanup(self, template_environment=None) :
+    def cleanup(self, template_environment=None):
         """Cleans up resources on destruction.
 
         Containers will open a new shell, cleanup will exit this shell.
@@ -137,35 +141,35 @@ class Container( object ):
 
     def run_pre_routing(self, template_environment):
         if self.preroutingscript is not None:
-            logging.getLogger( __name__ ).info("# Running prerouting script for %s", self.container_id)
+            logging.getLogger(__name__).info("# Running prerouting script for %s", self.container_id)
 
             template = template_environment.get_template(self.preroutingscript)
             cmd = template.render(self.prerouting)
-            self.shell.sendline( cmd )
+            self.shell.sendline(cmd)
         else:
-            logging.getLogger( __name__ ).info("# No prerouting script defined for %s", self.container_id)
+            logging.getLogger(__name__).info("# No prerouting script defined for %s", self.container_id)
 
     def run_routing(self, template_environment):
         if self.routingscript is not None:
-            logging.getLogger( __name__ ).info("# Running routing script for %s", self.container_id)
+            logging.getLogger(__name__).info("# Running routing script for %s", self.container_id)
 
             template = template_environment.get_template(self.routingscript)
             cmd = template.render(self.routing)
-            self.shell.sendline( cmd )
+            self.shell.sendline(cmd)
 
         else:
-            logging.getLogger( __name__ ).info("# No routing script defined for %s", self.container_id)
+            logging.getLogger(__name__).info("# No routing script defined for %s", self.container_id)
 
     def run_post_routing(self, template_environment):
         if self.postroutingscript is not None:
-            logging.getLogger( __name__ ).info("# Running postrouting script for %s", self.container_id)
+            logging.getLogger(__name__).info("# Running postrouting script for %s", self.container_id)
 
             template = template_environment.get_template(self.postroutingscript)
             cmd = template.render(self.postrouting)
-            self.shell.sendline( cmd )
-            logging.getLogger( __name__ ).info("# Done postrouting for %s", self.container_id)
+            self.shell.sendline(cmd)
+            logging.getLogger(__name__).info("# Done postrouting for %s", self.container_id)
         else:
-            logging.getLogger( __name__ ).info("# No postrouting script defined for %s", self.container_id)
+            logging.getLogger(__name__).info("# No postrouting script defined for %s", self.container_id)
 
     def run_cleanup(self, template_environment):
         if self.cleanupscript is not None and template_environment is not None:
@@ -192,7 +196,7 @@ class Bridge(object):
         self.shell -- holds the pexpect shell object for this instance
     """
 
-    def __init__(self, bridge_id, address = '0.0.0.0') :
+    def __init__(self, bridge_id, address='0.0.0.0'):
         """Constructs a new bridge instance.
 
         Argument is the identification of the bridge.
@@ -206,21 +210,21 @@ class Bridge(object):
         self.interfaces = []
 
         # bridges must be cleaned after class destruction
-        cleanup_bridges.append( self )
+        cleanup_bridges.append(self)
 
-        self.shell = pexpect.spawn( "/bin/bash" )
+        self.shell = pexpect.spawn("/bin/bash")
 
         # creating bridge
         create_bridge_cmd = "brctl addbr %s" % bridge_id
-        self.shell.sendline( create_bridge_cmd )
+        self.shell.sendline(create_bridge_cmd)
 
         cmd = "ifconfig %s %s up" % (bridge_id, self.address)
-        self.shell.sendline( cmd )
+        self.shell.sendline(cmd)
 
         cmd = "brctl stp %s on" % bridge_id
         self.shell.sendline(cmd)
 
-        logger = logging.getLogger( __name__ )
+        logger = logging.getLogger(__name__)
         logger.info("Added bridge %8s with address %8s", self.bridge_id, self.address)
 
     def __del__(self):
@@ -249,18 +253,18 @@ class Bridge(object):
 
         return True
 
-    def addif(self, endpoint) :
-        self.interfaces.append( endpoint )
+    def addif(self, endpoint):
+        self.interfaces.append(endpoint)
         cmd = "brctl addif %s %s" % (self.bridge_id, endpoint)
         print("Adding interface %8s to bridge %8s: %s" % (endpoint, self.bridge_id, cmd))
 
-        logger = logging.getLogger( __name__ )
-        logger.info( "Adding interface %8s to bridge %8s", endpoint, self.bridge_id )
+        logger = logging.getLogger(__name__)
+        logger.info("Adding interface %8s to bridge %8s", endpoint, self.bridge_id)
 
-        self.shell.sendline( cmd )
+        self.shell.sendline(cmd)
 
 
-class VirtualLink( object ) :
+class VirtualLink(object):
     """Link representation.
 
     Instances of this class represent virtual links on the system.
@@ -275,7 +279,7 @@ class VirtualLink( object ) :
             Changes when interface is moved to a different network namespace
     """
 
-    def __init__(self, veth0, veth1) :
+    def __init__(self, veth0, veth1):
         """Constructs a new VirtualLink instance.
 
         Arguments are the identification of the virtual interfaces veth0 and veth1
@@ -286,72 +290,71 @@ class VirtualLink( object ) :
         self.veth1 = veth1
 
         # links must be cleaned after class destruction
-        cleanup_links.append( self )
+        cleanup_links.append(self)
 
         self.shell = pexpect.spawn("/bin/bash")
 
         # create the link
         create_link_cmd = "ip link add name %s type veth peer name  %s" % (self.veth0.veth, self.veth1.veth)
-        self.shell.sendline( create_link_cmd )
+        self.shell.sendline(create_link_cmd)
         # set virtual interfaces from link to up
         cmd = "ifconfig %s up" % self.veth0.veth
-        self.shell.sendline( cmd )
+        self.shell.sendline(cmd)
         cmd = "ifconfig %s up" % self.veth1.veth
-        self.shell.sendline( cmd )
+        self.shell.sendline(cmd)
 
         self.veth0.shell = self.shell
         self.veth1.shell = self.shell
 
-        logger = logging.getLogger( __name__ )
-        logger.info( "Added virtual link %8s - %8s", self.veth0.veth, self.veth1.veth )
+        logger = logging.getLogger(__name__)
+        logger.info("Added virtual link %8s - %8s", self.veth0.veth, self.veth1.veth)
 
 
-    def __del__(self) :
+    def __del__(self):
         try:
             self.cleanup()
         except exceptions.CleanupException as e:
             pass
 
-    def cleanup(self) :
+    def cleanup(self):
         """Cleans up resources on destruction.
 
         VirtualLinks will create links on the system, cleanup will attempt to
         remove any links made.
         """
 
-        try :
+        try:
             cmd = "ip link del %s\n" % self.veth0.veth
-            self.veth0.shell.write( cmd )
+            self.veth0.shell.write(cmd)
             cmd = "ip link del %s\n" % self.veth1.veth
-            self.veth1.shell.write( cmd )
-            sys.stdout.write( "." )
-            sys.stdout.flush( )
+            self.veth1.shell.write(cmd)
+            sys.stdout.write(".")
+            sys.stdout.flush()
         except BaseException as e:
             pass
 
         return True
 
-    def setns(self, veth, container) :
-        if not container.is_host :
+    def setns(self, veth, container):
+        if not container.is_host:
             cmd = "ip link set %s netns %s" % (veth, container.pid)
             print("Moving interface %8s to %8s: %s" % (veth, container.container_id, cmd))
-            self.shell.sendline( cmd )
+            self.shell.sendline(cmd)
 
-            logger = logging.getLogger( __name__ )
-            logger.info( "Virtual interface %8s moved to %8s", veth, container.container_id )
+            logger = logging.getLogger(__name__)
+            logger.info("Virtual interface %8s moved to %8s", veth, container.container_id)
 
             if veth == self.veth0.veth:
                 self.veth0.shell = container.shell
             elif veth == self.veth1.veth:
                 self.veth1.shell = container.shell
             else:
-                logger = logging.getLogger( __name__ )
-                logger.warn("Apparently %8s does not belong to virtual link %8s-%8s", veth, self.veth0.veth, self.veth1.veth )
-
+                logger = logging.getLogger(__name__)
+                logger.warn("Apparently %8s does not belong to virtual link %8s-%8s", veth, self.veth0.veth,
+                            self.veth1.veth)
 
 
 class VirtualInterface(object):
-
     def __init__(self, veth):
         self.veth = veth
         self.shell = None
@@ -360,18 +363,17 @@ class VirtualInterface(object):
 
 
 class Route(object):
-
     def __init__(self, address, interface):
         self.interface = interface
-        self.address   = address
-        self.netmask   = None
-        self.via       = None
+        self.address = address
+        self.netmask = None
+        self.via = None
 
 ###############
 ## FUNCTIONS ##
 ###############
 
-def cleanup(template_environment) :
+def cleanup(template_environment):
     """Cleanup the system.
 
     Will check the cleanup lists and remove all objects.
