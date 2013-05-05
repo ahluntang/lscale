@@ -3,11 +3,14 @@
 *.pyc
 *.log
 *.xml
+*.cover
+*,cover
+*.coverage
 .DS_Store
 .idea/
 logs/
 #output/*
 coverage.xml
 nosetests.xml
-.coverage
 htmlcov/
+

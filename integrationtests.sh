@@ -18,8 +18,7 @@ coverage run lscale.py generate
 coverage report -m
 coverage html
 
-nosetests --with-xunit --all-modules --traverse-namespace --with-coverage --cover-package=lscale --cover-inclusive
-
+nosetests --with-coverage --cover-package=configurator,emulator,generator,utilities
 #python -m coverage xml --include=lscale*
 pylint -f parseable -d I0011,R0801 lscale | tee pylint.out
 
