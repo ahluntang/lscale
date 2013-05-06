@@ -68,6 +68,7 @@ def main():
 
     # run generator or emulator based on arguments
     if args['subparser_name'] == "generate":
+
         generator.generate(args['example'], args['file'])
 
     elif args['subparser_name'] == "emulate":
@@ -103,5 +104,4 @@ if __name__ == "__main__":
         main()
     except Exception as e:
         logging.getLogger(__name__).exception(traceback.print_exc())
-        traceback.print_exc()
         os._exit(1)
