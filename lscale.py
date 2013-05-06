@@ -102,7 +102,7 @@ def main():
             original = args['original']
             name = args['name']
             snapshot = args['snapshot']
-            if snapshot == "on":
+            if snapshot == "yes":
                 s = True
             else:
                 s = False

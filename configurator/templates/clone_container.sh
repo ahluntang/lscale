@@ -10,7 +10,7 @@ if [ $# -eq 0 || $# -eq 1 ] ; then
 elif [ $# -eq 2 ]; then
     lxc-clone -o ${ORIGINAL_CONTAINER} -n ${CONTAINER_NAME}
     exit 0
-elif[ $# -eq 3 ]; then
+elif [ $# -eq 3 ]; then
     lxc-clone -o ${ORIGINAL_CONTAINER} -n ${CONTAINER_NAME} -s
     exit 0
 else
