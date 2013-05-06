@@ -50,7 +50,7 @@ def clone_container(container_name, original_container="base", snapshot=False):
 
 
 def create_lvm(name="lxc", device="/dev/sda", partition="1"):
-    
+
     cmd = "./configurator/create_lvm.sh %s %s %s" % (name, device, partition)
 
     shell = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

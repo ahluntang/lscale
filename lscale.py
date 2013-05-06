@@ -112,7 +112,8 @@ def main():
                 raise e
 
         else:
-            raise exceptions.IncorrectArgumentsException("Error: check your arguments.")
+            pass
+            #raise exceptions.IncorrectArgumentsException("Error: check your arguments.")
     else:
         raise exceptions.IncorrectArgumentsException("Error: check your arguments.")
 
