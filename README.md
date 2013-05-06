@@ -6,20 +6,22 @@ Python libraries needed
 
 * argparse
 * lxml
-* Pexpect (pexpect-u fork has supprt for python 3)
+* Pexpect (pexpect-u fork has support for python 3)
 * netaddr
 * jinja2
 * markupsafe (optional, speeds up jinja2)
 
+The libraries can be installed using pip-requirements.txt file.
+
 ```
-pip install argparse lxml pexpect-u netaddr jinja2 markupsafe
+pip install -r pip-requirements.txt
 ```
 
 **Note**: to install some of the libraries (such as lxml) you will need gcc compiler and Python headers, in debian, you can get the required packages from `build-essential` and `python-dev`.
 lxml itself also requires `libxml2-dev` and `libxslt1-dev` 
 
 ```
-apt-get install build-essential python-dev libxml2-dev libxslt1-dev
+apt-get install build-essential python-pip python-dev libxml2-dev libxslt1-dev
 ```
 
 ## Overview
@@ -29,11 +31,11 @@ apt-get install build-essential python-dev libxml2-dev libxslt1-dev
 
 ```
 #!sh
-    ./lscale.py {generate|emulate} [-h] [-f FILE] [-e EXAMPLE]
-    ./lscale.py generate -e cityflow
-    ./lscale.py generate -e cityring
-    ./lscale.py generate -e citybus
-    ./lscale.py generate -e citystar
+./lscale.py {generate|emulate} [-h] [-f FILE] [-e EXAMPLE]
+./lscale.py generate -e cityflow
+./lscale.py generate -e cityring
+./lscale.py generate -e citybus
+./lscale.py generate -e citystar
 ```
 
 | option          | Optional | Info                                                     |

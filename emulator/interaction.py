@@ -135,7 +135,7 @@ def connect_container(configured_hosts, host_id):
                 signal.signal(signal.SIGWINCH, sigwinch_passthrough)
 
                 interact_message = "Interacting with %s. Type %s (%s) to escape." % (
-                container.container_id, escape_char, escape_char__ASCII )
+                    container.container_id, escape_char, escape_char__ASCII)
                 print(interact_message)
                 print(interact_warning)
 
