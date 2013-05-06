@@ -30,6 +30,7 @@ class Container(object):
 
     Instance variables:
         self.container_id -- identification for container
+        self.virtualization_type -- sets type of container (host, unshared, lxc or lxc with lvm)
         self.shell -- holds the pexpect shell object for this instance
         self.pid -- pid of the container (can also be accessed through self.shell.pid)
         self.preroutingscript --  pre routing script for template
@@ -48,7 +49,7 @@ class Container(object):
         Optional argument is a boolean whether it is a container or host.
         """
 
-        print("Creating container %8s" % container_id, )
+        print("Creating container %8s" % container_id),
         self.container_id = container_id
         self.virtualization_type = virtualization_type
 
@@ -71,7 +72,7 @@ class Container(object):
         elif self.virtualization_type == ContainerType.LXCLVM:
             cmd = "lxc-create -t ubuntu -B lvm -n base\nlxc-clone -s -o base -n %s" % container_id
 
-        else: # elif virtualization_type == ContainerType.UNSHARED :
+        else:  # elif virtualization_type == ContainerType.UNSHARED :
             cmd = "unshare --net /bin/bash"
 
         # create the shell
@@ -82,6 +83,7 @@ class Container(object):
             cmd = "sudo lxc-info -n %s | awk 'END{print $NF}'" % container_id
             readpid = pexpect.spawn(cmd)
             self.pid = readpid.readline()
+            print(" (pid: %8s)" % self.pid)
 
             # log into the lxc shell
             self.shell.sendline("ubuntu")
@@ -100,9 +102,7 @@ class Container(object):
         self.postroutingscript = None
         self.cleanupscript = None
         self.prerouting = {'container_id': self.container_id}
-        self.routing = {'container_id': self.container_id}
-        self.routing['routes'] = []
-        self.routing['addresses'] = []
+        self.routing = {'container_id': self.container_id, 'routes': [], 'addresses': []}
         self.postrouting = {'container_id': self.container_id}
         self.cleanupsettings = {'container_id': self.container_id}
         self.gateway = None
@@ -132,8 +132,8 @@ class Container(object):
             pass
         return True
 
-    def config_link(self, virtualinterface):
-        address = Route(virtualinterface.address, virtualinterface.veth)
+    def config_link(self, virtual_interface):
+        address = Route(virtual_interface.address, virtual_interface.veth)
         self.routing['addresses'].append(address)
 
     def run_pre_routing(self, template_environment):
