@@ -35,7 +35,7 @@ def parse_arguments():
 
     create_parser = subconfparsers.add_parser('create', help='help for creating container')
     create_parser.add_argument('-n', '--name', default='base', help='container name', required=False)
-    create_parser.add_argument('-B', '--backingstore', default='lvm',
+    create_parser.add_argument('-b', '--backingstore', default='lvm',
                                help='choose backing store (valid options: none, lvm, btrfs)', required=False)
     create_parser.add_argument('-t', '--template', default='ubuntu', help='template name (default: ubuntu)', required=False)
 
@@ -94,6 +94,7 @@ def main():
             name = args['name']
             backingstore = args['backingstore']
             template = args['template']
+            print("%s %s %s" % (name, backingstore, template))
             try:
                 configurator.create_container(name, backingstore, template)
             except exceptions.GeneratorException as e:
