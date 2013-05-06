@@ -4,7 +4,9 @@
 
 
 import os
+import sys
 import subprocess
+import threading
 
 from jinja2 import Environment, FileSystemLoader
 from utilities import exceptions
@@ -25,8 +27,19 @@ def create_container(container_name="base", backing_store="none", template="ubun
     cmd = "./configurator/templates/create_container.sh %s %s %s" % (container_name, backing_store, template)
 
     shell = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, error = shell.communicate()
-    print(output)
+    #output, error = shell.communicate()
+    lines = []
+
+    def reader():
+        for line in shell.stdout:
+            lines.append(line)
+            sys.stdout.write(line)
+
+    t = threading.Thread(target=reader)
+    t.start()
+    shell.wait()
+    t.join()
+    #print(output)
 
     if shell.returncode != 0:
         err_msg = "Could not create container: %s\nOUTPUT\n %s\nError\n%s" % (cmd, output, error)
