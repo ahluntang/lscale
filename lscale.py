@@ -94,7 +94,6 @@ def main():
             name = args['name']
             backingstore = args['backingstore']
             template = args['template']
-            print("%s %s %s" % (name, backingstore, template))
             try:
                 configurator.create_container(name, backingstore, template)
             except exceptions.GeneratorException as e:

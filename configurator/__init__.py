@@ -22,7 +22,7 @@ def configure():
 
 def create_container(container_name="base", backing_store="none", template="ubuntu"):
 
-    cmd = "./configurator/create_container.sh %s %s" % (container_name, backing_store, template)
+    cmd = "./configurator/create_container.sh %s %s %s" % (container_name, backing_store, template)
 
     shell = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = shell.communicate()
