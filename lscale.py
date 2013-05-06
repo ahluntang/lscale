@@ -64,52 +64,30 @@ def main():
         args = parse_arguments()
     except:
         err_msg = "Could not configure logging framework."
-        logging.getLogger(__name__).exception(err_msg)
         raise exceptions.ArgParseException(err_msg)
 
     # run generator or emulator based on arguments
     if args['subparser_name'] == "generate":
-        try:
-            generator.generate(args['example'], args['file'])
-        except exceptions.GeneratorException as e:
-            err_msg = "Could not generate topology."
-            logging.getLogger(__name__).exception(err_msg)
-            raise e
+        generator.generate(args['example'], args['file'])
 
     elif args['subparser_name'] == "emulate":
         parsed_topology = {}
-        try:
-            emulator.emulate(args['file'], args['id'], parsed_topology)
-        except exceptions.InsufficientRightsException as e:
-            err_msg = "Could not emulate topology. %s" % str(e)
-            logging.getLogger(__name__).exception(err_msg)
-            os._exit(1)
-        except exceptions.GeneratorException as e:
-            err_msg = "Could not emulate topology. %s" % str(e)
-            logging.getLogger(__name__).exception(err_msg)
-            raise e
+        emulator.emulate(args['file'], args['id'], parsed_topology)
     elif args['subparser_name'] == "configure":
 
         if args['confparser_name'] == "create":
             name = args['name']
             backingstore = args['backingstore']
             template = args['template']
-            try:
-                configurator.create_container(name, backingstore, template)
-            except exceptions.GeneratorException as e:
-                err_msg = "Could not create container."
-                logging.getLogger(__name__).exception(err_msg)
-                raise e
-        elif  args['confparser_name'] == "lvm":
+
+            configurator.create_container(name, backingstore, template)
+
+        elif args['confparser_name'] == "lvm":
             name = args['name']
             device = args['device']
             partition = args['partition']
-            try:
-                configurator.create_lvm(name, device, partition)
-            except exceptions.GeneratorException as e:
-                err_msg = "Could not create lvm volume group."
-                logging.getLogger(__name__).exception(err_msg)
-                raise e
+
+            configurator.create_lvm(name, device, partition)
 
         else:
             pass
@@ -124,7 +102,6 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        logging.getLogger(__name__).exception(str(e))
         logging.getLogger(__name__).exception(traceback.print_exc())
         traceback.print_exc()
         os._exit(1)
