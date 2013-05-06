@@ -9,7 +9,7 @@ import subprocess
 import threading
 
 from jinja2 import Environment, FileSystemLoader
-from utilities import exceptions
+from utilities import exceptions, script
 
 
 def configure():
@@ -30,12 +30,7 @@ def create_container(container_name="base", backing_store="none", template="ubun
     #output, error = shell.communicate()
     lines = []
 
-    def reader(shell):
-        for line in shell.stdout:
-            lines.append(line)
-            sys.stdout.write(line)
-
-    t = threading.Thread(target=reader(shell))
+    t = threading.Thread(target=script.reader(shell, lines))
     t.start()
     shell.wait()
     t.join()
