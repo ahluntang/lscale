@@ -8,6 +8,7 @@ import os
 import pexpect
 
 from utilities import exceptions
+from utilities.lscale import ContainerType
 
 
 # list of objects that might need cleanup
@@ -18,10 +19,6 @@ cleanup_bridges = []
 #############
 ## CLASSES ##
 #############
-
-
-class ContainerType:
-    UNSHARED, LXC, LXCLVM = range(3)
 
 
 class Container(object):
@@ -46,7 +43,7 @@ class Container(object):
         self.interfaces -- used for routing
     """
 
-    def __init__(self, container_id, is_host=False, virtualization_type=ContainerType.UNSHARED):
+    def __init__(self, container_id, virtualization_type=ContainerType.UNSHARED):
         """Constructs a new Container instance.
 
         Argument is identification for the container.
@@ -55,7 +52,6 @@ class Container(object):
 
         print("Creating container %8s" % container_id, )
         self.container_id = container_id
-        self.is_host = is_host
 
         logdir = "logs/container_logs"
         if not os.path.exists(logdir):
@@ -67,7 +63,7 @@ class Container(object):
         # containers must be cleaned after class destruction
         cleanup_containers.append(self)
 
-        if self.is_host:
+        if self.virtualization_type == ContainerType.NONE:
             cmd = "/bin/bash"
         elif virtualization_type == ContainerType.LXC:
             cmd = "lxc-create -t ubuntu -n %s" % container_id
@@ -81,7 +77,7 @@ class Container(object):
         self.shell = pexpect.spawn(cmd, logfile=self.logfile)
 
         # get pid of container
-        if virtualization_type == ContainerType.UNSHARED:
+        if virtualization_type == ContainerType.UNSHARED or virtualization_type == ContainerType.NONE:
             self.pid = self.shell.pid
             print(" (pid: %8s)" % self.pid)
         else:
@@ -372,6 +368,7 @@ class Route(object):
 ###############
 ## FUNCTIONS ##
 ###############
+
 
 def cleanup(template_environment):
     """Cleanup the system.

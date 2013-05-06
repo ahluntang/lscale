@@ -103,5 +103,5 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        logging.getLogger(__name__).exception(traceback.print_exc())
+        logging.getLogger(__name__).exception(str(e))
         os._exit(1)

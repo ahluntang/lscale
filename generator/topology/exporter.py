@@ -43,8 +43,8 @@ def write_topology_xml(topology_root, output):
             clean_element = ET.SubElement(container_tree, 'cleanup')
             clean_element.text = container.cleanupscript
 
-            if container.is_host:
-                host_element = ET.SubElement(container_tree, 'is_host')
+            #if container.is_host:
+            #    host_element = ET.SubElement(container_tree, 'is_host')
 
             # adding default gateway
             if container.gateway is not None:

@@ -153,10 +153,8 @@ def set_gateways(configured_host):
 
 def parse_container(container):
     container_id = container.find("id").text
-    is_host = False
-    if container.find("is_host") is not None:
-        is_host = True
-    c = emulator.elements.Container(container_id, is_host)
+    container_type = container.find("virtualizationtype").text
+    c = emulator.elements.Container(container_id, container_type)
 
     prerouting = container.find("prerouting")
     if prerouting is not None:

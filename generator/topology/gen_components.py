@@ -7,6 +7,7 @@ import logging
 import netaddr
 
 from generator.topology.elements import NetworkComponent, Container, Bridge, NetworkInterface
+from utilities.lscale import ContainerType
 import utilities.exceptions as exceptions
 
 
@@ -50,7 +51,7 @@ def add_host(topology_root):
     """
 
     host_id = used_resources.get_new_host_id()
-    host = Container(host_id, True)
+    host = Container(host_id, ContainerType.NONE)
 
     host.preroutingscript = "host_pre_routing.sh"
     host.routingscript = "host_routing.sh"
@@ -89,7 +90,7 @@ def add_management_interface(host, component, addressing_scheme=None):
 
     # get bridge and interface for bridge
     br = component.connection_points[0]
-    bridge_interface_id = "%s.%03d" % ( br.bridge_id, br.get_next_interface() )
+    bridge_interface_id = "%s.%03d" % (br.bridge_id, br.get_next_interface())
 
     bridge_interface = NetworkInterface(bridge_interface_id, link_id)
 
