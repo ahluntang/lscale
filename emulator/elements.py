@@ -53,7 +53,7 @@ class Container(object):
         print("Creating container %8s" % container_id),
         self.container_id = container_id
         self.virtualization_type = virtualization_type
-        self.template = base
+        self.template = template
 
         logdir = "logs/container_logs"
         if not os.path.exists(logdir):
