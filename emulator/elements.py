@@ -80,7 +80,7 @@ class Container(object):
             self.pid = self.shell.pid
             print(" (pid: %8s)" % self.pid)
         else:
-            cmd = "sudo lxc-info -n c002 | awk 'END{print $NF}'" % container_id
+            cmd = "sudo lxc-info -n %s | awk 'END{print $NF}'" % container_id
             readpid = pexpect.spawn(cmd)
             self.pid = readpid.readline()
 
