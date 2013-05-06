@@ -33,17 +33,24 @@ def parse_arguments():
     confparser = subparsers.add_parser('configure', help='help for configuring node')
     subconfparsers = confparser.add_subparsers(help='sub-command help', dest='confparser_name')
 
+    # subparser for creating container
     create_parser = subconfparsers.add_parser('create', help='help for creating container')
     create_parser.add_argument('-n', '--name', default='base', help='container name', required=False)
     create_parser.add_argument('-b', '--backingstore', default='lvm',
                                help='choose backing store (valid options: none, lvm, btrfs)', required=False)
     create_parser.add_argument('-t', '--template', default='ubuntu', help='template name (default: ubuntu)', required=False)
 
+    # subparser for creating lvm volume group
     lvm_parser = subconfparsers.add_parser('lvm', help='help for configuring lvm on this system')
     lvm_parser.add_argument('-n', '--name', default='lxc', help='name of volume group', required=False)
     lvm_parser.add_argument('-d', '--device', default='/dev/sda', help='device name (default: /dev/sda)', required=False)
     lvm_parser.add_argument('-p', '--partition', default='4', help='partition (default: 4)', required=False)
 
+    # subparser for creating clone
+    lvm_parser = subconfparsers.add_parser('clone', help='help for cloning containers')
+    lvm_parser.add_argument('-o', '--original', default='base', help='original container to clone', required=False)
+    lvm_parser.add_argument('-n', '--name', help='new name for container', required=True)
+    lvm_parser.add_argument('-s', '--snapshot', default='yes', help='use snapshotting (yes/no)', required=False)
     return vars(parser.parse_args())
 
 
@@ -90,6 +97,17 @@ def main():
             partition = args['partition']
 
             configurator.create_lvm(name, device, partition)
+
+        elif args['confparser_name'] == "clone":
+            original = args['original']
+            name = args['name']
+            snapshot = args['snapshot']
+            if snapshot == "on":
+                s = True
+            else:
+                s = False
+
+            configurator.clone_container(original, name, snapshot)
 
         else:
             pass

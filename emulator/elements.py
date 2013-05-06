@@ -31,6 +31,7 @@ class Container(object):
     Instance variables:
         self.container_id -- identification for container
         self.virtualization_type -- sets type of container (host, unshared, lxc or lxc with lvm)
+        self.template -- when using lxc, use this template as base
         self.shell -- holds the pexpect shell object for this instance
         self.pid -- pid of the container (can also be accessed through self.shell.pid)
         self.preroutingscript --  pre routing script for template
@@ -42,7 +43,7 @@ class Container(object):
         self.interfaces -- used for routing
     """
 
-    def __init__(self, container_id, virtualization_type=ContainerType.UNSHARED):
+    def __init__(self, container_id, virtualization_type=ContainerType.UNSHARED, template="base"):
         """Constructs a new Container instance.
 
         Argument is identification for the container.
@@ -52,6 +53,7 @@ class Container(object):
         print("Creating container %8s" % container_id),
         self.container_id = container_id
         self.virtualization_type = virtualization_type
+        self.template = base
 
         logdir = "logs/container_logs"
         if not os.path.exists(logdir):
@@ -67,10 +69,10 @@ class Container(object):
             cmd = "/bin/bash"
 
         elif self.virtualization_type == ContainerType.LXC:
-            cmd = "lxc-create -t ubuntu -n %s" % container_id
+            cmd = "lxc-clone -o %s -n %s\nlxc-start -n %s" % (template, container_id, container_id)
 
         elif self.virtualization_type == ContainerType.LXCLVM:
-            cmd = "lxc-create -t ubuntu -B lvm -n base\nlxc-clone -s -o base -n %s" % container_id
+            cmd = "lxc-clone -s -o %s -n %s\nlxc-start -n %s" % (template, container_id, container_id)
 
         else:  # elif virtualization_type == ContainerType.UNSHARED :
             cmd = "unshare --net /bin/bash"
@@ -169,7 +171,11 @@ class Container(object):
             logging.getLogger(__name__).info("# No postrouting script defined for %s", self.container_id)
 
     def run_cleanup(self, template_environment):
-        if self.cleanupscript is not None and template_environment is not None:
+        if self.virtualization_type == ContainerType.LXC or self.virtualization_type == ContainerType.LXCLVM:
+            cmd = "exit\nlxc-stop -n %s\nlxc-destroy -n %s" % (self.container_id, self.container_id)
+            self.shell.sendline(cmd)
+
+        elif self.cleanupscript is not None and template_environment is not None:
             cleanup_msg = "# Running cleanup script for %s" % self.container_id
             logging.getLogger(__name__).info(cleanup_msg)
 
