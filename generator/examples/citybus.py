@@ -5,9 +5,9 @@ from generator.topology.elements import NetworkComponent, IPComponent, UsedResou
 
 from generator.topology import gen_components
 
+
 def create(last_host_id, last_container_id, last_link_id, starting_address) :
     addressing = IPComponent(starting_address)
-
 
     # set the starting point from where the topology module can create new IDs
     resources = UsedResources(last_host_id, last_container_id, last_link_id, addressing)
