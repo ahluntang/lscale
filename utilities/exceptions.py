@@ -34,6 +34,11 @@ class ConfiguratorException(LargeScaleException):
         LargeScaleException.__init__(self, message, Errors)
 
 
+class ScriptException(LargeScaleException):
+    def __init__(self, message, Errors=None):
+        LargeScaleException.__init__(self, message, Errors)
+
+
 class InterfaceNotFoundException(LargeScaleException):
     def __init__(self, message, Errors=None):
         LargeScaleException.__init__(self, message, Errors)

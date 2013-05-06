@@ -25,20 +25,10 @@ def configure():
 def create_container(container_name="base", backing_store="none", template="ubuntu"):
 
     cmd = "./configurator/templates/create_container.sh %s %s %s" % (container_name, backing_store, template)
-
-    shell = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    #output, error = shell.communicate()
-    lines = []
-
-    t = threading.Thread(target=script.reader(shell, lines))
-    t.start()
-    shell.wait()
-    t.join()
-    #print(output)
-
-    if shell.returncode != 0:
-        err_msg = "Could not create container: %s\nOUTPUT\n %s\nError\n%s" % (cmd, lines)
-        raise exceptions.ConfiguratorException(err_msg)
+    try:
+        script.command(cmd)
+    except exceptions.ScriptException as e:
+        raise exceptions.ConfiguratorException(e)
 
 
 def clone_container(container_name, original_container="base", snapshot=False):
