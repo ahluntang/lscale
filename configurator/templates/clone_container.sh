@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
- cmd = "./configurator/clone_container.sh %s %s %s" % (container_name, original, "snapshot")
 CONTAINER_NAME=$1
 ORIGINAL_CONTAINER=$2
 SNAPSHOT=$3
