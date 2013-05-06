@@ -25,13 +25,11 @@ class Container(object):
     """Container representation.
 
     Instances of this class represent a container or host.
-    For host: set self.host to true or construct with is_host=True
     A container will initialise a bash shell that has it's own
     networking namespace in the kernel.
 
     Instance variables:
         self.container_id -- identification for container
-        self.is_host -- boolean whether this object represents a host (in init space) or container
         self.shell -- holds the pexpect shell object for this instance
         self.pid -- pid of the container (can also be accessed through self.shell.pid)
         self.preroutingscript --  pre routing script for template
@@ -332,7 +330,7 @@ class VirtualLink(object):
         return True
 
     def setns(self, veth, container):
-        if not container.is_host:
+        if not container.virtualization_type == ContainerType.NONE:
             cmd = "ip link set %s netns %s" % (veth, container.pid)
             print("Moving interface %8s to %8s: %s" % (veth, container.container_id, cmd))
             self.shell.sendline(cmd)

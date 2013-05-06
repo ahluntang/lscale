@@ -13,6 +13,7 @@ from emulator.elements import VirtualInterface, VirtualLink
 from utilities.compability import read_input
 from pexpect import ExceptionPexpect
 from utilities import exceptions
+from utilities.lscale import ContainerType
 
 
 class bcolors:
@@ -58,7 +59,7 @@ def add_ssh(configured_hosts, host_id):
     try:
 
         container = configured_hosts[host_id]['containers'][response]
-        if container.is_host:
+        if container.virtualization_type == ContainerType.NONE:
             print("This is the host, there's no point in adding an additional management interface to the host...")
         else:
             host = configured_hosts[host_id]['containers'][host_id]
