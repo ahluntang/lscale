@@ -22,7 +22,7 @@ def configure():
 
 def create_container(container_name="base", backing_store="none", template="ubuntu"):
 
-    cmd = "./configurator/create_container.sh %s %s %s" % (container_name, backing_store, template)
+    cmd = "./configurator/templates/create_container.sh %s %s %s" % (container_name, backing_store, template)
 
     shell = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = shell.communicate()
@@ -36,9 +36,9 @@ def create_container(container_name="base", backing_store="none", template="ubun
 def clone_container(container_name, original_container="base", snapshot=False):
 
     if snapshot:
-        cmd = "./configurator/clone_container.sh %s %s %s" % (container_name, original_container, "snapshot")
+        cmd = "./configurator/templates/clone_container.sh %s %s %s" % (container_name, original_container, "snapshot")
     else:
-        cmd = "./configurator/clone_container.sh %s %s" % (container_name, original_container)
+        cmd = "./configurator/templates/clone_container.sh %s %s" % (container_name, original_container)
 
     shell = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = shell.communicate()
@@ -51,7 +51,7 @@ def clone_container(container_name, original_container="base", snapshot=False):
 
 def create_lvm(name="lxc", device="/dev/sda", partition="1"):
 
-    cmd = "./configurator/create_lvm.sh %s %s %s" % (name, device, partition)
+    cmd = "./configurator/templates/create_lvm.sh %s %s %s" % (name, device, partition)
 
     shell = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = shell.communicate()
