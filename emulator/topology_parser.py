@@ -8,6 +8,7 @@ import logging
 
 import lxml.etree as ET
 import emulator.elements
+from utilities.lscale import ContainerType
 
 
 def parse(filename, template_environment, parsed_topology, host_id):
@@ -44,7 +45,7 @@ def parse_host(template_environment, host, host_id):
 
     # only make containers for current host
     if current_host_id == host_id:
-        c = emulator.elements.Container(current_host_id, True)
+        c = emulator.elements.Container(current_host_id, ContainerType.NONE)
         containers[current_host_id] = c
 
         for container in host.findall('containers/container'):
