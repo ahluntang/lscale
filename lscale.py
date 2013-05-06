@@ -63,7 +63,7 @@ def main():
     try:
         args = parse_arguments()
     except:
-        err_msg = "Could not configure logging framework."
+        err_msg = "Could not parse arguments."
         raise exceptions.ArgParseException(err_msg)
 
     # run generator or emulator based on arguments
