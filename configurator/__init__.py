@@ -30,19 +30,19 @@ def create_container(container_name="base", backing_store="none", template="ubun
     #output, error = shell.communicate()
     lines = []
 
-    def reader():
+    def reader(shell):
         for line in shell.stdout:
             lines.append(line)
             sys.stdout.write(line)
 
-    t = threading.Thread(target=reader)
+    t = threading.Thread(target=reader(shell))
     t.start()
     shell.wait()
     t.join()
     #print(output)
 
     if shell.returncode != 0:
-        err_msg = "Could not create container: %s\nOUTPUT\n %s\nError\n%s" % (cmd, output, error)
+        err_msg = "Could not create container: %s\nOUTPUT\n %s\nError\n%s" % (cmd, lines)
         raise exceptions.ConfiguratorException(err_msg)
 
 
