@@ -107,7 +107,7 @@ def main():
             else:
                 s = False
 
-            configurator.clone_container(original, name, snapshot)
+            configurator.clone_container(name, original, snapshot)
 
         else:
             pass
