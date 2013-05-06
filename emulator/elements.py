@@ -64,11 +64,13 @@ class Container(object):
 
         if self.virtualization_type == ContainerType.NONE:
             cmd = "/bin/bash"
-        elif virtualization_type == ContainerType.LXC:
+
+        elif self.virtualization_type == ContainerType.LXC:
             cmd = "lxc-create -t ubuntu -n %s" % container_id
-        elif virtualization_type == ContainerType.LXCLVM:
-            #cmd = "lxc-create -t ubuntu -B lvm -n %s" % container_id
+
+        elif self.virtualization_type == ContainerType.LXCLVM:
             cmd = "lxc-create -t ubuntu -B lvm -n base\nlxc-clone -s -o base -n %s" % container_id
+
         else: # elif virtualization_type == ContainerType.UNSHARED :
             cmd = "unshare --net /bin/bash"
 
@@ -76,10 +78,7 @@ class Container(object):
         self.shell = pexpect.spawn(cmd, logfile=self.logfile)
 
         # get pid of container
-        if virtualization_type == ContainerType.UNSHARED or virtualization_type == ContainerType.NONE:
-            self.pid = self.shell.pid
-            print(" (pid: %8s)" % self.pid)
-        else:
+        if self.virtualization_type == ContainerType.LXC or self.virtualization_type == ContainerType.LXCLVM:
             cmd = "sudo lxc-info -n %s | awk 'END{print $NF}'" % container_id
             readpid = pexpect.spawn(cmd)
             self.pid = readpid.readline()
@@ -87,6 +86,9 @@ class Container(object):
             # log into the lxc shell
             self.shell.sendline("ubuntu")
             self.shell.sendline("ubuntu")
+        else:
+            self.pid = self.shell.pid
+            print(" (pid: %8s)" % self.pid)
 
         #set prompt
         prompt = "export PS1='%s> '" % container_id
