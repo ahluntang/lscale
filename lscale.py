@@ -10,6 +10,7 @@ from utilities import logger
 from utilities import exceptions
 import generator
 import emulator
+import configurator
 
 
 def parse_arguments():
@@ -27,6 +28,21 @@ def parse_arguments():
     emparser.add_argument('-f', '--file', default='output/topology.xml', help='input file.', required=False)
     emparser.add_argument('-i', '--id', default='h001',
                           help='host id that should be used to parse and create containers for', required=False)
+
+    # parser for configuring node
+    confparser = subparsers.add_parser('configure', help='help for configuring node')
+    subconfparsers = confparser.add_subparsers(help='sub-command help', dest='confparser_name')
+
+    create_parser = subconfparsers.add_parser('create', help='help for creating container')
+    create_parser.add_argument('-n', '--name', default='base', help='container name', required=False)
+    create_parser.add_argument('-B', '--backingstore', default='lvm',
+                               help='choose backing store (valid options: none, lvm, btrfs)', required=False)
+    create_parser.add_argument('-t', '--template', default='ubuntu', help='template name (default: ubuntu)', required=False)
+
+    lvm_parser = subconfparsers.add_parser('lvm', help='help for configuring lvm on this system')
+    lvm_parser.add_argument('-n', '--name', default='lxc', help='name of volume group', required=False)
+    lvm_parser.add_argument('-d', '--device', default='/dev/sda', help='device name (default: /dev/sda)', required=False)
+    lvm_parser.add_argument('-p', '--partition', default='4', help='partition (default: 4)', required=False)
 
     return vars(parser.parse_args())
 
@@ -72,6 +88,31 @@ def main():
             err_msg = "Could not emulate topology. %s" % str(e)
             logging.getLogger(__name__).exception(err_msg)
             raise e
+    elif args['subparser_name'] == "configure":
+
+        if args['confparser_name'] == "create":
+            name = args['name']
+            backingstore = args['backingstore']
+            template = args['template']
+            try:
+                configurator.create_container(name, backingstore, template)
+            except exceptions.GeneratorException as e:
+                err_msg = "Could not create container."
+                logging.getLogger(__name__).exception(err_msg)
+                raise e
+        elif  args['confparser_name'] == "lvm":
+            name = args['name']
+            device = args['device']
+            partition = args['partition']
+            try:
+                configurator.create_lvm(name, device, partition)
+            except exceptions.GeneratorException as e:
+                err_msg = "Could not create lvm volume group."
+                logging.getLogger(__name__).exception(err_msg)
+                raise e
+
+        else:
+            raise exceptions.IncorrectArgumentsException("Error: check your arguments.")
     else:
         raise exceptions.IncorrectArgumentsException("Error: check your arguments.")
 
