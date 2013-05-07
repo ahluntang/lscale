@@ -30,8 +30,8 @@ def write_topology_xml(topology_root, output):
             cid_element = ET.SubElement(container_tree, 'id')
             cid_element.text = container_id
 
-            virtype_element = ET.SubElement(container_tree, 'virtualizationtype')
-            virtype_element.text = str(container.virtualization_type)
+            contype_element = ET.SubElement(container_tree, 'type')
+            contype_element.text = str(container.container_type)
 
             # adding template scripts
             pre_element = ET.SubElement(container_tree, 'prerouting')
@@ -70,6 +70,9 @@ def write_topology_xml(topology_root, output):
             if bridge.address != "0.0.0.0":
                 address_element = ET.SubElement(bridge_element, 'address')
                 address_element.text = bridge.address
+
+            bridge_type_element = ET.SubElement(bridge_element, 'type')
+            bridge_type_element.text = bridge.bridge_type
 
             interface_element = ET.SubElement(bridge_element, 'interfaces')
 

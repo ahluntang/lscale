@@ -110,12 +110,12 @@ def connect_components(comp1, comp2, addressing_scheme=None):
     :param comp1: first component
     :param comp2: second component
     """
-    if ( comp1.type == "bridge" and comp2.type == "bridge" ):
+    if comp1.type == "bridge" and comp2.type == "bridge":
         # two bridges, both are single element components, directly select the bridge from the connection_points list.
         connect_bridges(comp1.connection_points[0], comp2.connection_points[0])
-    elif ( comp1.type == "bridge" and comp2.type == "line" ):
+    elif comp1.type == "bridge" and comp2.type == "line":
         connect_line_bridge(comp2, comp1, addressing_scheme)
-    elif ( comp1.type == "line" and comp2.type == "bridge" ):
+    elif comp1.type == "line" and comp2.type == "bridge":
         connect_line_bridge(comp1, comp2, addressing_scheme)
 
 
@@ -265,12 +265,11 @@ def connect_bridges(bridge_from, bridge_to):
     bridge_to.add_interface(interface_to)
 
 
-def create_bridge(host):
+def create_bridge(host, bridgetype="brctl"):
     """Creates a bridge.
     Optionally adds an interface from connected_to to the bridge.
 
     :param host:
-    :param host_id: id of the host where the bridge should be added.
     """
     component = NetworkComponent()
     logging.getLogger(__name__).info("Creating bridgecomponent (%s)", component.component_id)
@@ -278,7 +277,7 @@ def create_bridge(host):
     component.type = "bridge"
 
     bridge_id = used_resources.get_new_bridge_id()
-    bridge = Bridge(bridge_id)
+    bridge = Bridge(bridge_id, bridge_type=bridgetype)
     bridge.container_id = host.container_id
 
     component.topology['bridges'][bridge_id] = bridge
@@ -288,14 +287,14 @@ def create_bridge(host):
     return component
 
 
-def create_container(host):
+def create_container(host, containertype=ContainerType.UNSHARED):
     component = NetworkComponent()
     logging.getLogger(__name__).info("Creating containercomponent (%s)", component.component_id)
     component.host_id = host.container_id
     component.type = "container"
 
     container_id = used_resources.get_new_container_id()
-    container = Bridge(container_id)
+    container = Container(container_id, containertype)
     container.container_id = host.container_id
 
     component.topology['containers'][container_id] = container

@@ -11,9 +11,9 @@ class Container(object):
     """ Represents a container or host.
     """
 
-    def __init__(self, container_id, virtualization_type=ContainerType.UNSHARED):
+    def __init__(self, container_id, container_type=ContainerType.UNSHARED):
         self.container_id = container_id
-        self.virtualization_type = virtualization_type
+        self.container_type = container_type
         self.interface_number = 0
         self.interfaces = []
         self.bridges = []
@@ -39,12 +39,13 @@ class Bridge(object):
     """ Represents a bridge or switch.
     """
 
-    def __init__(self, bridge_id, address="0.0.0.0"):
+    def __init__(self, bridge_id, address="0.0.0.0", bridge_type="bridge"):
         self.bridge_id = bridge_id
         self.container_id = None
         self.address = address
         self.interface_number = 0
         self.interfaces = []
+        self.bridge_type = bridge_type
 
     def add_interface(self, interface):
         self.interfaces.append(interface)
@@ -117,16 +118,28 @@ class UsedResources(object):
         self.last_host += 1
         return "h%03d" % self.last_host
 
+    def get_last_host_id(self):
+        return "h%03d" % self.last_host
+
     def get_new_bridge_id(self):
         self.last_bridge += 1
+        return "b%03d" % self.last_bridge
+
+    def get_last_bridge_id(self):
         return "b%03d" % self.last_bridge
 
     def get_new_container_id(self):
         self.last_container += 1
         return "c%03d" % self.last_container
 
+    def get_last_container_id(self):
+        return "c%03d" % self.last_container
+
     def get_new_link_id(self):
         self.last_link += 1
+        return "l%03d" % self.last_link
+
+    def get_last_link_id(self):
         return "l%03d" % self.last_link
 
 
