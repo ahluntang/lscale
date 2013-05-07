@@ -11,9 +11,10 @@ class Container(object):
     """ Represents a container or host.
     """
 
-    def __init__(self, container_id, container_type=ContainerType.UNSHARED):
+    def __init__(self, container_id, container_type=ContainerType.UNSHARED, template="base"):
         self.container_id = container_id
         self.container_type = container_type
+        self.template = template
         self.interface_number = 0
         self.interfaces = []
         self.bridges = []

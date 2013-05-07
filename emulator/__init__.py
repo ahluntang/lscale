@@ -9,7 +9,7 @@ from emulator import topology_parser, interaction, elements
 from utilities import exceptions
 
 
-def emulate(filename, host_id, parsed_topology):
+def emulate(filename, host_id, parsed_topology, destroy):
     """
 
     :param filename:
@@ -19,8 +19,11 @@ def emulate(filename, host_id, parsed_topology):
     """
     if os.geteuid() == 0:
         template_environment = Environment(loader=FileSystemLoader('emulator/templates'))
-        topology_parser.parse(filename, template_environment, parsed_topology, host_id)
+        topology_parser.parse(filename, template_environment, parsed_topology, host_id, destroy)
         interaction.interact(parsed_topology, host_id)
-        elements.cleanup(template_environment)
+        try:
+            elements.cleanup(template_environment)
+        except exceptions.CleanupException as e:
+            pass
     else:
         raise exceptions.InsufficientRightsException("Emulating requires root privileges")

@@ -1,3 +1,7 @@
+from flufl.enum import Enum
 
-class ContainerType:
-    NONE, UNSHARED, LXC, LXCLVM = range(4)
+ContainerType = Enum('ContainerType', 'NONE UNSHARED LXC LXCLVM')
+
+BridgeType = Enum('BridgeType', 'BRIDGE OPENVSWITCH')
+
+

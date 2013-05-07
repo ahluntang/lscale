@@ -28,6 +28,8 @@ def parse_arguments():
     emparser.add_argument('-f', '--file', default='output/topology.xml', help='input file.', required=False)
     emparser.add_argument('-i', '--id', default='h001',
                           help='host id that should be used to parse and create containers for', required=False)
+    emparser.add_argument('-d', '--destroy', default='yes',
+                          help='destroy created containers while clean up or leave them', required=False)
 
     # parser for configuring node
     confparser = subparsers.add_parser('configure', help='help for configuring node')
@@ -81,7 +83,7 @@ def main():
 
     elif args['subparser_name'] == "emulate":
         parsed_topology = {}
-        emulator.emulate(args['file'], args['id'], parsed_topology)
+        emulator.emulate(args['file'], args['id'], parsed_topology, args['destroy'])
     elif args['subparser_name'] == "configure":
 
         if args['confparser_name'] == "create":

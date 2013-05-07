@@ -8,7 +8,7 @@ import os
 import pexpect
 
 from utilities import exceptions
-from utilities.lscale import ContainerType
+from utilities.lscale import ContainerType, BridgeType
 
 
 # list of objects that might need cleanup
@@ -43,7 +43,7 @@ class Container(object):
         self.interfaces -- used for routing
     """
 
-    def __init__(self, container_id, virtualization_type=ContainerType.UNSHARED, template="base"):
+    def __init__(self, container_id, container_type=ContainerType.UNSHARED, template="base"):
         """Constructs a new Container instance.
 
         Argument is identification for the container.
@@ -52,15 +52,16 @@ class Container(object):
 
         print("Creating container %8s" % container_id),
         self.container_id = container_id
-        self.virtualization_type = virtualization_type
+        self.container_type = container_type
         self.template = template
+        self.destroy = True
 
         logdir = "logs/container_logs"
         if not os.path.exists(logdir):
             os.makedirs(logdir)
 
-        self.loglocation = "%s/%s.log" % (logdir, container_id)
-        self.logfile = open(self.loglocation, 'w+')
+        self.log_location = "%s/%s.log" % (logdir, container_id)
+        self.logfile = open(self.log_location, 'w+')
 
         # containers must be cleaned after class destruction
         cleanup_containers.append(self)
@@ -127,11 +128,20 @@ class Container(object):
         """
         if template_environment is not None:
             self.run_cleanup(template_environment)
+
+        is_lxc = (self.container_type == ContainerType.LXC or self.container_type == ContainerType.LXCLVM)
+        if is_lxc:
+            cmd = "lxc-stop -n %s" % self.container_id
+            self.shell.sendline(cmd)
+            if self.destroy:
+                cmd = "lxc-destroy -n %s" % self.container_id
+                self.shell.sendline(cmd)
+
         try:
             sys.stdout.write(".")
             sys.stdout.flush()
-        except BaseException as e:
-            pass
+        except:
+            raise exceptions.CleanupException()
         return True
 
     def config_link(self, virtual_interface):
@@ -199,7 +209,7 @@ class Bridge(object):
         self.shell -- holds the pexpect shell object for this instance
     """
 
-    def __init__(self, bridge_id, address='0.0.0.0'):
+    def __init__(self, bridge_id, address='0.0.0.0', bridge_type=BridgeType.BRIDGE):
         """Constructs a new bridge instance.
 
         Argument is the identification of the bridge.
@@ -210,6 +220,7 @@ class Bridge(object):
         print("Creating bridge %8s" % bridge_id)
         self.bridge_id = bridge_id
         self.address = address
+        self.bridge_type = bridge_type
         self.interfaces = []
 
         # bridges must be cleaned after class destruction
@@ -218,17 +229,20 @@ class Bridge(object):
         self.shell = pexpect.spawn("/bin/bash")
 
         # creating bridge
-        create_bridge_cmd = "brctl addbr %s" % bridge_id
-        self.shell.sendline(create_bridge_cmd)
+        if self.bridge_type == BridgeType.OPENVSWITCH:
+            create_bridge_cmd = "ovs-vsctl add-br %s" % bridge_id
+            self.shell.sendline(create_bridge_cmd)
+        else:
+            create_bridge_cmd = "brctl addbr %s" % bridge_id
+            self.shell.sendline(create_bridge_cmd)
+
+            cmd = "brctl stp %s on" % bridge_id
+            self.shell.sendline(cmd)
 
         cmd = "ifconfig %s %s up" % (bridge_id, self.address)
         self.shell.sendline(cmd)
 
-        cmd = "brctl stp %s on" % bridge_id
-        self.shell.sendline(cmd)
-
-        logger = logging.getLogger(__name__)
-        logger.info("Added bridge %8s with address %8s", self.bridge_id, self.address)
+        logging.getLogger(__name__).info("Added bridge %8s with address %8s", self.bridge_id, self.address)
 
     def __del__(self):
         try:
@@ -247,18 +261,25 @@ class Bridge(object):
             cmd = "ifconfig %s down" % self.bridge_id
             self.shell.sendline(cmd)
 
-            cmd = "brctl delbr %s\n" % self.bridge_id
+            if self.bridge_type == BridgeType.OPENVSWITCH:
+                cmd = "ovs-vsctl del-br %s\n" % self.bridge_id
+            else:
+                cmd = "brctl delbr %s\n" % self.bridge_id
             self.shell.write(cmd)
             sys.stdout.write(".")
             sys.stdout.flush()
-        except BaseException as e:
-            pass
+        except:
+            raise exceptions.CleanupException("Could not clean up bridge")
 
         return True
 
     def addif(self, endpoint):
         self.interfaces.append(endpoint)
-        cmd = "brctl addif %s %s" % (self.bridge_id, endpoint)
+        if self.bridge_type == BridgeType.OPENVSWITCH:
+            cmd = "ovs-vsctl add-port %s %s" % (self.bridge_id, endpoint)
+        else:
+            cmd = "brctl addif %s %s" % (self.bridge_id, endpoint)
+
         print("Adding interface %8s to bridge %8s: %s" % (endpoint, self.bridge_id, cmd))
 
         logger = logging.getLogger(__name__)

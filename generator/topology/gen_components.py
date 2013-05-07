@@ -7,7 +7,7 @@ import logging
 import netaddr
 
 from generator.topology.elements import NetworkComponent, Container, Bridge, NetworkInterface
-from utilities.lscale import ContainerType
+from utilities.lscale import ContainerType, BridgeType
 import utilities.exceptions as exceptions
 
 
@@ -265,7 +265,7 @@ def connect_bridges(bridge_from, bridge_to):
     bridge_to.add_interface(interface_to)
 
 
-def create_bridge(host, bridgetype="brctl"):
+def create_bridge(host, bridgetype=BridgeType.BRIDGE):
     """Creates a bridge.
     Optionally adds an interface from connected_to to the bridge.
 
@@ -287,14 +287,14 @@ def create_bridge(host, bridgetype="brctl"):
     return component
 
 
-def create_container(host, containertype=ContainerType.UNSHARED):
+def create_container(host, container_type=ContainerType.UNSHARED, template="base"):
     component = NetworkComponent()
     logging.getLogger(__name__).info("Creating containercomponent (%s)", component.component_id)
     component.host_id = host.container_id
     component.type = "container"
 
     container_id = used_resources.get_new_container_id()
-    container = Container(container_id, containertype)
+    container = Container(container_id, container_type,template)
     container.container_id = host.container_id
 
     component.topology['containers'][container_id] = container

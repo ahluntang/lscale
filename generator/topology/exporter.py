@@ -31,7 +31,10 @@ def write_topology_xml(topology_root, output):
             cid_element.text = container_id
 
             contype_element = ET.SubElement(container_tree, 'type')
-            contype_element.text = str(container.container_type)
+            contype_element.text = str(container.container_type.name)
+
+            template_element = ET.SubElement(container_tree, 'template')
+            template_element.text = container.template
 
             # adding template scripts
             pre_element = ET.SubElement(container_tree, 'prerouting')
@@ -72,7 +75,7 @@ def write_topology_xml(topology_root, output):
                 address_element.text = bridge.address
 
             bridge_type_element = ET.SubElement(bridge_element, 'type')
-            bridge_type_element.text = bridge.bridge_type
+            bridge_type_element.text = str(bridge.bridge_type.name)
 
             interface_element = ET.SubElement(bridge_element, 'interfaces')
 

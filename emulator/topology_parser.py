@@ -11,7 +11,7 @@ import emulator.elements
 from utilities.lscale import ContainerType
 
 
-def parse(filename, template_environment, parsed_topology, host_id):
+def parse(filename, template_environment, parsed_topology, host_id, destroy):
     """
 
     :param filename:
@@ -23,14 +23,14 @@ def parse(filename, template_environment, parsed_topology, host_id):
     xml_root = config_tree.getroot()
 
     for host in xml_root.findall("hosts/host"):
-        h = parse_host(template_environment, host, host_id)
+        h = parse_host(template_environment, host, host_id, destroy)
         if h is not None:
             parsed_topology[h['host_id']] = h
 
     logging.getLogger(__name__).info("Done parsing file for %s", host_id)
 
 
-def parse_host(template_environment, host, host_id):
+def parse_host(template_environment, host, host_id, destroy):
     containers = {}             # Container objects
     bridges = {}                # Bridge objects
     links = {}                  # VirtualLink objects
@@ -46,6 +46,7 @@ def parse_host(template_environment, host, host_id):
     # only make containers for current host
     if current_host_id == host_id:
         c = emulator.elements.Container(current_host_id, ContainerType.NONE)
+        c.destroy = destroy
         containers[current_host_id] = c
 
         for container in host.findall('containers/container'):
@@ -56,7 +57,7 @@ def parse_host(template_environment, host, host_id):
             l = parse_link(link, interfaces, mappings_container, mappings_interfaces, mappings_gateways, mappings_ip,
                            mappings_summaries,
                            containers)
-            #link_id = "%s-%s" % (l.veth0, l.veth1)
+
             links[l.veth0.veth] = l
             links[l.veth1.veth] = l
 
@@ -153,9 +154,12 @@ def set_gateways(configured_host):
 
 
 def parse_container(container):
+
     container_id = container.find("id").text
-    container_type = container.find("virtualizationtype").text
-    c = emulator.elements.Container(container_id, container_type)
+    container_type = eval("ContainerType.%s" % container.find("type").text)
+    template = container.find("template").text
+
+    c = emulator.elements.Container(container_id, container_type, template)
 
     prerouting = container.find("prerouting")
     if prerouting is not None:
@@ -175,7 +179,6 @@ def parse_container(container):
 
     gateway = container.find("gateway")
     if gateway is not None:
-        #c.routing['gateway'] = gateway.text
         c.gateway = gateway.text
 
     return c
@@ -184,6 +187,7 @@ def parse_container(container):
 def parse_bridge(bridge):
     bridge_id = bridge.find("id").text
     address = bridge.find("address")
+    bridge_type = eval("BridgeType.%s" % bridge.find("type"))
 
     if address is None:
         ip = "0.0.0.0"
@@ -191,7 +195,7 @@ def parse_bridge(bridge):
         ip = address.text
 
     # creating the bridge
-    b = emulator.elements.Bridge(bridge_id, ip)
+    b = emulator.elements.Bridge(bridge_id, ip, bridge_type)
 
     for interface in bridge.findall('interfaces/interface'):
         b.addif(interface.text)
