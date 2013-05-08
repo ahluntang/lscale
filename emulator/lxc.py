@@ -161,3 +161,15 @@ def checkconfig():
     Returns the output of lxc-checkconfig (colors cleared)
     '''
     return _run('lxc-checkconfig', output=True).replace('[1;32m', '').replace('[1;33m', '').replace('[0;39m', '').replace('[1;32m', '').replace('\x1b', '').replace(': ', ':').split('\n')
+
+
+def wait(name, states):
+    '''
+    wait until the container reaches the specified state or states
+    states can be or-ed or and-ed
+    '''
+    if not exists(name):
+        raise ContainerDoesntExists("The container {} does not exist!".format(name))
+
+    cmd = ['lxc-wait', '-n', name, '-s', states]
+    return _run(cmd)
