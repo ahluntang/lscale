@@ -85,7 +85,7 @@ class Container(object):
 
         # get pid of container
         if is_lxc(self.container_type):
-            cmd = "sudo lxc-info -n %s | awk 'END{print $NF}'" % container_id
+            cmd = "lxc-info -n %s | awk 'END{print $NF}'" % container_id
             sleep(5)
             readpid = pexpect.spawn(cmd)
             self.pid = readpid.readline()
