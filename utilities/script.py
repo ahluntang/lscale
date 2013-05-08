@@ -52,7 +52,7 @@ def command(cmd):
     t.daemon = True
     # thread dies with the program
     t.start()
-
+    p.wait()
     # try:
     #     line = q.get_nowait()  # or q.get(timeout=.1)
     # except Empty:
