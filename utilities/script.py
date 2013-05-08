@@ -1,5 +1,5 @@
 import sys
-import threading
+import multiprocessing
 import subprocess
 
 from utilities import exceptions
@@ -16,7 +16,7 @@ def command(cmd):
     #output, error = shell.communicate()
     lines = []
 
-    t = threading.Thread(target=reader(shell, lines))
+    t = multiprocessing.Process(target=reader(shell, lines))
     t.start()
     shell.wait()
     t.join()
