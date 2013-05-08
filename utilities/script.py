@@ -47,17 +47,17 @@ def enqueue_output(out, queue):
 
 def command(cmd):
     cmd = "bash %s" % cmd
-    p = Popen(cmd, stdout=PIPE, stderr=PIPE, bufsize=1, close_fds=ON_POSIX)
+    p = Popen(cmd, stdout=PIPE, stderr=PIPE, bufsize=1)
     q = Queue()
     t = Thread(target=enqueue_output, args=(p.stdout, q))
     t.daemon = True
     # thread dies with the program
     t.start()
 
-    try:
-        line = q.get_nowait()  # or q.get(timeout=.1)
-    except Empty:
-        pass
-        #print('no output yet')
-    else:  # got line
-        sys.stdout.write(line)
+    # try:
+    #     line = q.get_nowait()  # or q.get(timeout=.1)
+    # except Empty:
+    #     pass
+    #     #print('no output yet')
+    # else:  # got line
+    #     sys.stdout.write(line)
