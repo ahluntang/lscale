@@ -46,8 +46,7 @@ def enqueue_output(out, queue):
 
 
 def command(cmd):
-    cmd = "bash %s" % cmd
-    p = Popen(cmd, stdout=PIPE, stderr=PIPE, bufsize=1)
+    p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
     q = Queue()
     t = Thread(target=enqueue_output, args=(p.stdout, q))
     t.daemon = True
