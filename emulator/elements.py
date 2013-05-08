@@ -181,7 +181,7 @@ class Container(object):
             logging.getLogger(__name__).info("# No postrouting script defined for %s", self.container_id)
 
     def run_cleanup(self, template_environment):
-        if  is_lxc(self.container_type):
+        if is_lxc(self.container_type):
             cmd = "exit\nlxc-stop -n %s\nlxc-destroy -n %s" % (self.container_id, self.container_id)
             self.shell.sendline(cmd)
 
@@ -269,7 +269,8 @@ class Bridge(object):
             sys.stdout.write(".")
             sys.stdout.flush()
         except:
-            raise exceptions.CleanupException("Could not clean up bridge")
+            pass
+            #raise exceptions.CleanupException("Could not clean up bridge")
 
         return True
 
