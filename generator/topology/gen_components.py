@@ -23,6 +23,7 @@ def add_component_to_topology(topology_root, component):
     host_id = component.host_id
 
     for container_id, container in component.topology['containers'].items():
+        print(container.container_id)
         topology_root[host_id]['containers'][container.container_id] = container
     for bridge_id, bridge in component.topology['bridges'].items():
         topology_root[host_id]['bridges'][bridge.bridge_id] = bridge
@@ -62,7 +63,6 @@ def add_host(topology_root):
     topology_root[host_id]['id'] = host
     topology_root[host_id]['containers'] = {}
     topology_root[host_id]['containers'][host_id] = host
-    #topology_root[host_id]['links']      = {}
     topology_root[host_id]['bridges'] = {}
 
     return host_id
@@ -294,8 +294,8 @@ def create_container(host, container_type=ContainerType.UNSHARED, template="base
     component.type = "container"
 
     container_id = used_resources.get_new_container_id()
-    container = Container(container_id, container_type,template)
-    container.container_id = host.container_id
+    container = Container(container_id, container_type, template)
+    container.container_id = container.container_id
 
     component.topology['containers'][container_id] = container
 

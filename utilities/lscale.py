@@ -5,7 +5,7 @@ ContainerType = Enum('ContainerType', 'NONE UNSHARED LXC LXCLVM')
 BridgeType = Enum('BridgeType', 'BRIDGE OPENVSWITCH')
 
 
-def is_lxc(container):
+def is_lxc(container_type):
     return \
-        container == ContainerType.LXC or \
-        container == ContainerType.LXCLVM
+        container_type == ContainerType.LXC or \
+        container_type == ContainerType.LXCLVM

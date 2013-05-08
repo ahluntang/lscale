@@ -15,41 +15,41 @@ import configurator
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Large-Scale Framework.')
-    subparsers = parser.add_subparsers(help='sub-command help', dest='subparser_name')
+    sub_parsers = parser.add_subparsers(help='sub-command help', dest='subparser_name')
 
     #parser for generating topologies
-    genparser = subparsers.add_parser('generate', help='help for generating topologies')
-    genparser.add_argument('-f', '--file', default='output/topology.xml', help='output file to write to.',
+    gen_parser = sub_parsers.add_parser('generate', help='help for generating topologies')
+    gen_parser.add_argument('-f', '--file', default='output/topology.xml', help='output file to write to.',
                            required=False)
-    genparser.add_argument('-e', '--example', default='smalltop', help='example to create topology for', required=False)
+    gen_parser.add_argument('-e', '--example', default='smalltop', help='example to create topology for', required=False)
 
     # parser for emulating topologies
-    emparser = subparsers.add_parser('emulate', help='help for emulating topologies')
-    emparser.add_argument('-f', '--file', default='output/topology.xml', help='input file.', required=False)
-    emparser.add_argument('-i', '--id', default='h001',
-                          help='host id that should be used to parse and create containers for', required=False)
-    emparser.add_argument('-d', '--destroy', default='yes',
-                          help='destroy created containers while clean up or leave them', required=False)
+    em_parser = sub_parsers.add_parser('emulate', help='help for emulating topologies')
+    em_parser.add_argument('-f', '--file', default='output/topology.xml', help='input file.', required=False)
+    em_parser.add_argument('-i', '--id', default='h001',
+                           help='host id that should be used to parse and create containers for', required=False)
+    em_parser.add_argument('-d', '--destroy', default='yes',
+                           help='destroy created containers while clean up or leave them', required=False)
 
     # parser for configuring node
-    confparser = subparsers.add_parser('configure', help='help for configuring node')
-    subconfparsers = confparser.add_subparsers(help='sub-command help', dest='confparser_name')
+    conf_parser = sub_parsers.add_parser('configure', help='help for configuring node')
+    sub_conf_parsers = conf_parser.add_subparsers(help='sub-command help', dest='confparser_name')
 
     # subparser for creating container
-    create_parser = subconfparsers.add_parser('create', help='help for creating container')
+    create_parser = sub_conf_parsers.add_parser('create', help='help for creating container')
     create_parser.add_argument('-n', '--name', default='base', help='container name', required=False)
     create_parser.add_argument('-b', '--backingstore', default='lvm',
                                help='choose backing store (valid options: none, lvm, btrfs)', required=False)
     create_parser.add_argument('-t', '--template', default='ubuntu', help='template name (default: ubuntu)', required=False)
 
     # subparser for creating lvm volume group
-    lvm_parser = subconfparsers.add_parser('lvm', help='help for configuring lvm on this system')
+    lvm_parser = sub_conf_parsers.add_parser('lvm', help='help for configuring lvm on this system')
     lvm_parser.add_argument('-n', '--name', default='lxc', help='name of volume group', required=False)
     lvm_parser.add_argument('-d', '--device', default='/dev/sda', help='device name (default: /dev/sda)', required=False)
     lvm_parser.add_argument('-p', '--partition', default='4', help='partition (default: 4)', required=False)
 
     # subparser for creating clone
-    lvm_parser = subconfparsers.add_parser('clone', help='help for cloning containers')
+    lvm_parser = sub_conf_parsers.add_parser('clone', help='help for cloning containers')
     lvm_parser.add_argument('-o', '--original', default='base', help='original container to clone', required=False)
     lvm_parser.add_argument('-n', '--name', help='new name for container', required=True)
     lvm_parser.add_argument('-s', '--snapshot', default='yes', help='use snapshotting (yes/no)', required=False)

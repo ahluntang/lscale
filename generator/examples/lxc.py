@@ -42,15 +42,16 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     components[container2_component.component_id] = container2_component
 
     container2 = container2_component.topology['containers'][resources.get_last_container_id()]
+
     gen_components.connect_container_bridge(container2, bridge)
 
     # end creating the topology
-
     # After every component has been created
     # merge components into one dictionary,
     for component_id, component in components.items():
         gen_components.add_component_to_topology(topology_root, component)
 
+    print(topology_root)
     # return the dictionary with the topology.
     return topology_root
 
