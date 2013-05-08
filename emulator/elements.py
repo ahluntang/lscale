@@ -9,7 +9,8 @@ import pexpect
 
 from utilities import exceptions
 from utilities.lscale import ContainerType, BridgeType, is_lxc
-from time import sleep
+from emulator import lxc
+
 
 
 # list of objects that might need cleanup
@@ -44,7 +45,7 @@ class Container(object):
         self.interfaces -- used for routing
     """
 
-    def __init__(self, container_id, container_type=ContainerType.UNSHARED, template="base"):
+    def __init__(self, container_id, container_type=ContainerType.UNSHARED, template="base", username="ubuntu", password="ubuntu"):
         """Constructs a new Container instance.
 
         Argument is identification for the container.
@@ -56,6 +57,8 @@ class Container(object):
         self.container_type = container_type
         self.template = template
         self.destroy = True
+        self.username = username
+        self.password = password
 
         logdir = "logs/container_logs"
         if not os.path.exists(logdir):
@@ -67,36 +70,56 @@ class Container(object):
         # containers must be cleaned after class destruction
         cleanup_containers.append(self)
 
-        if self.container_type == ContainerType.NONE:
-            cmd = "/bin/bash"
+        cmd = "/bin/bash"  # default shell
 
-        elif self.container_type == ContainerType.LXC:
-            cmd = "lxc-clone -o %s -n %s\nlxc-start -n %s" % (template, container_id, container_id)
+        if self.container_type == ContainerType.LXC:
+            try:
+                lxc.clone(self.template, self.container_id)
+            except lxc.ContainerAlreadyExists as e:
+                # Clone was not needed
+                pass
 
+            if lxc.exists(self.container_id):
+                lxc.start(self.container_id)
+            else:
+                raise lxc.ContainerDoesntExists('Container {} does not exist!'.format(self.container_id))
         elif self.container_type == ContainerType.LXCLVM:
-            cmd = "lxc-clone -s -o %s -n %s\nlxc-start -n %s" % (template, container_id, container_id)
+            try:
+                lxc.clone(self.template, self.container_id, True)
+            except lxc.ContainerAlreadyExists as e:
+                # Clone was not needed
+                pass
+
+            if lxc.exists(self.container_id):
+                lxc.start(self.container_id)
+            else:
+                raise lxc.ContainerDoesntExists('Container {} does not exist!'.format(self.container_id))
 
         else:  # elif container_type == ContainerType.UNSHARED :
             cmd = "unshare --net /bin/bash"
 
         # create the shell
-        print(cmd)
         self.shell = pexpect.spawn(cmd, logfile=self.logfile)
 
         # get pid of container
         if is_lxc(self.container_type):
-            cmd = "lxc-info -n %s | awk 'END{print $NF}'" % container_id
-            sleep(5)
-            readpid = pexpect.spawn(cmd)
-            self.pid = readpid.readline()
-            print(" (pid: %8s)" % self.pid)
+            # cmd = "lxc-info -n %s | awk 'END{print $NF}'" % container_id
+            # readpid = pexpect.spawn(cmd)
+            # self.pid = readpid.readline()
+            # print(" (pid: %8s)" % self.pid)
+            info = lxc.info(self.container_id)
+            self.pid = info['pid']
+
+            lxc.wait(self.container_id, 'RUNNING')
+            self.shell.sendline("lxc-console -n %s" % self.container_id)
 
             # log into the lxc shell
-            self.shell.sendline("ubuntu")
-            self.shell.sendline("ubuntu")
+            self.shell.sendline(self.username)
+            self.shell.sendline(self.password)
         else:
             self.pid = self.shell.pid
-            print(" (pid: %8s)" % self.pid)
+
+        print(" (pid: %8s)" % self.pid)
 
         #set prompt
         prompt = "export PS1='%s> '" % container_id
