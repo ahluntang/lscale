@@ -53,10 +53,10 @@ def command(cmd):
     # thread dies with the program
     t.start()
 
-    # try:
-    #     line = q.get_nowait()  # or q.get(timeout=.1)
-    # except Empty:
-    #     pass
-    #     #print('no output yet')
-    # else:  # got line
-    #     sys.stdout.write(line)
+    try:
+        line = q.get_nowait()  # or q.get(timeout=.1)
+    except Empty:
+        pass
+        #print('no output yet')
+    else:  # got line
+        sys.stdout.write(line)
