@@ -9,6 +9,7 @@ import pexpect
 
 from utilities import exceptions
 from utilities.lscale import ContainerType, BridgeType, is_lxc
+from time import sleep
 
 
 # list of objects that might need cleanup
@@ -79,11 +80,13 @@ class Container(object):
             cmd = "unshare --net /bin/bash"
 
         # create the shell
+        print(cmd)
         self.shell = pexpect.spawn(cmd, logfile=self.logfile)
 
         # get pid of container
         if is_lxc(self.container_type):
             cmd = "sudo lxc-info -n %s | awk 'END{print $NF}'" % container_id
+            sleep(5)
             readpid = pexpect.spawn(cmd)
             self.pid = readpid.readline()
             print(" (pid: %8s)" % self.pid)
