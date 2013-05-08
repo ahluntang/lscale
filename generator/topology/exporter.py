@@ -5,6 +5,7 @@ import lxml.etree as ET
 #from xml.etree import cElementTree
 #from xml.etree.cElementTree import Element, SubElement, tostring
 from collections import defaultdict
+from utilities.lscale import ContainerType, BridgeType, is_lxc
 
 
 def write_topology_xml(topology_root, output):
@@ -33,8 +34,9 @@ def write_topology_xml(topology_root, output):
             contype_element = ET.SubElement(container_tree, 'type')
             contype_element.text = str(container.container_type.name)
 
-            template_element = ET.SubElement(container_tree, 'template')
-            template_element.text = container.template
+            if is_lxc(container.container_type):
+                template_element = ET.SubElement(container_tree, 'template')
+                template_element.text = container.template
 
             # adding template scripts
             pre_element = ET.SubElement(container_tree, 'prerouting')

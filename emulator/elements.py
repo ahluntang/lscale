@@ -8,7 +8,7 @@ import os
 import pexpect
 
 from utilities import exceptions
-from utilities.lscale import ContainerType, BridgeType
+from utilities.lscale import ContainerType, BridgeType, is_lxc
 
 
 # list of objects that might need cleanup
@@ -66,23 +66,23 @@ class Container(object):
         # containers must be cleaned after class destruction
         cleanup_containers.append(self)
 
-        if self.virtualization_type == ContainerType.NONE:
+        if self.container_type == ContainerType.NONE:
             cmd = "/bin/bash"
 
-        elif self.virtualization_type == ContainerType.LXC:
+        elif self.container_type == ContainerType.LXC:
             cmd = "lxc-clone -o %s -n %s\nlxc-start -n %s" % (template, container_id, container_id)
 
-        elif self.virtualization_type == ContainerType.LXCLVM:
+        elif self.container_type == ContainerType.LXCLVM:
             cmd = "lxc-clone -s -o %s -n %s\nlxc-start -n %s" % (template, container_id, container_id)
 
-        else:  # elif virtualization_type == ContainerType.UNSHARED :
+        else:  # elif container_type == ContainerType.UNSHARED :
             cmd = "unshare --net /bin/bash"
 
         # create the shell
         self.shell = pexpect.spawn(cmd, logfile=self.logfile)
 
         # get pid of container
-        if self.virtualization_type == ContainerType.LXC or self.virtualization_type == ContainerType.LXCLVM:
+        if is_lxc(self.container_type):
             cmd = "sudo lxc-info -n %s | awk 'END{print $NF}'" % container_id
             readpid = pexpect.spawn(cmd)
             self.pid = readpid.readline()
@@ -129,8 +129,7 @@ class Container(object):
         if template_environment is not None:
             self.run_cleanup(template_environment)
 
-        is_lxc = (self.container_type == ContainerType.LXC or self.container_type == ContainerType.LXCLVM)
-        if is_lxc:
+        if is_lxc(self.container_type):
             cmd = "lxc-stop -n %s" % self.container_id
             self.shell.sendline(cmd)
             if self.destroy:
@@ -181,7 +180,7 @@ class Container(object):
             logging.getLogger(__name__).info("# No postrouting script defined for %s", self.container_id)
 
     def run_cleanup(self, template_environment):
-        if self.virtualization_type == ContainerType.LXC or self.virtualization_type == ContainerType.LXCLVM:
+        if  is_lxc(self.container_type):
             cmd = "exit\nlxc-stop -n %s\nlxc-destroy -n %s" % (self.container_id, self.container_id)
             self.shell.sendline(cmd)
 
@@ -360,7 +359,7 @@ class VirtualLink(object):
         return True
 
     def setns(self, veth, container):
-        if not container.virtualization_type == ContainerType.NONE:
+        if not container.container_type == ContainerType.NONE:
             cmd = "ip link set %s netns %s" % (veth, container.pid)
             print("Moving interface %8s to %8s: %s" % (veth, container.container_id, cmd))
             self.shell.sendline(cmd)

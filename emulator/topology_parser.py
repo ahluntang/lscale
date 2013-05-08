@@ -8,7 +8,7 @@ import logging
 
 import lxml.etree as ET
 import emulator.elements
-from utilities.lscale import ContainerType
+from utilities.lscale import ContainerType, BridgeType, is_lxc
 
 
 def parse(filename, template_environment, parsed_topology, host_id, destroy):
@@ -157,7 +157,8 @@ def parse_container(container):
 
     container_id = container.find("id").text
     container_type = eval("ContainerType.%s" % container.find("type").text)
-    template = container.find("template").text
+
+    template = container.find("template").text if is_lxc(container_type) else ""
 
     c = emulator.elements.Container(container_id, container_type, template)
 
