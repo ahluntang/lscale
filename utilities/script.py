@@ -41,10 +41,12 @@ ON_POSIX = 'posix' in sys.builtin_module_names
 def enqueue_output(out, queue):
     for line in iter(out.readline, b''):
         queue.put(line)
+        sys.stdout.write(line)
     out.close()
 
 
 def command(cmd):
+    print(cmd)
     p = Popen(cmd, stdout=PIPE, stderr=PIPE, bufsize=1, close_fds=ON_POSIX)
     q = Queue()
     t = Thread(target=enqueue_output, args=(p.stdout, q))
@@ -52,9 +54,10 @@ def command(cmd):
     # thread dies with the program
     t.start()
 
-    try:
-        line = q.get_nowait()  # or q.get(timeout=.1)
-    except Empty:
-        print('no output yet')
-    else:  # got line
-        sys.stdout.write(line)
+    # try:
+    #     line = q.get_nowait()  # or q.get(timeout=.1)
+    # except Empty:
+    #     pass
+    #     #print('no output yet')
+    # else:  # got line
+    #     sys.stdout.write(line)
