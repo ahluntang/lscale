@@ -30,7 +30,7 @@ class Container(object):
 
     Instance variables:
         self.container_id -- identification for container
-        self.virtualization_type -- sets type of container (host, unshared, lxc or lxc with lvm)
+        self.container_type -- sets type of container (host, unshared, lxc or lxc with lvm)
         self.template -- when using lxc, use this template as base
         self.shell -- holds the pexpect shell object for this instance
         self.pid -- pid of the container (can also be accessed through self.shell.pid)
@@ -140,7 +140,8 @@ class Container(object):
             sys.stdout.write(".")
             sys.stdout.flush()
         except:
-            raise exceptions.CleanupException()
+            pass
+            #raise exceptions.CleanupException()
         return True
 
     def config_link(self, virtual_interface):
