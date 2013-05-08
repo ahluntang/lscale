@@ -29,7 +29,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     bridge_component = gen_components.create_bridge(host, BridgeType.BRIDGE)
     components[bridge_component.component_id] = bridge_component
 
-    container_component = gen_components.create_container(host, ContainerType.LXC)
+    container_component = gen_components.create_container(host, ContainerType.LXCLVM)
     components[container_component.component_id] = container_component
 
     bridge = bridge_component.topology['bridges'][resources.get_last_bridge_id()]
@@ -38,7 +38,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     gen_components.connect_container_bridge(container, bridge)
 
     # add new container
-    container2_component = gen_components.create_container(host, ContainerType.LXC)
+    container2_component = gen_components.create_container(host, ContainerType.LXCLVM)
     components[container2_component.component_id] = container2_component
 
     container2 = container2_component.topology['containers'][resources.get_last_container_id()]
