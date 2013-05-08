@@ -47,7 +47,7 @@ def enqueue_output(out, queue):
 
 def command(cmd):
     cmd = ["export http_proxy=http://proxy.atlantis.ugent.be:8080", cmd]
-    p = Popen(cmd, bufsize=1, stdout=PIPE, stderr=PIPE)
+    p = Popen(cmd, stdout=PIPE, stderr=PIPE)
     q = Queue()
     t = Thread(target=enqueue_output, args=(p.stdout, q))
     t.daemon = True
