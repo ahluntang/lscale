@@ -1,26 +1,59 @@
+# import sys
+# import threading
+# import subprocess
+#
+# from utilities import exceptions
+
+
+# def reader(shell, lines):
+#         for line in shell.stdout:
+#             lines.append(line)
+#             sys.stdout.write(line)
+#
+#
+# def command(cmd):
+#     shell = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+#     #output, error = shell.communicate()
+#     lines = []
+#
+#     t = threading.Thread(target=reader(shell, lines))
+#     t.start()
+#     #shell.wait()
+#     t.join()
+#
+#     if shell.returncode != 0:
+#         err_msg = "Script error: %s\nOUTPUT\n %s" % (cmd, lines)
+#         raise exceptions.ScriptException(err_msg)
+
+
 import sys
-import threading
-import subprocess
+from subprocess import PIPE, Popen
+from threading import Thread
 
-from utilities import exceptions
+try:
+    from Queue import Queue, Empty
+except ImportError:
+    from queue import Queue, Empty  # python 3.x
+
+ON_POSIX = 'posix' in sys.builtin_module_names
 
 
-def reader(shell, lines):
-        for line in shell.stdout:
-            lines.append(line)
-            sys.stdout.write(line)
-
+def enqueue_output(out, queue):
+    for line in iter(out.readline, b''):
+        queue.put(line)
+    out.close()
 
 def command(cmd):
-    shell = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    #output, error = shell.communicate()
-    lines = []
-
-    t = threading.Thread(target=reader(shell, lines))
+    p = Popen(['myprogram.exe'], stdout=PIPE, bufsize=1, close_fds=ON_POSIX)
+    q = Queue()
+    t = Thread(target=enqueue_output, args=(p.stdout, q))
+    t.daemon = True
+    # thread dies with the program
     t.start()
-    #shell.wait()
-    t.join()
 
-    if shell.returncode != 0:
-        err_msg = "Script error: %s\nOUTPUT\n %s" % (cmd, lines)
-        raise exceptions.ScriptException(err_msg)
+    try:
+        line = q.get_nowait()  # or q.get(timeout=.1)
+    except Empty:
+        print('no output yet')
+    else:  # got line
+        sys.stdout.write(line)
