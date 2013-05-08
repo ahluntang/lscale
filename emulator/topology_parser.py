@@ -188,7 +188,7 @@ def parse_container(container):
 def parse_bridge(bridge):
     bridge_id = bridge.find("id").text
     address = bridge.find("address")
-    bridge_type = eval("BridgeType.%s" % bridge.find("type"))
+    bridge_type = eval("BridgeType.%s" % bridge.find("type").text)
 
     if address is None:
         ip = "0.0.0.0"
