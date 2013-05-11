@@ -8,7 +8,7 @@ import logging
 
 import lxml.etree as ET
 import emulator.elements
-from utilities.lscale import ContainerType, BridgeType, is_lxc
+from utilities import ContainerType, BridgeType, is_lxc
 
 
 def parse(filename, template_environment, parsed_topology, host_id, destroy):

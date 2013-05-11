@@ -4,6 +4,7 @@ pexpect-u
 netaddr 
 jinja2 
 markupsafe
+flufl.enum
 mock
 nose
 coverage 

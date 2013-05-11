@@ -7,7 +7,7 @@ import logging
 import netaddr
 
 from generator.topology.elements import NetworkComponent, Container, Bridge, NetworkInterface
-from utilities.lscale import ContainerType, BridgeType
+from utilities.config import ContainerType, BridgeType
 import utilities.exceptions as exceptions
 
 

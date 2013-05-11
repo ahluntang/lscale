@@ -4,7 +4,7 @@
 
 import netaddr
 
-from utilities.lscale import ContainerType
+from utilities.config import ContainerType
 
 
 class Container(object):

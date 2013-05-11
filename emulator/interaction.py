@@ -13,7 +13,7 @@ from emulator.elements import VirtualInterface, VirtualLink
 from utilities.compability import read_input
 from pexpect import ExceptionPexpect
 from utilities import exceptions
-from utilities.lscale import ContainerType
+from utilities import ContainerType
 
 
 class bcolors:

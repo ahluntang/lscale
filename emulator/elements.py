@@ -8,7 +8,7 @@ import os
 import pexpect
 
 from utilities import exceptions
-from utilities.lscale import ContainerType, BridgeType, is_lxc
+from utilities import ContainerType, BridgeType, is_lxc
 from emulator import lxc
 
 

@@ -2,7 +2,7 @@
 
 from generator.topology.elements import NetworkComponent, IPComponent, UsedResources
 from generator.topology import gen_components
-from utilities.lscale import ContainerType, BridgeType
+from utilities.config import ContainerType, BridgeType
 
 
 def create(last_host_id, last_container_id, last_link_id, starting_address):
