@@ -4,7 +4,7 @@
 
 import netaddr
 
-from utilities.config import ContainerType
+from utilities import ContainerType
 
 
 class Container(object):

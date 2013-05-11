@@ -6,7 +6,7 @@
 import os
 
 from jinja2 import Environment, FileSystemLoader
-from utilities import exceptions, script
+from utilities import exceptions, script, config
 
 
 def configure():
@@ -45,6 +45,10 @@ def clone_container(container_name, original_container="base", snapshot=False):
 def create_lvm(name="lxc", device="/dev/sda", partition="1"):
 
     cmd = "./configurator/templates/create_lvm.sh %s %s %s" % (name, device, partition)
+
+    # check if proxy needed
+    if config.proxy:
+        cmd = "export http_proxy=http://proxy.atlantis.ugent.be:8080 \n%s" % cmd
 
     try:
         script.command(cmd)

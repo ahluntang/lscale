@@ -5,7 +5,7 @@ import lxml.etree as ET
 #from xml.etree import cElementTree
 #from xml.etree.cElementTree import Element, SubElement, tostring
 from collections import defaultdict
-from utilities.config import ContainerType, BridgeType, is_lxc
+from utilities import ContainerType, BridgeType, is_lxc
 
 
 def write_topology_xml(topology_root, output):

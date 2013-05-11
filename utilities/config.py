@@ -1,14 +1,22 @@
-
+import traceback
 try:
     import configparser
 except:
     import ConfigParser as configparser # python 2
 
-
-proxy = None
+"""
+    Global variables:
+        proxy
+        
+"""
 
 def read_config(configfile='config.ini'):
     config = configparser.ConfigParser()
     config.read(configfile)
-    if 'connection' in config:
-        proxy = config['connection']['proxy']
+
+    # proxy
+    global proxy
+    try:
+        proxy = config.get('connection', 'proxy')
+    except configparser.NoOptionError:
+        proxy = None

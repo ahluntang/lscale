@@ -22,7 +22,7 @@ def enqueue_output(out, queue):
 
 def command(cmd):
     try:
-        cmd = "export http_proxy=http://proxy.atlantis.ugent.be:8080 \n%s" % cmd
+        cmd = "%s" % cmd
         p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
         q = Queue()
         t = Thread(target=enqueue_output, args=(p.stdout, q))

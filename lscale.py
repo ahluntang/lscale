@@ -8,6 +8,7 @@ import logging
 
 from utilities import logger
 from utilities import exceptions
+from utilities import config
 import generator
 import emulator
 import configurator
@@ -34,6 +35,10 @@ def parse_arguments():
     # parser for configuring node
     conf_parser = sub_parsers.add_parser('configure', help='help for configuring node')
     sub_conf_parsers = conf_parser.add_subparsers(help='sub-command help', dest='confparser_name')
+
+    # subparser for reading configuration
+    readconf_parser = sub_conf_parsers.add_parser('read', help='help for reading config')
+    readconf_parser.add_argument('-f', '--file', default='config.ini', help='config file', required=False)
 
     # subparser for creating container
     create_parser = sub_conf_parsers.add_parser('create', help='help for creating container')
@@ -76,6 +81,8 @@ def main():
         #err_msg = "Could not parse arguments."
         #raise exceptions.ArgParseException(err_msg)
 
+    config.read_config("config.ini")
+    
     # run generator or emulator based on arguments
     if args['subparser_name'] == "generate":
 
@@ -110,7 +117,10 @@ def main():
                 s = False
 
             configurator.clone_container(name, original, snapshot)
-
+        elif args['confparser_name'] == "read":
+            file = args['file']
+            config.read_config(file)
+            print(config.proxy)
         else:
             pass
             #raise exceptions.IncorrectArgumentsException("Error: check your arguments.")
