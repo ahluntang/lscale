@@ -82,7 +82,7 @@ def main():
         #raise exceptions.ArgParseException(err_msg)
 
     config.read_config("config.ini")
-    
+
     # run generator or emulator based on arguments
     if args['subparser_name'] == "generate":
 
