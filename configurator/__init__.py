@@ -23,6 +23,10 @@ def create_container(container_name="base", backing_store="none", template="ubun
 
     cmd = "./configurator/templates/create_container.sh %s %s %s" % (container_name, backing_store, template)
 
+    # check if proxy needed
+    if config.proxy:
+        cmd = "export http_proxy=http://proxy.atlantis.ugent.be:8080 \n%s" % cmd
+
     try:
         script.command(cmd)
     except exceptions.ScriptException as e:
@@ -45,10 +49,6 @@ def clone_container(container_name, original_container="base", snapshot=False):
 def create_lvm(name="lxc", device="/dev/sda", partition="1"):
 
     cmd = "./configurator/templates/create_lvm.sh %s %s %s" % (name, device, partition)
-
-    # check if proxy needed
-    if config.proxy:
-        cmd = "export http_proxy=http://proxy.atlantis.ugent.be:8080 \n%s" % cmd
 
     try:
         script.command(cmd)
