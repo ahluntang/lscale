@@ -130,7 +130,6 @@ class Container(object):
             self.shell.sendline(self.username)
             self.shell.sendline(self.password)
             self.shell.sendline("sudo su")
-            self.shell.expect("[sudo] password for ubuntu:")
             self.shell.sendline(self.password)
         else:
             self.pid = self.shell.pid
