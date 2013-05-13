@@ -21,6 +21,9 @@ def configure():
 
 def create_container(container_name="base", backing_store="none", template="ubuntu"):
 
+    if os.geteuid() != 0:
+        raise exceptions.InsufficientRightsException("Creating container requires root privileges")
+
     cmd = "./configurator/templates/create_container.sh %s %s %s" % (container_name, backing_store, template)
 
     # check if proxy needed
@@ -35,6 +38,9 @@ def create_container(container_name="base", backing_store="none", template="ubun
 
 def clone_container(container_name, original_container="base", snapshot=False):
 
+    if os.geteuid() != 0:
+        raise exceptions.InsufficientRightsException("Cloning container requires root privileges")
+
     if snapshot:
         cmd = "./configurator/templates/clone_container.sh %s %s %s" % (container_name, original_container, "snapshot")
     else:
@@ -47,6 +53,9 @@ def clone_container(container_name, original_container="base", snapshot=False):
 
 
 def create_lvm(name="lxc", device="/dev/sda", partition="4", cachesize=30):
+
+    if os.geteuid() != 0:
+        raise exceptions.InsufficientRightsException("Creating LVM requires root privileges")
 
     cmd = "./configurator/templates/create_lvm.sh %s %s %s %s" % (name, device, partition, cachesize)
 
