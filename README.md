@@ -2,6 +2,11 @@
 
 ## Prerequisites
 
+Packages and libraries needed to run the framework
+
+```
+aptitude install $(< apt-requires.txt)
+```
 Python libraries needed
 
 * argparse
@@ -17,25 +22,34 @@ The libraries can be installed using pip-requirements.txt file.
 pip install -r pip-requirements.txt
 ```
 
-**Note**: to install some of the libraries (such as lxml) you will need gcc compiler and Python headers, in debian, you can get the required packages from `build-essential` and `python-dev`.
+**Note**: 
+
+To install some of the libraries (such as lxml) you will need gcc compiler and Python headers, in debian, you can get the required packages from `build-essential` and `python-dev`.
 lxml itself also requires `libxml2-dev` and `libxslt1-dev` 
 
-```
-apt-get install build-essential python-pip python-dev libxml2-dev libxslt1-dev
-```
+LXC or LVM  specific packages can be installed using the configure option in the framework
 
 ## Overview
+
+### config.ini
+Setting up some basic stuff for the framework.
+
+```
+#!sh
+[connection]
+proxy = http://proxy.atlantis.ugent.be:8080/
+```
 
 ### Generator usage
 
 
 ```
 #!sh
-./lscale.py {generate|emulate} [-h] [-f FILE] [-e EXAMPLE]
-./lscale.py generate -e cityflow
-./lscale.py generate -e cityring
-./lscale.py generate -e citybus
-./lscale.py generate -e citystar
+./lscale.py generate [-h] [-f FILE] [-e EXAMPLE]
+./lscale.py generate --example cityflow
+./lscale.py generate --example cityring
+./lscale.py generate --example citybus
+./lscale.py generate --example citystar
 ```
 
 | option          | Optional | Info                                                     |
@@ -53,8 +67,8 @@ Should run as root.
 
 ```
 #!sh
-    ./lscale.py {generate|emulate} [-h] [-f FILE] [-i ID]
-    ./lscale.py emulate -f topology.xml -i h001
+    ./lscale.py emulate [-h] [-f FILE] [-i ID]
+    ./lscale.py emulate --file topology.xml -id h001
 ```
 
 | option          | Optional | Info                                                       |
@@ -62,3 +76,16 @@ Should run as root.
 | -h              | y        | gives a small help message                                 |
 | -f or --file    | y        | path to the input file, absolute or relative to execution location (default: topology.xml)    |
 | -i or --id      | y        | id of host elements should be created from (default: h001) |
+
+
+### Configurator
+Should run as root for most options.
+```
+./lscale.py configure [-h]
+./lscale.py configure read
+./lscale.py configure create --name base --backingstore lvm --template ubuntu 
+./lscale.py configure clone --original base --name c001 -s no
+./lscale.py configure lvm --name lxc --device /dev/sda --partition 4 --cache 30
+```
+
+### Monitor

@@ -54,7 +54,7 @@ def parse_arguments():
     lvm_parser.add_argument('-n', '--name', default='lxc', help='name of volume group', required=False)
     lvm_parser.add_argument('-d', '--device', default='/dev/sda', help='device name (default: /dev/sda)', required=False)
     lvm_parser.add_argument('-p', '--partition', default='4', help='partition (default: 4)', required=False)
-    lvm_parser.add_argument('-c', '--cachesize', default='30', help='size for cache (default: 30G, 0 for no cache)', required=False)
+    lvm_parser.add_argument('-c', '--cache', default='30', help='size for cache (default: 30G, 0 for no cache)', required=False)
 
     # subparser for creating clone
     lvm_parser = sub_conf_parsers.add_parser('clone', help='help for cloning containers')
@@ -111,7 +111,7 @@ def main():
             name = args['name']
             device = args['device']
             partition = args['partition']
-            cachesize = args['cachesize']
+            cachesize = args['cache']
 
             configurator.create_lvm(name, device, partition, cachesize)
 
