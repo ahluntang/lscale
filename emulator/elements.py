@@ -101,6 +101,10 @@ class Container(object):
         # create the shell
         self.shell = pexpect.spawn(cmd, logfile=self.logfile)
 
+        #set prompt
+        prompt = "export PS1='%s> '" % container_id
+        self.shell.sendline(prompt)
+
         # get pid of container
         if is_lxc(self.container_type):
             # cmd = "lxc-info -n %s | awk 'END{print $NF}'" % container_id
@@ -121,7 +125,7 @@ class Container(object):
             #         no_pid = False
 
             self.shell.sendline("lxc-console -n %s" % self.container_id)
-
+            self.shell.expect(".* login:")
             # log into the lxc shell
             self.shell.sendline(self.username)
             self.shell.sendline(self.password)
@@ -130,9 +134,7 @@ class Container(object):
 
         print(" (pid: %8s)" % self.pid)
 
-        #set prompt
-        prompt = "export PS1='%s> '" % container_id
-        self.shell.sendline(prompt)
+
 
         #setting instance variables
         self.preroutingscript = None
