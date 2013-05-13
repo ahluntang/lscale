@@ -58,6 +58,10 @@ def parse_arguments():
     lvm_parser.add_argument('-o', '--original', default='base', help='original container to clone', required=False)
     lvm_parser.add_argument('-n', '--name', help='new name for container', required=True)
     lvm_parser.add_argument('-s', '--snapshot', default='yes', help='use snapshotting (yes/no)', required=False)
+
+    #parser for monitoring
+    mon_parser = sub_parsers.add_parser('monitor', help='help for monitoring topologies')
+
     return vars(parser.parse_args())
 
 
@@ -124,6 +128,9 @@ def main():
         else:
             pass
             #raise exceptions.IncorrectArgumentsException("Error: check your arguments.")
+    elif args['subparser_name'] == "monitor":
+        print("Use following commands to monitor lxc containers.")
+        print("\tlxc-list:\tlist all lxc-containers")
     else:
         raise exceptions.IncorrectArgumentsException("Error: check your arguments.")
 

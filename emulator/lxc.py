@@ -11,27 +11,43 @@ import os
 # The MIT License (MIT)
 # Copyright (c) 2013 Elie Deloumeau
 
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
-# to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
-# and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
+# publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
+#  following conditions:
 
-# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+# Software.
 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+#  WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
+#  ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+# USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 
 def _run(cmd, output=False):
-    '''
+    """
     To run command easier
-    '''
+    """
     if output: return subprocess.check_output('{}'.format(cmd), shell=True)
     return subprocess.check_call('{}'.format(cmd), shell=True) # returns 0 for True
 
+
 class ContainerAlreadyExists(Exception): pass
+
+
 class ContainerDoesntExists(Exception): pass
+
+
 class ContainerAlreadyRunning(Exception): pass
+
+
 class ContainerNotRunning(Exception): pass
+
 
 def exists(container):
     '''
@@ -39,6 +55,7 @@ def exists(container):
     '''
     if container in ls(): return True
     return False
+
 
 def create(container, template='ubuntu', storage=None):
     '''
@@ -53,6 +70,7 @@ def create(container, template='ubuntu', storage=None):
             
     return _run(command)
 
+
 def clone(original, container, snapshot=False):
     '''
     Clones an existing container
@@ -63,6 +81,7 @@ def clone(original, container, snapshot=False):
     command = 'lxc-clone -n {} -o {}'.format(container, original)
     if snapshot: command += ' -s'
     return _run(command)
+
 
 def info(container):
     '''
@@ -76,6 +95,7 @@ def info(container):
     return {'state': output[0].split()[1],
             'pid': output[1].split()[1]}
 
+
 def ls():
     '''
     List containers directory
@@ -85,6 +105,7 @@ def ls():
     try: ct_list = os.listdir('/var/lib/lxc/')
     except OSError: ct_list = []
     return sorted(ct_list)
+
 
 def listx():
     '''
@@ -108,14 +129,18 @@ def listx():
             'FROZEN': frozen,
             'STOPPED': stopped}
 
+
 def running():
     return listx()['RUNNING']
+
 
 def frozen():
     return listx()['FROZEN']
 
+
 def stopped():
     return listx()['STOPPED']
+
 
 def start(container):
     '''
@@ -125,6 +150,7 @@ def start(container):
     if container in running(): raise ContainerAlreadyRunning('Container {} is already running!'.format(container))
     return _run('lxc-start -dn {}'.format(container))
 
+
 def stop(container):
     '''
     Stops a container
@@ -132,6 +158,7 @@ def stop(container):
     if not exists(container): raise ContainerDoesntExists('Container {} does not exists!'.format(container))
     if container in stopped(): raise ContainerNotRunning('Container {} is not running!'.format(container))
     return _run('lxc-stop -n {}'.format(container))
+
 
 def freeze(container):
     '''
@@ -141,6 +168,7 @@ def freeze(container):
     if not container in running(): raise ContainerNotRunning('Container {} is not running!'.format(container))
     return _run('lxc-freeze -n {}'.format(container))
 
+
 def unfreeze(container):
     '''
     Unfreezes a container
@@ -149,12 +177,14 @@ def unfreeze(container):
     if not container in frozen(): raise ContainerNotRunning('Container {} is not frozen!'.format(container))
     return _run('lxc-unfreeze -n {}'.format(container))
 
+
 def destroy(container):
     '''
     Destroys a container
     '''
     if not exists(container): raise ContainerDoesntExists('Container {} does not exists!'.format(container))
     return _run('lxc-destroy -fn {}'.format(container))
+
 
 def checkconfig():
     '''
