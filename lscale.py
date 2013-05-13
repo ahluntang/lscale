@@ -42,6 +42,11 @@ def parse_arguments():
     readconf_parser = sub_conf_parsers.add_parser('read', help='help for reading config')
     readconf_parser.add_argument('-f', '--file', default='config.ini', help='config file', required=False)
 
+
+    # subparser for installing the required packages
+    install_parser = sub_conf_parsers.add_parser('install', help='help for installing')
+    install_parser.add_argument('-', '--package', default='all', help='select package group to install (all, lxc, openvswitch)', required=False)
+
     # subparser for creating container
     create_parser = sub_conf_parsers.add_parser('create', help='help for creating container')
     create_parser.add_argument('-n', '--name', default='base', help='container name', required=False)
@@ -129,6 +134,8 @@ def main():
             file = args['file']
             config.read_config(file)
             config.print_all()
+        elif args['confparser_name'] == "install":
+            configurator.install()
         else:
             pass
             #raise exceptions.IncorrectArgumentsException("Error: check your arguments.")

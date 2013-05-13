@@ -19,6 +19,27 @@ def configure():
         raise exceptions.InsufficientRightsException("Configuring system requires root privileges")
 
 
+def install(package):
+
+    if os.geteuid() != 0:
+        raise exceptions.InsufficientRightsException("Installing packages requires root privileges")
+
+    cmd = ""
+    if package == "all" or package == "openvswitch":
+        cmd += "./configurator/templates/install_openvswitch.sh\n"
+
+    if package == "all" or package == "lxc":
+        cmd += "./configurator/templates/install_lxc.sh\n"
+
+    # check if proxy needed
+    if config.proxy:
+        cmd = "export http_proxy=%s\n%s" % (config.proxy, cmd)
+
+    try:
+        script.command(cmd)
+    except exceptions.ScriptException as e:
+        raise exceptions.ConfiguratorException(e)
+
 def create_container(container_name="base", backing_store="none", template="ubuntu"):
 
     if os.geteuid() != 0:
