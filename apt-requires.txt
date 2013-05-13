@@ -1,0 +1,7 @@
+# aptitude install $(< apt-requires.txt)
+
+build-essential 
+python-pip 
+python-dev 
+libxml2-dev 
+libxslt1-dev
