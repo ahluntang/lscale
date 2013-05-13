@@ -99,7 +99,7 @@ class Container(object):
             cmd = "unshare --net /bin/bash"
 
         # create the shell
-        self.shell = pexpect.spawn(cmd, logfile=self.logfile)
+        self.shell = pexpect.spawn(cmd, logfile=self.logfile, timeout=None)
 
         #set prompt
         prompt = "export PS1='%s> '" % container_id
