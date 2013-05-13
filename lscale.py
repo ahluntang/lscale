@@ -9,9 +9,11 @@ import logging
 from utilities import logger
 from utilities import exceptions
 from utilities import config
+
 import generator
 import emulator
 import configurator
+import monitor
 
 
 def parse_arguments():
@@ -21,7 +23,7 @@ def parse_arguments():
     #parser for generating topologies
     gen_parser = sub_parsers.add_parser('generate', help='help for generating topologies')
     gen_parser.add_argument('-f', '--file', default='output/topology.xml', help='output file to write to.',
-                           required=False)
+                            required=False)
     gen_parser.add_argument('-e', '--example', default='smalltop', help='example to create topology for', required=False)
 
     # parser for emulating topologies
@@ -129,12 +131,13 @@ def main():
             pass
             #raise exceptions.IncorrectArgumentsException("Error: check your arguments.")
     elif args['subparser_name'] == "monitor":
-        print("Use following commands to monitor lxc containers.")
-        print("\tlxc-list:\tlist all lxc-containers")
+        print("Use following commands to monitor lxc containers.\n")
+        monitor.print_all()
     else:
         raise exceptions.IncorrectArgumentsException("Error: check your arguments.")
 
     return 0
+
 
 
 if __name__ == "__main__":

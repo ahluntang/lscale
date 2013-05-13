@@ -20,9 +20,10 @@ def enqueue_output(out, queue):
     out.close()
 
 
-def command(cmd):
+def command(cmd, verbose=True):
     try:
-        print_start_command(cmd)
+        if verbose:
+            print_start_command(cmd)
         p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
         q = Queue()
         t = Thread(target=enqueue_output, args=(p.stdout, q))
@@ -30,7 +31,8 @@ def command(cmd):
         # thread dies with the program
         t.start()
         p.wait()
-        print_done_command(cmd)
+        if verbose:
+            print_done_command(cmd)
     except Exception as e:
         raise exceptions.ScriptException(e)
 
