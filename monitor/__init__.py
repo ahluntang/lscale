@@ -10,5 +10,5 @@ def print_help(level, cmd, message):
 
 def print_all():
     print_help(0, "lxc-list", "list all lxc-containers")
-    script.command("lxc-list --help", False)
+    script.command("lxc-ps --help", False)
     print_help(0, "lxc-checkconfig", "check if host is capable of running lxc-containers")
