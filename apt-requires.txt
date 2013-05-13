@@ -1,5 +1,3 @@
-# aptitude install $(< apt-requires.txt)
-
 build-essential 
 python-pip 
 python-dev 
