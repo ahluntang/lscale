@@ -107,10 +107,19 @@ class Container(object):
             # readpid = pexpect.spawn(cmd)
             # self.pid = readpid.readline()
             # print(" (pid: %8s)" % self.pid)
+
+            lxc.wait(self.container_id, 'RUNNING')
+
             info = lxc.info(self.container_id)
             self.pid = info['pid']
 
-            lxc.wait(self.container_id, 'RUNNING')
+            # no_pid = True
+            # while no_pid:
+            #     info = lxc.info(self.container_id)
+            #     if info['pid'] != "-1":
+            #         self.pid = info['pid']
+            #         no_pid = False
+
             self.shell.sendline("lxc-console -n %s" % self.container_id)
 
             # log into the lxc shell
