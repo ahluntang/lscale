@@ -25,7 +25,7 @@ def create_container(container_name="base", backing_store="none", template="ubun
 
     # check if proxy needed
     if config.proxy:
-        cmd = "export http_proxy=http://proxy.atlantis.ugent.be:8080 \n%s" % cmd
+        cmd = "export http_proxy=%s\n%s" % (config.proxy, cmd)
 
     try:
         script.command(cmd)
