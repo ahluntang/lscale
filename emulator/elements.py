@@ -129,12 +129,13 @@ class Container(object):
             # log into the lxc shell
             self.shell.sendline(self.username)
             self.shell.sendline(self.password)
+            self.shell.sendline("sudo su")
+            self.shell.expect("[sudo] password for ubuntu:")
+            self.shell.sendline(self.password)
         else:
             self.pid = self.shell.pid
 
         print(" (pid: %8s)" % self.pid)
-
-
 
         #setting instance variables
         self.preroutingscript = None
