@@ -84,9 +84,10 @@ Should run as root for most options.
 ```
 ./lscale.py configure [-h]
 ./lscale.py configure read
+./lscale.py configure install --package all
+./lscale.py configure lvm --name lxc --device /dev/sda --partition 4 --cache 30
 ./lscale.py configure create --name base --backingstore lvm --template ubuntu 
 ./lscale.py configure clone --original base --name c001 -s no
-./lscale.py configure lvm --name lxc --device /dev/sda --partition 4 --cache 30
 ```
 
 ### Monitor
