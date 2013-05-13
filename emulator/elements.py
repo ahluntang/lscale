@@ -132,7 +132,6 @@ class Container(object):
         except exceptions.CleanupException as e:
             pass
 
-
     def set_pid(self):
         # get pid of container
         if is_lxc(self.container_type):

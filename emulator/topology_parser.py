@@ -53,7 +53,7 @@ def parse_host(template_environment, host, host_id, destroy):
             c = parse_container(container)
             containers[c.container_id] = c
 
-        for container in containers:
+        for container_id, container in containers.items():
             container.set_pid()
 
         for link in host.findall('links/link'):
