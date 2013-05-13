@@ -46,9 +46,9 @@ def clone_container(container_name, original_container="base", snapshot=False):
         raise exceptions.ConfiguratorException(e)
 
 
-def create_lvm(name="lxc", device="/dev/sda", partition="1"):
+def create_lvm(name="lxc", device="/dev/sda", partition="4", cachesize=30):
 
-    cmd = "./configurator/templates/create_lvm.sh %s %s %s" % (name, device, partition)
+    cmd = "./configurator/templates/create_lvm.sh %s %s %s %s" % (name, device, partition, cachesize)
 
     try:
         script.command(cmd)

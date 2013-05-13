@@ -54,6 +54,7 @@ def parse_arguments():
     lvm_parser.add_argument('-n', '--name', default='lxc', help='name of volume group', required=False)
     lvm_parser.add_argument('-d', '--device', default='/dev/sda', help='device name (default: /dev/sda)', required=False)
     lvm_parser.add_argument('-p', '--partition', default='4', help='partition (default: 4)', required=False)
+    lvm_parser.add_argument('-c', '--cachesize', default='30', help='size for cache (default: 30G, 0 for no cache)', required=False)
 
     # subparser for creating clone
     lvm_parser = sub_conf_parsers.add_parser('clone', help='help for cloning containers')
@@ -110,8 +111,9 @@ def main():
             name = args['name']
             device = args['device']
             partition = args['partition']
+            cachesize = args['cachesize']
 
-            configurator.create_lvm(name, device, partition)
+            configurator.create_lvm(name, device, partition, cachesize)
 
         elif args['confparser_name'] == "clone":
             original = args['original']
@@ -126,7 +128,7 @@ def main():
         elif args['confparser_name'] == "read":
             file = args['file']
             config.read_config(file)
-            print(config.proxy)
+            config.print_all()
         else:
             pass
             #raise exceptions.IncorrectArgumentsException("Error: check your arguments.")
@@ -137,7 +139,6 @@ def main():
         raise exceptions.IncorrectArgumentsException("Error: check your arguments.")
 
     return 0
-
 
 
 if __name__ == "__main__":

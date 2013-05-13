@@ -20,3 +20,7 @@ def read_config(configfile='config.ini'):
         proxy = config.get('connection', 'proxy')
     except configparser.NoOptionError:
         proxy = None
+
+
+def print_all():
+    print("Proxy: %s" % proxy)
