@@ -29,11 +29,12 @@ import os
 # USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-def _run(cmd, output=False):
+def _run(cmd, output=True):
     """
     To run command easier
     """
-    if output: return subprocess.check_output('{}'.format(cmd), shell=True)
+    if output:
+        return subprocess.check_output('{}'.format(cmd), shell=True)
     return subprocess.check_call('{}'.format(cmd), shell=True) # returns 0 for True
 
 

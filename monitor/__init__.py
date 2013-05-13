@@ -1,6 +1,5 @@
 
 
-
 def print_help(level, cmd, message):
     cmd = cmd.ljust(20)
     help_msg = "\t{}\t{}".format(cmd, message)
@@ -14,3 +13,5 @@ def print_all():
     print_help(0, "lxc-list", "List all lxc-containers on this machine (based on /var/lib/lxc contents).")
     print_help(0, "lxc-ps", "Display processes information with related container name if available.")
     print_help(0, "lxc-info", "Display some information about a container with the identifier NAME.")
+    print_help(0, "ovs-vstl", "Display and configure bridges.")
+    print_help(0, "brctl", "Display and configure bridges.")

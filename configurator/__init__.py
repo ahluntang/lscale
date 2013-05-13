@@ -40,6 +40,7 @@ def install(package):
     except exceptions.ScriptException as e:
         raise exceptions.ConfiguratorException(e)
 
+
 def create_container(container_name="base", backing_store="none", template="ubuntu"):
 
     if os.geteuid() != 0:
