@@ -135,7 +135,8 @@ def main():
             config.read_config(file)
             config.print_all()
         elif args['confparser_name'] == "install":
-            configurator.install()
+            package = args['package']
+            configurator.install(package)
         else:
             pass
             #raise exceptions.IncorrectArgumentsException("Error: check your arguments.")
