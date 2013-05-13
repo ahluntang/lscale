@@ -53,6 +53,9 @@ def parse_host(template_environment, host, host_id, destroy):
             c = parse_container(container)
             containers[c.container_id] = c
 
+        for container in containers:
+            container.set_pid()
+
         for link in host.findall('links/link'):
             l = parse_link(link, interfaces, mappings_container, mappings_interfaces, mappings_gateways, mappings_ip,
                            mappings_summaries,

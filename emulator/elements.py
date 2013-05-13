@@ -105,6 +105,35 @@ class Container(object):
         prompt = "export PS1='%s> '" % container_id
         self.shell.sendline(prompt)
 
+
+        self.pid = self.shell.pid
+
+        print(" (pid: %8s)" % self.pid)
+
+        #setting instance variables
+        self.preroutingscript = None
+        self.routingscript = None
+        self.postroutingscript = None
+        self.cleanupscript = None
+        self.prerouting = {'container_id': self.container_id}
+        self.routing = {'container_id': self.container_id, 'routes': [], 'addresses': []}
+        self.postrouting = {'container_id': self.container_id}
+        self.cleanupsettings = {'container_id': self.container_id}
+        self.gateway = None
+        self.is_managed = False
+        self.management_interface = "%s.m" % self.container_id
+        self.management_address = None
+
+        logging.getLogger(__name__).info("Created container %8s with pid %8s", container_id, self.pid)
+
+    def __del__(self):
+        try:
+            self.cleanup()
+        except exceptions.CleanupException as e:
+            pass
+
+
+    def set_pid(self):
         # get pid of container
         if is_lxc(self.container_type):
             # cmd = "lxc-info -n %s | awk 'END{print $NF}'" % container_id
@@ -131,32 +160,6 @@ class Container(object):
             self.shell.sendline(self.password)
             self.shell.sendline("sudo su")
             self.shell.sendline(self.password)
-        else:
-            self.pid = self.shell.pid
-
-        print(" (pid: %8s)" % self.pid)
-
-        #setting instance variables
-        self.preroutingscript = None
-        self.routingscript = None
-        self.postroutingscript = None
-        self.cleanupscript = None
-        self.prerouting = {'container_id': self.container_id}
-        self.routing = {'container_id': self.container_id, 'routes': [], 'addresses': []}
-        self.postrouting = {'container_id': self.container_id}
-        self.cleanupsettings = {'container_id': self.container_id}
-        self.gateway = None
-        self.is_managed = False
-        self.management_interface = "%s.m" % self.container_id
-        self.management_address = None
-
-        logging.getLogger(__name__).info("Created container %8s with pid %8s", container_id, self.pid)
-
-    def __del__(self):
-        try:
-            self.cleanup()
-        except exceptions.CleanupException as e:
-            pass
 
     def cleanup(self, template_environment=None):
         """Cleans up resources on destruction.
