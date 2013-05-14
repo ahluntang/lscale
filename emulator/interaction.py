@@ -4,14 +4,15 @@
 import sys
 import signal
 import fcntl
-import termios
 import struct
-import netaddr
 import logging
 
+import netaddr
+from pexpect import ExceptionPexpect
+
+import termios
 from emulator.elements import VirtualInterface, VirtualLink
 from utilities.compability import read_input
-from pexpect import ExceptionPexpect
 from utilities import exceptions
 from utilities import ContainerType
 
@@ -34,17 +35,17 @@ exit_color = "%sexit%s" % (bcolors.FAIL, bcolors.WARNING)
 def interact(configured_hosts, host_id):
     # set starting network for ssh management
     configured_hosts[host_id]['containers'][host_id].management_address = netaddr.IPNetwork("192.168.0.0/30")
-    
+
     prompt = "Available commands: connect, addssh, %s%s: " % (exit_color, bcolors.ENDC)
     response = read_input(prompt).rstrip()
     while True:
-        if ( response == "connect" ):
+        if response == "connect":
             connect_container(configured_hosts, host_id)
             response = read_input(prompt).rstrip()
-        elif (response == "addssh"):
+        elif response == "addssh":
             add_ssh(configured_hosts, host_id)
             response = read_input(prompt).rstrip()
-        elif (response == "exit"):
+        elif response == "exit":
             return 0
         else:
             print("Sorry, I could not recognise that command.")
@@ -105,22 +106,24 @@ def add_ssh(configured_hosts, host_id):
 
             host.management_address = host.management_address.next()
     except ExceptionPexpect as e:
-        print(" %s Error! Could not create ssh connection. Have you selected the correct container id? %s" % (
-        bcolors.WARNING, bcolors.ENDC ))
+        print(" %s Error! Could not create ssh connection. "
+              "Have you selected the correct container id? %s" % (bcolors.WARNING, bcolors.ENDC))
         raise exceptions.SSHLinkException(e)
     finally:
         return 0
 
 
 def connect_container(configured_hosts, host_id):
-    interact_warning = "  %s warning: if you type %s, you will close the container and all its subprocesses!!! %s" % (
-        bcolors.WARNING, exit_color, bcolors.ENDC )
+    interact_warning = "%s warning: if you type %s, you will close the container" \
+                       "and all its subprocesses!!! %s" % (bcolors.WARNING, exit_color, bcolors.ENDC)
 
     while True:
 
         available_containers = sorted(configured_hosts[host_id]['containers'].keys())
-        prompt = "\nYou are on '%s'\nAvailable containers:\n%s\nSelect container or type %s%s to go back to main options: " % (
-            host_id, available_containers, exit_color, bcolors.ENDC)
+        prompt = "\nYou are on '%s'\n" \
+                 "Available containers:\n" \
+                 "%s\nSelect container or type %s%s " \
+                 "to go back to main options: " % (host_id, available_containers, exit_color, bcolors.ENDC)
         response = read_input(prompt).rstrip()
         if response != "exit":
             try:
@@ -162,7 +165,7 @@ def sigwinch_passthrough(sig, data):
     if 'TIOCGWINSZ' in dir(termios):
         TIOCGWINSZ = termios.TIOCGWINSZ
     else:
-        TIOCGWINSZ = 1074295912 # assume
+        TIOCGWINSZ = 1074295912  # assume
     s = struct.pack("HHHH", 0, 0, 0, 0)
     a = struct.unpack('HHHH', fcntl.ioctl(sys.stdout.fileno(), TIOCGWINSZ, s))
     global global_pexpect_instance

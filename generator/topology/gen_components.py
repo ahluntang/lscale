@@ -287,7 +287,7 @@ def create_bridge(host, bridgetype=BridgeType.BRIDGE):
     return component
 
 
-def create_container(host, container_type=ContainerType.UNSHARED, template="base"):
+def create_container(host, container_type=ContainerType.UNSHARED, template="base", scripts=None):
     component = NetworkComponent()
     logging.getLogger(__name__).info("Creating containercomponent (%s)", component.component_id)
     component.host_id = host.container_id
@@ -296,6 +296,15 @@ def create_container(host, container_type=ContainerType.UNSHARED, template="base
     container_id = used_resources.get_new_container_id()
     container = Container(container_id, container_type, template)
     container.container_id = container.container_id
+    if scripts is not None:
+        if scripts['prerouting'] is not None:
+            container.preroutingscript = scripts['prerouting']
+        if scripts['routing'] is not None:
+            container.routingscript = scripts['routing']
+        if scripts['postrouting'] is not None:
+            container.postrouting = scripts['postrouting']
+        if scripts['cleanup'] is not None:
+            container.cleanupscript = scripts['cleanup']
 
     component.topology['containers'][container_id] = container
 

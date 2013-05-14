@@ -35,7 +35,7 @@ def _run(cmd, output=True):
     """
     if output:
         return subprocess.check_output('{}'.format(cmd), shell=True)
-    return subprocess.check_call('{}'.format(cmd), shell=True) # returns 0 for True
+    return subprocess.check_call('{}'.format(cmd), shell=True)  # returns 0 for True
 
 
 class ContainerAlreadyExists(Exception): pass

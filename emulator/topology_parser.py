@@ -87,7 +87,7 @@ def parse_host(template_environment, host, host_id, destroy):
         set_gateways(configured_host)
 
         for interface_id, gateway in mappings_gateways.items():
-            print("%s->%s" % (interface_id, gateway))
+            logging.getLogger(__name__).info("%s->%s", interface_id, gateway)
 
         for container_id, container in containers.items():
             #run pre routing script
@@ -116,11 +116,12 @@ def move_vinterfaces(configured_host):
 
 
 def set_summaries(configured_host):
+    logging.getLogger(__name__).info("Setting summaries")
     for interface_id, interface in configured_host['interfaces'].items():
         container_id = configured_host['mappings'][interface_id]
         container = configured_host['containers'][container_id]
         if interface.address is not None:
-            print(interface_id)
+            logging.getLogger(__name__).info(interface_id)
             for summary, via in configured_host["mappings_summaries"].items():
                 #print " checking for:  %s, via %s" % (summary, via)
 
@@ -143,7 +144,7 @@ def set_summaries(configured_host):
                     summary_route = emulator.elements.Route(address, interface.veth)
                     summary_route.via = str(netaddr.IPNetwork(via).ip)
                     container.routing["routes"].append(summary_route)
-                    print("Adding %s to %s" % (summary_route.address, container.container_id))
+                    logging.getLogger(__name__).info("Adding %s to %s", summary_route.address, container.container_id)
 
 
 def set_gateways(configured_host):
@@ -284,7 +285,6 @@ def parse_link(link, interfaces, mappings_container, mappings_interfaces, mappin
         route.via = netaddr.IPNetwork(veth1.address).ip
     for route in routes1:
         route.via = netaddr.IPNetwork(veth0.address).ip
-
 
     # creating the link
     l = emulator.elements.VirtualLink(veth0, veth1)
