@@ -115,7 +115,7 @@ class Container(object):
         self.postroutingscript = None
         self.cleanupscript = None
         self.prerouting = {'container_id': self.container_id}
-        self.routing = {'container_id': self.container_id, 'routes': [], 'addresses': []}
+        self.routing = {'container_id': self.container_id, 'routes': [], 'addresses': [], 'interfaces': []}
         self.postrouting = {'container_id': self.container_id}
         self.cleanupsettings = {'container_id': self.container_id}
         self.gateway = None
@@ -400,6 +400,7 @@ class VirtualLink(object):
             cmd = "ip link set %s netns %s" % (veth, container.pid)
             logging.getLogger(__name__).info("Moving interface %8s to %8s: %s", veth, container.container_id, cmd)
             self.shell.sendline(cmd)
+            container.routing['interfaces'].append(veth)
 
             logging.getLogger(__name__).info("Virtual interface %8s moved to %8s", veth, container.container_id)
 
