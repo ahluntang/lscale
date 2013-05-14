@@ -53,6 +53,7 @@ def parse_host(template_environment, host, host_id, destroy):
             c = parse_container(container)
             containers[c.container_id] = c
 
+        logging.getLogger(__name__).info("Waiting until lxc-containers have successfully booted.")
         for container_id, container in containers.items():
             container.set_pid()
 
@@ -164,6 +165,14 @@ def parse_container(container):
     template = container.find("template").text if is_lxc(container_type) else ""
 
     c = emulator.elements.Container(container_id, container_type, template)
+
+    password = container.find("password")
+    if password is not None:
+        c.password = password.text
+
+    username = container.find("username")
+    if username is not None:
+        c.username = username.text
 
     prerouting = container.find("prerouting")
     if prerouting is not None:

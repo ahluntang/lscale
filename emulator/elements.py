@@ -34,8 +34,10 @@ class Container(object):
         self.container_id -- identification for container
         self.container_type -- sets type of container (host, unshared, lxc or lxc with lvm)
         self.template -- when using lxc, use this template as base
+        self.username -- when using lxc, use this as username to automatically log in.
+        self.password -- when using lxc, use this as password to automatically log in.
         self.shell -- holds the pexpect shell object for this instance
-        self.pid -- pid of the container (can also be accessed through self.shell.pid)
+        self.pid -- pid of the container
         self.preroutingscript --  pre routing script for template
         self.routingscript -- routing script for template
         self.postroutingscript -- post routing script for template
@@ -45,20 +47,17 @@ class Container(object):
         self.interfaces -- used for routing
     """
 
-    def __init__(self, container_id, container_type=ContainerType.UNSHARED, template="base", username="ubuntu", password="ubuntu"):
+    def __init__(self, container_id, container_type=ContainerType.UNSHARED, template="base"):
         """Constructs a new Container instance.
 
         Argument is identification for the container.
         Optional argument is a boolean whether it is a container or host.
         """
-
-        print("Creating container %8s" % container_id),
+        logging.getLogger(__name__).info("Creating container %8s", container_id)
         self.container_id = container_id
         self.container_type = container_type
         self.template = template
         self.destroy = True
-        self.username = username
-        self.password = password
 
         logdir = "logs/container_logs"
         if not os.path.exists(logdir):
@@ -108,9 +107,9 @@ class Container(object):
 
         self.pid = self.shell.pid
 
-        print(" (pid: %8s)" % self.pid)
-
         #setting instance variables
+        self.username = None
+        self.password = None
         self.preroutingscript = None
         self.routingscript = None
         self.postroutingscript = None
@@ -145,15 +144,13 @@ class Container(object):
             info = lxc.info(self.container_id)
             self.pid = info['pid']
 
-            # no_pid = True
-            # while no_pid:
-            #     info = lxc.info(self.container_id)
-            #     if info['pid'] != "-1":
-            #         self.pid = info['pid']
-            #         no_pid = False
-
+            logging.getLogger(__name__).info("Container {} is booting, "
+                                             "changing pid to {}.".format(self.container_id, self.pid))
+            logging.getLogger(__name__).info("Waiting for full boot to attach console.")
             self.shell.sendline("lxc-console -n %s" % self.container_id)
             self.shell.expect(".* login:")
+
+            logging.getLogger(__name__).info("Container {} has successfully started, logging in.".format(self.pid))
             # log into the lxc shell
             self.shell.sendline(self.username)
             self.shell.sendline(self.password)
@@ -169,11 +166,13 @@ class Container(object):
             self.run_cleanup(template_environment)
 
         if is_lxc(self.container_type):
-            cmd = "lxc-stop -n %s" % self.container_id
-            self.shell.sendline(cmd)
+            #cmd = "lxc-stop -n %s" % self.container_id
+            #self.shell.sendline(cmd)
+            lxc.stop(self.container_id)
             if self.destroy:
-                cmd = "lxc-destroy -n %s" % self.container_id
-                self.shell.sendline(cmd)
+                #cmd = "lxc-destroy -n %s" % self.container_id
+                #self.shell.sendline(cmd)
+                lxc.destroy(self.container_id)
 
         try:
             sys.stdout.write(".")
@@ -256,7 +255,8 @@ class Bridge(object):
             Default value: 0.0.0.0
         """
 
-        print("Creating bridge %8s" % bridge_id)
+        logging.getLogger(__name__).info("Creating bridge %8s" % bridge_id)
+
         self.bridge_id = bridge_id
         self.address = address
         self.bridge_type = bridge_type
@@ -320,10 +320,7 @@ class Bridge(object):
         else:
             cmd = "brctl addif %s %s" % (self.bridge_id, endpoint)
 
-        print("Adding interface %8s to bridge %8s: %s" % (endpoint, self.bridge_id, cmd))
-
-        logger = logging.getLogger(__name__)
-        logger.info("Adding interface %8s to bridge %8s", endpoint, self.bridge_id)
+        logging.getLogger(__name__).info("Adding interface %8s to bridge %8s: %s", endpoint, self.bridge_id, cmd)
 
         self.shell.sendline(cmd)
 
@@ -349,7 +346,7 @@ class VirtualLink(object):
         Arguments are the identification of the virtual interfaces veth0 and veth1
         """
 
-        print("Creating virtual link %8s - %8s" % (veth0.veth, veth1.veth))
+        logging.getLogger(__name__).info("Creating virtual link %8s - %8s", veth0.veth, veth1.veth)
         self.veth0 = veth0
         self.veth1 = veth1
 
@@ -372,7 +369,6 @@ class VirtualLink(object):
 
         logger = logging.getLogger(__name__)
         logger.info("Added virtual link %8s - %8s", self.veth0.veth, self.veth1.veth)
-
 
     def __del__(self):
         try:
@@ -402,20 +398,18 @@ class VirtualLink(object):
     def setns(self, veth, container):
         if not container.container_type == ContainerType.NONE:
             cmd = "ip link set %s netns %s" % (veth, container.pid)
-            print("Moving interface %8s to %8s: %s" % (veth, container.container_id, cmd))
+            logging.getLogger(__name__).info("Moving interface %8s to %8s: %s", veth, container.container_id, cmd)
             self.shell.sendline(cmd)
 
-            logger = logging.getLogger(__name__)
-            logger.info("Virtual interface %8s moved to %8s", veth, container.container_id)
+            logging.getLogger(__name__).info("Virtual interface %8s moved to %8s", veth, container.container_id)
 
             if veth == self.veth0.veth:
                 self.veth0.shell = container.shell
             elif veth == self.veth1.veth:
                 self.veth1.shell = container.shell
             else:
-                logger = logging.getLogger(__name__)
-                logger.warn("Apparently %8s does not belong to virtual link %8s-%8s", veth, self.veth0.veth,
-                            self.veth1.veth)
+                logging.getLogger(__name__).warn("Apparently %8s does not belong to virtual link "
+                                                 "%8s-%8s", veth, self.veth0.veth, self.veth1.veth)
 
 
 class VirtualInterface(object):
@@ -444,16 +438,16 @@ def cleanup(template_environment):
     Will check the cleanup lists and remove all objects.
     """
     try:
-        print("Cleanup the system.")
-        print("This may take a while. Grab a coffee.")
+        logging.getLogger(__name__).info("Cleanup the system.")
+        logging.getLogger(__name__).info("This may take a while. Grab a coffee.")
 
-        print("\n\nCleaning links [1/3]")
+        logging.getLogger(__name__).info("Cleaning links [1/3]")
         cleanup_links[:] = [obj for obj in cleanup_links if obj.cleanup()]
 
-        print("\n\nCleaning bridges [2/3]")
+        logging.getLogger(__name__).info("Cleaning bridges [2/3]")
         cleanup_bridges[:] = [obj for obj in cleanup_bridges if obj.cleanup()]
 
-        print("\n\nCleaning containers [3/3]")
+        logging.getLogger(__name__).info("Cleaning containers [3/3]")
         cleanup_containers[:] = [obj for obj in cleanup_containers if obj.cleanup(template_environment)]
     except exceptions.CleanupException as e:
         pass
