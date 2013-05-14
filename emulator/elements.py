@@ -108,8 +108,8 @@ class Container(object):
         self.pid = self.shell.pid
 
         #setting instance variables
-        self.username = None
-        self.password = None
+        self.username = "ubuntu"
+        self.password = "ubuntu"
         self.preroutingscript = None
         self.routingscript = None
         self.postroutingscript = None
