@@ -6,7 +6,7 @@ import logging
 
 import netaddr
 
-from generator.topology.elements import NetworkComponent, Container, Bridge, NetworkInterface
+from generator.topology.elements import NetworkComponent, Container, Bridge, NetworkInterface, SetupScripts
 from utilities import ContainerType, BridgeType
 import utilities.exceptions as exceptions
 
@@ -54,10 +54,12 @@ def add_host(topology_root):
     host_id = used_resources.get_new_host_id()
     host = Container(host_id, ContainerType.NONE)
 
-    host.preroutingscript = "host_pre_routing.sh"
-    host.routingscript = "host_routing.sh"
-    host.postroutingscript = "host_post_routing.sh"
-    host.cleanupscript = "host_cleanup.sh"
+    scripts = SetupScripts()
+    scripts.prerouting = "host_pre_routing.sh"
+    scripts.routing = "host_routing.sh"
+    scripts.postrouting = "host_post_routing.sh"
+    scripts.cleanup = "host_cleanup.sh"
+    host.scripts = scripts
 
     topology_root[host_id] = {}
     topology_root[host_id]['id'] = host
@@ -265,7 +267,7 @@ def connect_bridges(bridge_from, bridge_to):
     bridge_to.add_interface(interface_to)
 
 
-def create_bridge(host, bridgetype=BridgeType.BRIDGE):
+def create_bridge(host, bridgetype=BridgeType.BRIDGE, controller=None, controller_port=None, datapath=None):
     """Creates a bridge.
     Optionally adds an interface from connected_to to the bridge.
 
@@ -279,6 +281,9 @@ def create_bridge(host, bridgetype=BridgeType.BRIDGE):
     bridge_id = used_resources.get_new_bridge_id()
     bridge = Bridge(bridge_id, bridge_type=bridgetype)
     bridge.container_id = host.container_id
+    bridge.controller = controller
+    bridge.controller_port = controller_port
+    bridge.datapath = datapath
 
     component.topology['bridges'][bridge_id] = bridge
 
@@ -287,24 +292,16 @@ def create_bridge(host, bridgetype=BridgeType.BRIDGE):
     return component
 
 
-def create_container(host, container_type=ContainerType.UNSHARED, template="base", scripts=None):
+def create_container(host, prefix="c", container_type=ContainerType.UNSHARED, template="base", scripts=SetupScripts()):
     component = NetworkComponent()
     logging.getLogger(__name__).info("Creating containercomponent (%s)", component.component_id)
     component.host_id = host.container_id
     component.type = "container"
 
-    container_id = used_resources.get_new_container_id()
+    container_id = used_resources.get_new_id(prefix)
     container = Container(container_id, container_type, template)
     container.container_id = container.container_id
-    if scripts is not None:
-        if scripts['prerouting'] is not None:
-            container.preroutingscript = scripts['prerouting']
-        if scripts['routing'] is not None:
-            container.routingscript = scripts['routing']
-        if scripts['postrouting'] is not None:
-            container.postrouting = scripts['postrouting']
-        if scripts['cleanup'] is not None:
-            container.cleanupscript = scripts['cleanup']
+    container.scripts = scripts
 
     component.topology['containers'][container_id] = container
 
@@ -354,9 +351,11 @@ def create_bus(host, amount_of_containers=5, addressing_scheme=None):
         container_id = "s%03d.%s" % (component.component_id, used_resources.get_new_container_id() )
         c = Container(container_id)
         containers[container_id] = c
-        c.preroutingscript = "bus_pre_routing.sh"
-        c.routingscript = "bus_routing.sh"
-        c.postroutingscript = "bus_post_routing.sh"
+        scripts = SetupScripts()
+        scripts.prerouting = "bus_pre_routing.sh"
+        scripts.routing = "bus_routing.sh"
+        scripts.postrouting = "bus_post_routing.sh"
+        c.scripts = scripts
 
         link_id = used_resources.get_new_link_id()
 
@@ -397,9 +396,13 @@ def create_star(host, amount_of_containers=5, addressing_scheme=None):
     #create center container in as central point of the star
     container_id = "s%03d.%s" % (component.component_id, used_resources.get_new_container_id() )
     center = Container(container_id)
-    center.preroutingscript = "star_pre_routing.sh"
-    center.routingscript = "star_routing.sh"
-    center.postroutingscript = "star_post_routing.sh"
+
+    scripts = SetupScripts()
+    scripts.prerouting = "star_pre_routing.sh"
+    scripts.routing = "star_routing.sh"
+    scripts.postrouting = "star_post_routing.sh"
+    center.scripts = scripts
+
     containers[container_id] = center
 
     # make containers and link them to the new bridge
@@ -410,9 +413,11 @@ def create_star(host, amount_of_containers=5, addressing_scheme=None):
         container_id = "s%03d.%s" % (component.component_id, used_resources.get_new_container_id() )
         c = Container(container_id)
         containers[container_id] = c
-        c.preroutingscript = "star_pre_routing.sh"
-        c.routingscript = "star_routing.sh"
-        c.postroutingscript = "star_post_routing.sh"
+        scripts2 = SetupScripts()
+        scripts2.prerouting = "star_pre_routing.sh"
+        scripts2.routing = "star_routing.sh"
+        scripts2.postrouting = "star_post_routing.sh"
+        c.scripts = scripts2
 
         link_id = used_resources.get_new_link_id()
 
@@ -479,9 +484,11 @@ def create_ring(host, amount_of_containers=5, addressing_scheme=None, is_line=Fa
 
         cur_container = Container(cur_container_id)
 
-        cur_container.preroutingscript = "ring_pre_routing.sh"
-        cur_container.routingscript = "ring_routing.sh"
-        cur_container.postroutingscript = "ring_post_routing.sh"
+        scripts = SetupScripts()
+        scripts.prerouting = "ring_pre_routing.sh"
+        scripts.routing = "ring_routing.sh"
+        scripts.postrouting = "ring_post_routing.sh"
+        cur_container.scripts = scripts
 
         containers[cur_container_id] = cur_container
 

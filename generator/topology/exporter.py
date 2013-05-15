@@ -40,13 +40,13 @@ def write_topology_xml(topology_root, output):
 
             # adding template scripts
             pre_element = ET.SubElement(container_tree, 'prerouting')
-            pre_element.text = container.preroutingscript
+            pre_element.text = container.scripts.prerouting
             routing_element = ET.SubElement(container_tree, 'routing')
-            routing_element.text = container.routingscript
+            routing_element.text = container.scripts.routing
             post_element = ET.SubElement(container_tree, 'postrouting')
-            post_element.text = container.postroutingscript
+            post_element.text = container.scripts.postrouting
             clean_element = ET.SubElement(container_tree, 'cleanup')
-            clean_element.text = container.cleanupscript
+            clean_element.text = container.scripts.cleanup
 
             #if container.is_host:
             #    host_element = ET.SubElement(container_tree, 'is_host')
@@ -79,8 +79,16 @@ def write_topology_xml(topology_root, output):
             bridge_type_element = ET.SubElement(bridge_element, 'type')
             bridge_type_element.text = str(bridge.bridge_type.name)
 
-            interface_element = ET.SubElement(bridge_element, 'interfaces')
+            bridge_controller_element = ET.SubElement(bridge_element, 'controller')
+            bridge_controller_element.text = bridge.controller
 
+            bridge_controller_port_element = ET.SubElement(bridge_element, 'controller_port')
+            bridge_controller_port_element.text = bridge.controller_port
+
+            bridge_datapath_element = ET.SubElement(bridge_element, 'datapath')
+            bridge_datapath_element.text = bridge.datapath
+
+            interface_element = ET.SubElement(bridge_element, 'interfaces')
             for interface in sorted(bridge.interfaces):
                 if_element = ET.SubElement(interface_element, 'interface')
                 if_element.text = interface.interface_id

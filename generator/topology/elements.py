@@ -4,7 +4,7 @@
 
 import netaddr
 
-from utilities import ContainerType
+from utilities import ContainerType, BridgeType
 
 
 class Container(object):
@@ -18,10 +18,7 @@ class Container(object):
         self.interface_number = 0
         self.interfaces = []
         self.bridges = []
-        self.preroutingscript = None
-        self.routingscript = None
-        self.postroutingscript = None
-        self.cleanupscript = None
+        self.scripts = SetupScripts()
         self.gateway = None
 
     def add_interface(self, interface):
@@ -40,13 +37,16 @@ class Bridge(object):
     """ Represents a bridge or switch.
     """
 
-    def __init__(self, bridge_id, address="0.0.0.0", bridge_type="bridge"):
+    def __init__(self, bridge_id, address="0.0.0.0", bridge_type=BridgeType.BRIDGE):
         self.bridge_id = bridge_id
         self.container_id = None
         self.address = address
         self.interface_number = 0
         self.interfaces = []
         self.bridge_type = bridge_type
+        self.controller = None
+        self.controller_port = None
+        self.datapath = None
 
     def add_interface(self, interface):
         self.interfaces.append(interface)
@@ -54,6 +54,7 @@ class Bridge(object):
     def get_next_interface(self):
         self.interface_number += 1
         return self.interface_number
+
 
 
 class NetworkInterface(object):
@@ -82,6 +83,14 @@ class NetworkInterface(object):
         return hash(self.interface_id)
 
 
+class SetupScripts(object):
+
+    def __init__(self):
+        self.prerouting = None
+        self.routing = None
+        self.postrouting = None
+        self.cleanup = None
+
 class NetworkComponent(object):
     """Represents a part of the network.
 
@@ -108,40 +117,51 @@ class UsedResources(object):
     Class to track how many items have been created
     """
 
-    def __init__(self, last_host, last_container_id, last_link_id, addressing):
-        self.last_host = 0
-        self.last_bridge = 0
-        self.last_container = 0
-        self.last_link = 0
+    def __init__(self, last_host=0, last_container_id=0, last_link_id=0, addressing=None):
+        self.last_resource = {
+            "h": last_host,
+            "b": 0,
+            "c": last_container_id,
+            "l": last_link_id
+        }
         self.addressing = addressing
 
     def get_new_host_id(self):
-        self.last_host += 1
-        return "h%03d" % self.last_host
+        self.last_resource['h'] += 1
+        return "h%03d" % self.last_resource['h']
 
     def get_last_host_id(self):
-        return "h%03d" % self.last_host
+        return "h%03d" % self.last_resource['h']
 
     def get_new_bridge_id(self):
-        self.last_bridge += 1
-        return "b%03d" % self.last_bridge
+        self.last_resource['b']  += 1
+        return "b%03d" % self.last_resource['b']
 
     def get_last_bridge_id(self):
-        return "b%03d" % self.last_bridge
+        return "b%03d" % self.last_resource['b']
 
     def get_new_container_id(self):
-        self.last_container += 1
-        return "c%03d" % self.last_container
+        self.last_resource['c'] += 1
+        return "c%03d" % self.last_resource['c']
 
     def get_last_container_id(self):
-        return "c%03d" % self.last_container
+        return "c%03d" % self.last_resource['c']
 
     def get_new_link_id(self):
-        self.last_link += 1
-        return "l%03d" % self.last_link
+        self.last_resource['l']  += 1
+        return "l%03d" % self.last_resource['l']
 
     def get_last_link_id(self):
-        return "l%03d" % self.last_link
+        return "l%03d" % self.last_resource['l']
+
+    def get_new_id(self, prefix):
+        if prefix not in self.last_resource:
+            self.last_resource[prefix] = 0
+        self.last_resource[prefix] += 1
+        return "%s%03d" % (prefix, self.last_resource[prefix])
+
+    def get_last_id(self, prefix):
+        return "%s%03d" % (prefix, self.last_resource[prefix])
 
 
 class IPComponent(object):
