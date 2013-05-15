@@ -22,10 +22,10 @@ Python libraries needed
 * jinja2
 * markupsafe (optional, speeds up jinja2)
 
-The libraries can be installed using pip-requirements.txt file.
+The libraries can be installed using pip-requirs.txt file.
 
 ```
-pip install -r pip-requirements.txt
+pip install -r pip-requires.txt
 ```
 
 **NOTE**: LXC or LVM  specific packages can be installed using the configure option in the framework
