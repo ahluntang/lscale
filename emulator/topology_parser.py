@@ -175,27 +175,57 @@ def parse_container(container):
     if username is not None:
         c.username = username.text
 
-    prerouting = container.find("prerouting")
-    if prerouting is not None:
-        c.preroutingscript = prerouting.text
+    parse_script(container, c, "prerouting")
+    parse_script(container, c, "routing")
+    parse_script(container, c, "postrouting")
+    parse_script(container, c, "cleanup")
 
-    routing = container.find("routing")
-    if prerouting is not None:
-        c.routingscript = routing.text
-
-    postrouting = container.find("postrouting")
-    if prerouting is not None:
-        c.postroutingscript = postrouting.text
-
-    cleanup = container.find("cleanup")
-    if cleanup is not None:
-        c.cleanupscript = cleanup.text
+    # if prerouting is not None:
+    #     c.preroutingscript = prerouting.text
+    #
+    # routing = container.find("routing")
+    # if prerouting is not None:
+    #     c.routingscript = routing.text
+    #
+    # postrouting = container.find("postrouting")
+    # if prerouting is not None:
+    #     c.postroutingscript = postrouting.text
+    #
+    # cleanup = container.find("cleanup")
+    # if cleanup is not None:
+    #     c.cleanupscript = cleanup.text
 
     gateway = container.find("gateway")
     if gateway is not None:
         c.gateway = gateway.text
 
     return c
+
+
+def parse_script(scriptnode, container, type):
+    scriptnode = scriptnode.find(type)
+    script = None
+    parameters = {}
+    if scriptnode is not None:
+        scriptname = scriptnode.find("script")
+        if scriptname is not None:
+            script = scriptname.text
+        parametersnode = scriptnode.find("parameters")
+        if parametersnode is not None:
+            for parameter in parametersnode:
+                parameters[parameter.tag] = parameter.text
+    if type == "prerouting":
+        container.preroutingscript = script
+        container.prerouting.update(parameters)
+    elif type == "routing":
+        container.routingscript = script
+        container.routing.update(parameters)
+    elif type == "postrouting":
+        container.postroutingscript = script
+        container.postrouting.update(parameters)
+    elif type == "cleanup":
+        container.cleanupscript = script
+        container.cleanupsettings.update(parameters)
 
 
 def parse_bridge(bridge):

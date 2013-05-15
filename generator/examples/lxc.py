@@ -22,20 +22,26 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
 
     # begin creating the topology
 
+    mongodb_address = "192.169.1.1"
+    mongodb_port = "27017"
+
+    controller = "h001"
+    controller_port = "6633"
+
     # Adding two hosts to topology.
     host1_id = gen_components.add_host(topology_root)
     host1 = topology_root[host1_id]['id']
 
     host1_scripts = SetupScripts()
     host1_scripts.postrouting = "start_controller.sh"
+    host1_scripts.add_parameter("postrouting", "mongodb_address", mongodb_address)
+    host1_scripts.add_parameter("postrouting", "mongodb_port", mongodb_port)
 
     host1.scripts = host1_scripts
 
     host2_id = gen_components.add_host(topology_root)
     host2 = topology_root[host2_id]['id']
 
-    controller = "h001"
-    controller_port = "6633"
 
     rfvm_scripts = SetupScripts()
     rfvm_scripts.routing = "routing.sh"

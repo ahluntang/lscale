@@ -90,6 +90,17 @@ class SetupScripts(object):
         self.routing = None
         self.postrouting = None
         self.cleanup = None
+        self.parameters = {
+            'prerouting': {},
+            'routing': {},
+            'postrouting': {},
+            'cleanup': {}
+        }
+
+    def add_parameter(self, script, key, value):
+        if script not in self.parameters:
+            self.parameters[script] = {}
+        self.parameters[script][key] = value
 
 class NetworkComponent(object):
     """Represents a part of the network.

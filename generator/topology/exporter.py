@@ -40,13 +40,44 @@ def write_topology_xml(topology_root, output):
 
             # adding template scripts
             pre_element = ET.SubElement(container_tree, 'prerouting')
-            pre_element.text = container.scripts.prerouting
+
+            pre_script_element = ET.SubElement(pre_element, 'script')
+            pre_script_element.text = container.scripts.prerouting
+
+            pre_par_element = ET.SubElement(pre_element, 'parameters')
+            for key, value in container.scripts.parameters['prerouting'].items():
+                par_element = ET.SubElement(pre_par_element, key)
+                par_element.text = value
+
             routing_element = ET.SubElement(container_tree, 'routing')
-            routing_element.text = container.scripts.routing
+
+            routing_script_element = ET.SubElement(routing_element, 'script')
+            routing_script_element.text = container.scripts.routing
+
+            _par_element = ET.SubElement(routing_element, 'parameters')
+            for key, value in container.scripts.parameters['routing'].items():
+                par_element = ET.SubElement(_par_element, key)
+                par_element.text = value
+
             post_element = ET.SubElement(container_tree, 'postrouting')
-            post_element.text = container.scripts.postrouting
+
+            post_script_element = ET.SubElement(post_element, 'script')
+            post_script_element.text = container.scripts.postrouting
+
+            post_par_element = ET.SubElement(post_element, 'parameters')
+            for key, value in container.scripts.parameters['postrouting'].items():
+                par_element = ET.SubElement(post_par_element, key)
+                par_element.text = value
+
             clean_element = ET.SubElement(container_tree, 'cleanup')
-            clean_element.text = container.scripts.cleanup
+
+            clean_script_element = ET.SubElement(post_element, 'script')
+            clean_script_element.text = container.scripts.cleanup
+
+            clean_par_element = ET.SubElement(clean_element, 'parameters')
+            for key, value in container.scripts.parameters['cleanup'].items():
+                par_element = ET.SubElement(clean_par_element, key)
+                par_element.text = value
 
             #if container.is_host:
             #    host_element = ET.SubElement(container_tree, 'is_host')
