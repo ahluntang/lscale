@@ -35,8 +35,10 @@ aptitude -y install openvswitch-brcompat openvswitch-common
 echo "configuring system"
 add_line_to_config 'BRCOMPAT=yes' '/etc/default/openvswitch-switch'
 add_line_to_config 'blacklist bridge' '/etc/modprobe.d/blacklist.conf'
-#add_line_to_config 'service openvswitch-switch force-reload-kmod' '/etc/rc.local'
-
+add_line_to_config 'rmmod bridge' '/etc/rc.local'
+add_line_to_config '/etc/init.d/openvswitch-switch force-reload-kmod' '/etc/rc.local'
+add_line_to_config '/etc/init.d/openvswitch-switch restart' '/etc/rc.local'
+add_line_to_config 'ovs-vsctl add-br lxcbr0' '/etc/rc.local'
 
 echo "removing bridge module"
 # remove the default bridge module from kernel
