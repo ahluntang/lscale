@@ -41,6 +41,16 @@ def install(package):
         raise exceptions.ConfiguratorException(e)
 
 
+def restart(service):
+    cmd = "service {} ".format(service)
+    if service == "openvswitch-switch":
+        parameter = "force-reload-kmod"
+    else:
+        parameter = "restart"
+    cmd += parameter
+    script.command(cmd)
+
+
 def create_container(container_name="base", backing_store="none", template="ubuntu"):
 
     if os.geteuid() != 0:

@@ -3,13 +3,13 @@
 
 add_line_to_config() {
     line=$1
-	file=$2
-	if grep -Fxq "${line}" ${file}
-	then
-	    echo "${line} already in ${file}, skipping..."
-	else
-	    echo "${line}" | tee -a ${file}
-	fi
+    file=$2
+    if grep -Fxq "${line}" ${file}
+    then
+        echo "${line} already in ${file}, skipping..."
+    else
+        echo "${line}" | tee -a ${file}
+    fi
 }
 
 replace_line_in_config() {
@@ -35,7 +35,7 @@ aptitude -y install openvswitch-brcompat openvswitch-common
 echo "configuring system"
 add_line_to_config 'BRCOMPAT=yes' '/etc/default/openvswitch-switch'
 add_line_to_config 'blacklist bridge' '/etc/modprobe.d/blacklist.conf'
-add_line_to_config 'service openvswitch-switch force-reload-kmod' '/etc/rc.local'
+#add_line_to_config 'service openvswitch-switch force-reload-kmod' '/etc/rc.local'
 
 
 echo "removing bridge module"

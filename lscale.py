@@ -45,7 +45,11 @@ def parse_arguments():
 
     # subparser for installing the required packages
     install_parser = sub_conf_parsers.add_parser('install', help='help for installing')
-    install_parser.add_argument('-', '--package', default='all', help='select package group to install (all, lxc, openvswitch)', required=False)
+    install_parser.add_argument('-p', '--package', default='all', help='select package group to install (all, lxc, openvswitch)', required=False)
+
+
+    restart_parser = sub_conf_parsers.add_parser('restart', help='help for restarting services')
+    restart_parser.add_argument('-s', '--service', help='select service to restart (openvswitch)', required=True)
 
     # subparser for creating container
     create_parser = sub_conf_parsers.add_parser('create', help='help for creating container')
@@ -137,6 +141,10 @@ def main():
         elif args['confparser_name'] == "install":
             package = args['package']
             configurator.install(package)
+            config.print_all()
+        elif args['confparser_name'] == "restart":
+            service = args['service']
+            configurator.restart(service)
         else:
             pass
             #raise exceptions.IncorrectArgumentsException("Error: check your arguments.")
