@@ -36,6 +36,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     host1_scripts.postrouting = "start_controller.sh"
     host1_scripts.add_parameter("postrouting", "mongodb_address", mongodb_address)
     host1_scripts.add_parameter("postrouting", "mongodb_port", mongodb_port)
+    host1_scripts.add_parameter("postrouting", "controller_port", controller_port)
 
     host1.scripts = host1_scripts
 
@@ -66,7 +67,6 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     switch2dp = "0000000000000006"
     switch3dp = "0000000000000007"
     switch4dp = "0000000000000008"
-
 
     rfclient_scripts = SetupScripts()
     rfclient_scripts.postrouting = "run_rfclient.sh"

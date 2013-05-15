@@ -3,8 +3,6 @@
 SCRIPT_NAME="rftest2"
 LXCDIR=/var/lib/lxc
 MONGODB_CONF=/etc/mongodb.conf
-MONGODB_PORT=27017
-CONTROLLER_PORT=6633
 RF_HOME=RouteFlow
 
 export PATH=$PATH:/usr/local/bin:/usr/local/sbin
@@ -44,15 +42,15 @@ kill_process_tree() {
 
 
 echo_bold "-> Setting up MongoDB..."
-sed -i "/bind_ip/c\bind_ip = 127.0.0.1,192.169.1.1" $MONGODB_CONF
+sed -i "/bind_ip/c\bind_ip = 127.0.0.1,{{ mongodb_address }}" $MONGODB_CONF
 service mongodb restart
-wait_port_listen $MONGODB_PORT
+wait_port_listen {{ mongodb_port }}
 
 echo_bold "-> Starting the controller and RFPRoxy..."
 cd pox
 ./pox.py log.level --=INFO topology openflow.topology openflow.discovery rfproxy rfstats &
 cd -
-wait_port_listen $CONTROLLER_PORT
+wait_port_listen {{ controller_port }}
 
 echo_bold "-> Starting RFServer..."
 ./rfserver/rfserver.py rftest/rftest2config.csv &
