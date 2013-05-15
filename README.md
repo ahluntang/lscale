@@ -32,6 +32,18 @@ pip install -r pip-requires.txt
 
 ## Overview
 
+### Clone this project
+
+**NOTE**: This project includes the RouteFlow project as a submodule.
+
+```
+#!sh
+git clone https://ahluntang@bitbucket.org/ahluntang/lscale.git
+cd lscale
+git submodule init
+git submodule update
+```
+
 ### config.ini
 Setting up some basic stuff for the framework.
 
