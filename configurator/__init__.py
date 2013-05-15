@@ -42,11 +42,13 @@ def install(package):
 
 
 def restart(service):
-    cmd = "service {} ".format(service)
+    cmd = "service {}".format(service)
     if service == "openvswitch-switch":
-        parameter = "force-reload-kmod"
+        parameter = " force-reload-kmod"
+    elif service == "openvswitch":
+        parameter = "-switch force-reload-kmod"
     else:
-        parameter = "restart"
+        parameter = " restart"
     cmd += parameter
     script.command(cmd)
 
