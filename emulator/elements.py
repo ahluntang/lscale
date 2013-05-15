@@ -94,7 +94,7 @@ class Container(object):
             else:
                 raise lxc.ContainerDoesntExists('Container {} does not exist!'.format(self.container_id))
 
-        else:  # elif container_type == ContainerType.UNSHARED :
+        else:  # elif container_type == ContainerType.UNSHARED:
             cmd = "unshare --net /bin/bash"
 
         # create the shell
@@ -103,7 +103,6 @@ class Container(object):
         #set prompt
         prompt = "export PS1='%s> '" % container_id
         self.shell.sendline(prompt)
-
 
         self.pid = self.shell.pid
 

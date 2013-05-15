@@ -26,7 +26,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     host_id = gen_components.add_host(topology_root)
     host = topology_root[host_id]['id']
 
-    bridge_component = gen_components.create_bridge(host, BridgeType.BRIDGE)
+    bridge_component = gen_components.create_bridge(host, BridgeType.OPENVSWITCH)
     components[bridge_component.component_id] = bridge_component
 
     setupscripts = {'prerouting': None,
