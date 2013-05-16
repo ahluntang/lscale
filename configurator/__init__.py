@@ -18,6 +18,8 @@ def auto_configure():
         create_container("base", "lvm", "ubuntu")
         create_container("base_no_backingstore", "none", "ubuntu")
         # rfvm?
+
+        print("Finished autoconfiguration of this host.")
     else:
         raise exceptions.InsufficientRightsException("Configuring system requires root privileges")
 
