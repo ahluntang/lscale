@@ -215,7 +215,7 @@ def connect_line_bridge(line_component, bridge_component, addressing_scheme=None
 
     # get bridge and interface for bridge
     br = bridge_component.connection_points[0]
-    bridge_interface_id = "%s.%03d" % ( br.bridge_id, br.get_next_interface() )
+    bridge_interface_id = "%s.%03d" % (br.bridge_id, br.get_next_interface())
 
     bridge_interface = NetworkInterface(bridge_interface_id, link_id)
 

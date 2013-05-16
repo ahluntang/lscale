@@ -43,7 +43,6 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     host2_id = gen_components.add_host(topology_root)
     host2 = topology_root[host2_id]['id']
 
-
     rfvm_scripts = SetupScripts()
     rfvm_scripts.routing = "routing.sh"
 

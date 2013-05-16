@@ -6,15 +6,17 @@
 import os
 
 from jinja2 import Environment, FileSystemLoader
-from utilities import exceptions, script, config
+from utilities import exceptions, script, systemconfig
 
 
-def configure():
+def auto_configure():
 
     if os.geteuid() == 0:
-        template_environment = Environment(loader=FileSystemLoader('configurator/templates'))
-        create_container()
-
+        install("all")
+        create_lvm()
+        create_container("base", "lvm", "ubuntu")
+        create_container("base_no_backingstore", "none", "ubuntu")
+        # rfvm?
     else:
         raise exceptions.InsufficientRightsException("Configuring system requires root privileges")
 
@@ -32,8 +34,8 @@ def install(package):
         cmd += "./configurator/templates/install_lxc.sh\n"
 
     # check if proxy needed
-    if config.proxy:
-        cmd = "export http_proxy=%s\n%s" % (config.proxy, cmd)
+    if systemconfig.proxy:
+        cmd = "export http_proxy=%s\n%s" % (systemconfig.proxy, cmd)
 
     try:
         script.command(cmd)
@@ -61,8 +63,8 @@ def create_container(container_name="base", backing_store="none", template="ubun
     cmd = "./configurator/templates/create_container.sh %s %s %s" % (container_name, backing_store, template)
 
     # check if proxy needed
-    if config.proxy:
-        cmd = "export http_proxy=%s\n%s" % (config.proxy, cmd)
+    if systemconfig.proxy:
+        cmd = "export http_proxy=%s\n%s" % (systemconfig.proxy, cmd)
 
     try:
         script.command(cmd)

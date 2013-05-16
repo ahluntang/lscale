@@ -8,7 +8,7 @@ import logging
 
 from utilities import logger
 from utilities import exceptions
-from utilities import config
+from utilities import systemconfig
 
 import generator
 import emulator
@@ -37,6 +37,9 @@ def parse_arguments():
     # parser for configuring node
     conf_parser = sub_parsers.add_parser('configure', help='help for configuring node')
     sub_conf_parsers = conf_parser.add_subparsers(help='sub-command help', dest='confparser_name')
+
+    # subparser for automatic configuration
+    autoconf_parser = sub_conf_parsers.add_parser('autoconfigure', help='help for automatic config')
 
     # subparser for reading configuration
     readconf_parser = sub_conf_parsers.add_parser('read', help='help for reading config')
@@ -97,7 +100,7 @@ def main():
         #err_msg = "Could not parse arguments."
         #raise exceptions.ArgParseException(err_msg)
 
-    config.read_config("config.ini")
+    systemconfig.read_config("config.ini")
 
     # run generator or emulator based on arguments
     if args['subparser_name'] == "generate":
@@ -134,14 +137,16 @@ def main():
                 s = False
 
             configurator.clone_container(name, original, snapshot)
+        elif args['confparser_name'] == "autoconfigure":
+            configurator.auto_configure()
         elif args['confparser_name'] == "read":
             file = args['file']
-            config.read_config(file)
-            config.print_all()
+            systemconfig.read_config(file)
+            systemconfig.print_all()
         elif args['confparser_name'] == "install":
             package = args['package']
             configurator.install(package)
-            config.print_all()
+            systemconfig.print_all()
         elif args['confparser_name'] == "restart":
             service = args['service']
             configurator.restart(service)
