@@ -21,8 +21,9 @@ Python libraries needed
 * netaddr
 * jinja2
 * markupsafe (optional, speeds up jinja2)
+* flufl.enum
 
-The libraries can be installed using pip-requirs.txt file.
+The libraries can be installed using pip-requires.txt file.
 
 ```
 pip install -r pip-requires.txt
@@ -95,6 +96,7 @@ Should run as root.
 Should run as root for most options.
 ```
 ./lscale.py configure [-h]
+./lscale.py configure autoconfigure
 ./lscale.py configure read
 ./lscale.py configure install --package all
 ./lscale.py configure lvm --name lxc --device /dev/sda --partition 4 --cache 30

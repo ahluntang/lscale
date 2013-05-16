@@ -12,7 +12,6 @@ from utilities import ContainerType, BridgeType, is_lxc
 from emulator import lxc
 
 
-
 # list of objects that might need cleanup
 cleanup_containers = []
 cleanup_links = []
@@ -53,6 +52,10 @@ class Container(object):
         Argument is identification for the container.
         Optional argument is a boolean whether it is a container or host.
         """
+
+        # containers must be cleaned after class destruction
+        cleanup_containers.append(self)
+
         logging.getLogger(__name__).info("Creating container %8s", container_id)
         self.container_id = container_id
         self.container_type = container_type
@@ -65,9 +68,6 @@ class Container(object):
 
         self.log_location = "%s/%s.log" % (logdir, container_id)
         self.logfile = open(self.log_location, 'w+')
-
-        # containers must be cleaned after class destruction
-        cleanup_containers.append(self)
 
         cmd = "/bin/bash"  # default shell
 

@@ -45,11 +45,9 @@ def parse_arguments():
     readconf_parser = sub_conf_parsers.add_parser('read', help='help for reading config')
     readconf_parser.add_argument('-f', '--file', default='config.ini', help='config file', required=False)
 
-
     # subparser for installing the required packages
     install_parser = sub_conf_parsers.add_parser('install', help='help for installing')
     install_parser.add_argument('-p', '--package', default='all', help='select package group to install (all, lxc, openvswitch)', required=False)
-
 
     restart_parser = sub_conf_parsers.add_parser('restart', help='help for restarting services')
     restart_parser.add_argument('-s', '--service', help='select service to restart (openvswitch)', required=True)
@@ -66,7 +64,7 @@ def parse_arguments():
     lvm_parser.add_argument('-n', '--name', default='lxc', help='name of volume group', required=False)
     lvm_parser.add_argument('-d', '--device', default='/dev/sda', help='device name (default: /dev/sda)', required=False)
     lvm_parser.add_argument('-p', '--partition', default='4', help='partition (default: 4)', required=False)
-    lvm_parser.add_argument('-c', '--cache', default='30', help='size for cache (default: 30G, 0 for no cache)', required=False)
+    lvm_parser.add_argument('-c', '--cache', default='30', help='size for cache in G (default: 30, 0 for no cache)', required=False)
 
     # subparser for creating clone
     lvm_parser = sub_conf_parsers.add_parser('clone', help='help for cloning containers')
