@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # -*- coding: utf-8 -*-
 echo "Running host_routing script for container {{ container_id }}"
+{% for node in nodes %}
+    #echo {{ node.name }} : {{ node.value }}
+{% endfor %}
 ip link set lo up
 {% for address in addresses %}
     ip address add {{ address.address }} brd + \

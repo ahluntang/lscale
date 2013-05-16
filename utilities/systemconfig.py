@@ -21,6 +21,13 @@ def read_config(configfile='config.ini'):
     except configparser.NoOptionError:
         proxy = None
 
+    # nodes
+    global nodes
+    try:
+        nodes = config.items('nodes')
+    except configparser.NoOptionError:
+        nodes = None
+
 
 def print_all():
     print("Proxy: %s" % proxy)

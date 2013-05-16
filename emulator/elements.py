@@ -7,7 +7,7 @@ import os
 
 import pexpect
 
-from utilities import exceptions
+from utilities import exceptions, systemconfig
 from utilities import ContainerType, BridgeType, is_lxc
 from emulator import lxc
 
@@ -113,10 +113,11 @@ class Container(object):
         self.routingscript = None
         self.postroutingscript = None
         self.cleanupscript = None
-        self.prerouting = {'container_id': self.container_id}
-        self.routing = {'container_id': self.container_id, 'routes': [], 'addresses': [], 'interfaces': []}
-        self.postrouting = {'container_id': self.container_id}
-        self.cleanupsettings = {'container_id': self.container_id}
+        self.prerouting = {'container_id': self.container_id, 'nodes': systemconfig.nodes}
+        self.routing = {'container_id': self.container_id, 'routes': [], 'addresses': [],
+                        'interfaces': [], 'nodes': systemconfig.nodes}
+        self.postrouting = {'container_id': self.container_id, 'nodes': systemconfig.nodes}
+        self.cleanupsettings = {'container_id': self.container_id, 'nodes': systemconfig.nodes}
         self.gateway = None
         self.is_managed = False
         self.management_interface = "%s.m" % self.container_id
