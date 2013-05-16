@@ -42,6 +42,11 @@ def parse_arguments():
     # subparser for automatic configuration
     autoconf_parser = sub_conf_parsers.add_parser('autoconfigure', help='help for automatic config')
 
+    # subparser for automatic configuration
+    rfconf_parser = sub_conf_parsers.add_parser('routeflow', help='help for routeflow configuration')
+    rfconf_parser.add_argument('-i', '--installvm', default='no',
+                           help='install rfvm[1-4] (yes,no)', required=False)
+
     # subparser for reading configuration
     readconf_parser = sub_conf_parsers.add_parser('read', help='help for reading config')
     readconf_parser.add_argument('-f', '--file', default='config.ini', help='config file', required=False)
@@ -153,6 +158,12 @@ def main():
         elif args['confparser_name'] == "restart":
             service = args['service']
             configurator.restart(service)
+        elif args['confparser_name'] == "routeflow":
+            if args['installvm'] == "yes":
+                install_vms = True
+            else:
+                install_vms = False
+            configurator.build_routeflow(install_vms)
         else:
             pass
             #raise exceptions.IncorrectArgumentsException("Error: check your arguments.")

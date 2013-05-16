@@ -17,7 +17,7 @@ def auto_configure():
         create_lvm()
         create_container("base", "lvm", "ubuntu")
         create_container("base_no_backingstore", "none", "ubuntu")
-        # rfvm?
+        build_routeflow(True)
 
         print("Finished autoconfiguration of this host.")
     else:
@@ -103,6 +103,26 @@ def create_lvm(name="lxc", device="/dev/sda", partition="4", cachesize=30):
         raise exceptions.InsufficientRightsException("Creating LVM requires root privileges")
 
     cmd = "./configurator/templates/create_lvm.sh %s %s %s %s" % (name, device, partition, cachesize)
+
+    try:
+        script.command(cmd)
+    except exceptions.ScriptException as e:
+        raise exceptions.ConfiguratorException(e)
+
+def build_routeflow(create_vms=False):
+    print("Setting up system for RouteFlow.")
+    if os.geteuid() != 0:
+        raise exceptions.InsufficientRightsException("Setting up system for RouteFlow requires root privileges")
+
+    if create_vms:
+        options = "-i"
+    else:
+        options = ""
+    cmd = "./configurator/templates/routeflow.sh %s " % options
+
+    # check if proxy needed
+    if systemconfig.proxy:
+        cmd = "export http_proxy=%s\n%s" % (systemconfig.proxy, cmd)
 
     try:
         script.command(cmd)
