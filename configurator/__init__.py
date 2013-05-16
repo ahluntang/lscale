@@ -59,7 +59,7 @@ def restart(service):
 
 def create_container(container_name="base", backing_store="none", template="ubuntu"):
 
-    print("Creating container {} based on {} with {} as backingstore: {}".format(container_name, template, backing_store))
+    print("Creating container {} based on {} with {} as backingstore".format(container_name, template, backing_store))
     if os.geteuid() != 0:
         raise exceptions.InsufficientRightsException("Creating container requires root privileges")
 
