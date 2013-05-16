@@ -74,7 +74,7 @@ def write_topology_xml(topology_root, output):
 
             clean_element = ET.SubElement(container_tree, 'cleanup')
 
-            clean_script_element = ET.SubElement(post_element, 'script')
+            clean_script_element = ET.SubElement(clean_element, 'script')
             clean_script_element.text = container.scripts.cleanup
 
             clean_par_element = ET.SubElement(clean_element, 'parameters')
