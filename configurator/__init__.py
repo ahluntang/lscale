@@ -15,8 +15,8 @@ def auto_configure():
     if os.geteuid() == 0:
         install("all")
         create_lvm()
-        create_container("base", "lvm", "ubuntu")
-        create_container("base_no_backingstore", "none", "ubuntu")
+        create_container("base", "none", "ubuntu")
+        create_container("baselvm", "lvm", "ubuntu")
         build_routeflow(False)
 
         print("Finished autoconfiguration of this host.")
