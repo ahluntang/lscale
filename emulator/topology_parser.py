@@ -5,6 +5,7 @@ import time
 
 import netaddr
 import logging
+import threading
 
 import lxml.etree as ET
 import emulator.elements
@@ -54,8 +55,15 @@ def parse_host(template_environment, host, host_id, destroy):
             containers[c.container_id] = c
 
         logging.getLogger(__name__).info("Waiting until lxc-containers have successfully booted.")
+
+        boot_queue = []
+
         for container_id, container in containers.items():
-            container.set_pid()
+            t = threading.Thread(target=container.set_pid)
+            boot_queue.append(t)
+
+        [x.start() for x in boot_queue]
+        [x.join() for x in boot_queue]
 
         for link in host.findall('links/link'):
             l = parse_link(link, interfaces, mappings_container, mappings_interfaces, mappings_gateways, mappings_ip,
