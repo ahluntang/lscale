@@ -31,3 +31,7 @@ class Configuration(object):
             result += "lxc.network.hwaddr = {}\n\n".format(mac)
 
         return result
+
+    def write(self):
+        with open(self.file, "w") as text_file:
+            text_file.write(self.output())

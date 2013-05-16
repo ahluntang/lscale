@@ -51,7 +51,7 @@ def parse_host(template_environment, host, host_id, destroy):
         containers[current_host_id] = c
 
         for container in host.findall('containers/container'):
-            c = parse_container(container)
+            c = parse_container(container, host)
             containers[c.container_id] = c
 
         logging.getLogger(__name__).info("Waiting until lxc-containers have successfully booted.")
@@ -164,9 +164,17 @@ def set_gateways(configured_host):
             container.routing['gateway'] = route
         else:
             container.routing['gateway'] = emulator.elements.Route("0.0.0.0", "")
+def find_interfaces(container_id, host):
+    # needed for config file
+    interfaces = []
+    for link in host.findall('links/link'):
+        for vinterface in link.findall('vinterface'):
+            if vinterface.find('container').text == container_id:
+                interfaces.append(vinterface.find('id').text)
+    return interfaces
 
 
-def parse_container(container):
+def parse_container(container, host):
 
     container_id = container.find("id").text
     container_type = eval("ContainerType.%s" % container.find("type").text)
@@ -179,7 +187,10 @@ def parse_container(container):
         template = ""
         storage = BackingStore.NONE
 
-    c = emulator.elements.Container(container_id, container_type, template, storage)
+    if container_type == ContainerType.LXC:
+        interfaces = find_interfaces(container_id, host)
+
+    c = emulator.elements.Container(container_id, container_type, template, storage, interfaces)
 
     password = container.find("password")
     if password is not None:

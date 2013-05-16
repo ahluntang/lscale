@@ -4,12 +4,13 @@
 import sys
 import logging
 import os
+import random
 
 import pexpect
 
 from utilities import exceptions, systemconfig
 from utilities import ContainerType, BridgeType, is_lxc, BackingStore
-from emulator import lxc
+from emulator import lxc, lxc_config
 
 
 # list of objects that might need cleanup
@@ -46,7 +47,7 @@ class Container(object):
         self.interfaces -- used for routing
     """
 
-    def __init__(self, container_id, container_type=ContainerType.UNSHARED, template="base", storage=BackingStore.NONE):
+    def __init__(self, container_id, container_type=ContainerType.UNSHARED, template="base", storage=BackingStore.NONE, interfaces=None):
         """Constructs a new Container instance.
 
         Argument is identification for the container.
@@ -73,40 +74,9 @@ class Container(object):
         cmd = "/bin/bash"  # default shell
 
         if self.container_type == ContainerType.LXCCLONE or self.container_type == ContainerType.LXCLVMCLONE:
-            try:
-                if self.container_type == ContainerType.LXCCLONE:
-                    lxc.clone(self.template, self.container_id)
-                else:
-                    lxc.clone(self.template, self.container_id, True)
-            except lxc.ContainerAlreadyExists as e:
-                # Clone was not needed
-                pass
-
-            if lxc.exists(self.container_id):
-                lxc.start(self.container_id)
-            else:
-                raise lxc.ContainerDoesntExists('Container {} does not exist!'.format(self.container_id))
+            self.clone()
         elif self.container_type == ContainerType.LXC or self.container_type == ContainerType.LXCLVM:
-            try:
-
-                configfile = "output/configs/{}.ini".format(self.container_id)
-
-
-                if self.storage == BackingStore.NONE:
-                    lxc.create(self.container_id, self.template, None, configfile)
-                elif self.storage == BackingStore.LVM:
-                    lxc.create(self.container_id, self.template, 'lvm', configfile)
-                elif self.storage == BackingStore.BTRFS:
-                    lxc.create(self.container_id, self.template, 'btrfs', configfile)
-            except lxc.ContainerAlreadyExists as e:
-                # Creation was not needed
-                pass
-
-            if lxc.exists(self.container_id):
-                lxc.start(self.container_id)
-            else:
-                raise lxc.ContainerDoesntExists('Container {} does not exist!'.format(self.container_id))
-
+            self.create(interfaces)
         else:  # elif container_type == ContainerType.UNSHARED:
             cmd = "unshare --net /bin/bash"
 
@@ -143,6 +113,50 @@ class Container(object):
             self.cleanup()
         except exceptions.CleanupException as e:
             pass
+
+    def clone(self):
+        if self.container_type == ContainerType.LXCCLONE or self.container_type == ContainerType.LXCLVMCLONE:
+            self.clone()
+            try:
+                if self.container_type == ContainerType.LXCCLONE:
+                    lxc.clone(self.template, self.container_id)
+                else:
+                    lxc.clone(self.template, self.container_id, True)
+            except lxc.ContainerAlreadyExists as e:
+                # Clone was not needed
+                pass
+
+            if lxc.exists(self.container_id):
+                lxc.start(self.container_id)
+            else:
+                raise lxc.ContainerDoesntExists('Container {} does not exist!'.format(self.container_id))
+
+    def create(self, interfaces):
+        if self.container_type == ContainerType.LXC or self.container_type == ContainerType.LXCLVM:
+            try:
+                base_mac = randomMAC()
+                configuration = lxc_config.Configuration(self.container_id, base_mac)
+
+                for interface in interfaces:
+                    new_mac = randomMAC()
+                    configuration.add_interface(interface, new_mac)
+
+                configuration.write()
+
+                if self.storage == BackingStore.NONE:
+                    lxc.create(self.container_id, self.template, None, configuration.file)
+                elif self.storage == BackingStore.LVM:
+                    lxc.create(self.container_id, self.template, 'lvm', configuration.file)
+                elif self.storage == BackingStore.BTRFS:
+                    lxc.create(self.container_id, self.template, 'btrfs', configuration.file)
+            except lxc.ContainerAlreadyExists as e:
+                # Creation was not needed
+                pass
+
+            if lxc.exists(self.container_id):
+                lxc.start(self.container_id)
+            else:
+                raise lxc.ContainerDoesntExists('Container {} does not exist!'.format(self.container_id))
 
     def set_pid(self):
         # get pid of container
@@ -441,6 +455,7 @@ class Route(object):
         self.netmask = None
         self.via = None
 
+
 ###############
 ## FUNCTIONS ##
 ###############
@@ -469,3 +484,11 @@ def cleanup(template_environment):
         pass
     except BaseException as e:
         pass
+
+
+def randomMAC():
+    mac = [0x00, 0x16, 0x3e,
+           random.randint(0x00, 0x7f),
+           random.randint(0x00, 0xff),
+           random.randint(0x00, 0xff)]
+    return ':'.join(map(lambda x: "%02x" % x, mac))
