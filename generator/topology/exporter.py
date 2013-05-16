@@ -38,6 +38,9 @@ def write_topology_xml(topology_root, output):
                 template_element = ET.SubElement(container_tree, 'template')
                 template_element.text = container.template
 
+                storage_element = ET.SubElement(container_tree, 'storage')
+                storage_element.text = str(container.storage.name)
+
             # adding template scripts
             pre_element = ET.SubElement(container_tree, 'prerouting')
 

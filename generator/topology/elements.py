@@ -20,6 +20,7 @@ class Container(object):
         self.bridges = []
         self.scripts = SetupScripts()
         self.gateway = None
+        self.storage = None
 
     def add_interface(self, interface):
         self.interfaces.append(interface)

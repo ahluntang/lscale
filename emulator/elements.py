@@ -8,7 +8,7 @@ import os
 import pexpect
 
 from utilities import exceptions, systemconfig
-from utilities import ContainerType, BridgeType, is_lxc
+from utilities import ContainerType, BridgeType, is_lxc, BackingStore
 from emulator import lxc
 
 
@@ -46,7 +46,7 @@ class Container(object):
         self.interfaces -- used for routing
     """
 
-    def __init__(self, container_id, container_type=ContainerType.UNSHARED, template="base"):
+    def __init__(self, container_id, container_type=ContainerType.UNSHARED, template="base", storage=BackingStore.NONE):
         """Constructs a new Container instance.
 
         Argument is identification for the container.
@@ -61,6 +61,7 @@ class Container(object):
         self.container_type = container_type
         self.template = template
         self.destroy = True
+        self.storage = storage
 
         logdir = "logs/container_logs"
         if not os.path.exists(logdir):
@@ -71,9 +72,12 @@ class Container(object):
 
         cmd = "/bin/bash"  # default shell
 
-        if self.container_type == ContainerType.LXC:
+        if self.container_type == ContainerType.LXCCLONE or self.container_type == ContainerType.LXCLVMCLONE:
             try:
-                lxc.clone(self.template, self.container_id)
+                if self.container_type == ContainerType.LXCCLONE:
+                    lxc.clone(self.template, self.container_id)
+                else:
+                    lxc.clone(self.template, self.container_id, True)
             except lxc.ContainerAlreadyExists as e:
                 # Clone was not needed
                 pass
@@ -82,9 +86,13 @@ class Container(object):
                 lxc.start(self.container_id)
             else:
                 raise lxc.ContainerDoesntExists('Container {} does not exist!'.format(self.container_id))
-        elif self.container_type == ContainerType.LXCLVM:
+        elif self.container_type == ContainerType.LXC or self.container_type == ContainerType.LXCLVM:
             try:
-                lxc.clone(self.template, self.container_id, True)
+                configfile = "output/configs/{}.ini".format(self.container_id)
+                if self.container_type == ContainerType.LXC:
+                    lxc.create(self.container_id, self.template, None, configfile)
+                else:
+                    lxc.create(self.container_id, self.template, 'lvm', configfile)
             except lxc.ContainerAlreadyExists as e:
                 # Clone was not needed
                 pass

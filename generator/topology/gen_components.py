@@ -7,7 +7,7 @@ import logging
 import netaddr
 
 from generator.topology.elements import NetworkComponent, Container, Bridge, NetworkInterface, SetupScripts
-from utilities import ContainerType, BridgeType
+from utilities import ContainerType, BridgeType, BackingStore
 import utilities.exceptions as exceptions
 
 
@@ -292,7 +292,8 @@ def create_bridge(host, bridgetype=BridgeType.BRIDGE, controller=None, controlle
     return component
 
 
-def create_container(host, prefix="c", container_type=ContainerType.UNSHARED, template="base", scripts=SetupScripts()):
+def create_container(host, prefix="c", container_type=ContainerType.UNSHARED, template="base",
+                     storage=BackingStore.NONE, scripts=SetupScripts()):
     component = NetworkComponent()
     logging.getLogger(__name__).info("Creating containercomponent (%s)", component.component_id)
     component.host_id = host.container_id
@@ -301,6 +302,7 @@ def create_container(host, prefix="c", container_type=ContainerType.UNSHARED, te
     container_id = used_resources.get_new_id(prefix)
     container = Container(container_id, container_type, template)
     container.container_id = container.container_id
+    container.storage = storage
     container.scripts = scripts
 
     component.topology['containers'][container_id] = container

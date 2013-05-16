@@ -9,7 +9,7 @@ import threading
 
 import lxml.etree as ET
 import emulator.elements
-from utilities import ContainerType, BridgeType, is_lxc
+from utilities import ContainerType, BridgeType, is_lxc, BackingStore
 
 
 def parse(filename, template_environment, parsed_topology, host_id, destroy):
@@ -171,9 +171,15 @@ def parse_container(container):
     container_id = container.find("id").text
     container_type = eval("ContainerType.%s" % container.find("type").text)
 
-    template = container.find("template").text if is_lxc(container_type) else ""
 
-    c = emulator.elements.Container(container_id, container_type, template)
+    if is_lxc(container_type):
+        template = container.find("template").text
+        storage = eval("BackingStore.%s" % container.find("storage").text)
+    else:
+        template = ""
+        storage = BackingStore.NONE
+
+    c = emulator.elements.Container(container_id, container_type, template, storage)
 
     password = container.find("password")
     if password is not None:
