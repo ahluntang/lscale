@@ -24,7 +24,8 @@ def parse_arguments():
     gen_parser = sub_parsers.add_parser('generate', help='help for generating topologies')
     gen_parser.add_argument('-f', '--file', default='output/topology.xml', help='output file to write to.',
                             required=False)
-    gen_parser.add_argument('-e', '--example', default='smalltop', help='example to create topology for', required=False)
+    gen_parser.add_argument('-e', '--example', default='smalltop', help='example to create topology for',
+                            required=False)
 
     # parser for emulating topologies
     em_parser = sub_parsers.add_parser('emulate', help='help for emulating topologies')
@@ -47,7 +48,8 @@ def parse_arguments():
 
     # subparser for installing the required packages
     install_parser = sub_conf_parsers.add_parser('install', help='help for installing')
-    install_parser.add_argument('-p', '--package', default='all', help='select package group to install (all, lxc, openvswitch)', required=False)
+    install_parser.add_argument('-p', '--package', default='all', help='select package group to install '
+                                                                       '(all, lxc, openvswitch)', required=False)
 
     restart_parser = sub_conf_parsers.add_parser('restart', help='help for restarting services')
     restart_parser.add_argument('-s', '--service', help='select service to restart (openvswitch)', required=True)
@@ -57,14 +59,17 @@ def parse_arguments():
     create_parser.add_argument('-n', '--name', default='base', help='container name', required=False)
     create_parser.add_argument('-b', '--backingstore', default='none',
                                help='choose backing store (valid options: none, lvm, btrfs)', required=False)
-    create_parser.add_argument('-t', '--template', default='ubuntu', help='template name (default: ubuntu)', required=False)
+    create_parser.add_argument('-t', '--template', default='ubuntu', help='template name (default: ubuntu)',
+                               required=False)
 
     # subparser for creating lvm volume group
     lvm_parser = sub_conf_parsers.add_parser('lvm', help='help for configuring lvm on this system')
     lvm_parser.add_argument('-n', '--name', default='lxc', help='name of volume group', required=False)
-    lvm_parser.add_argument('-d', '--device', default='/dev/sda', help='device name (default: /dev/sda)', required=False)
+    lvm_parser.add_argument('-d', '--device', default='/dev/sda', help='device name (default: /dev/sda)',
+                            required=False)
     lvm_parser.add_argument('-p', '--partition', default='4', help='partition (default: 4)', required=False)
-    lvm_parser.add_argument('-c', '--cache', default='30', help='size for cache in G (default: 30, 0 for no cache)', required=False)
+    lvm_parser.add_argument('-c', '--cache', default='30', help='size for cache in G (default: 30, 0 for no cache)',
+                            required=False)
 
     # subparser for creating clone
     lvm_parser = sub_conf_parsers.add_parser('clone', help='help for cloning containers')
