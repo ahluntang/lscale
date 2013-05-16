@@ -28,7 +28,6 @@ def read_config(configfile='config.ini'):
         nodelist = config.items('nodes')
         for node in nodelist:
             nodes[node[0]] = node[1]
-        print(nodes)
     except configparser.NoOptionError:
         nodes = None
 

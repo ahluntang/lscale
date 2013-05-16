@@ -47,19 +47,19 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     rfvm_scripts.routing = "routing.sh"
 
     routeflow1_component = gen_components.create_container(host1, "rfvm", ContainerType.LXCLVM,
-                                                           "base_no_backingstore", rfvm_scripts)
+                                                           "rfvmA", rfvm_scripts)
     components[routeflow1_component.component_id] = routeflow1_component
 
     routeflow2_component = gen_components.create_container(host1, "rfvm", ContainerType.LXCLVM,
-                                                           "base_no_backingstore", rfvm_scripts)
+                                                           "rfvmB", rfvm_scripts)
     components[routeflow2_component.component_id] = routeflow2_component
 
     routeflow3_component = gen_components.create_container(host1, "rfvm", ContainerType.LXCLVM,
-                                                           "base_no_backingstore", rfvm_scripts)
+                                                           "rfvmC", rfvm_scripts)
     components[routeflow3_component.component_id] = routeflow3_component
 
     routeflow4_component = gen_components.create_container(host1, "rfvm", ContainerType.LXCLVM,
-                                                           "base_no_backingstore", rfvm_scripts)
+                                                           "rfvmD", rfvm_scripts)
     components[routeflow4_component.component_id] = routeflow4_component
 
     switch1dp = "0000000000000005"
