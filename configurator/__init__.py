@@ -11,6 +11,7 @@ from utilities import exceptions, script, systemconfig
 
 def auto_configure():
 
+    print("Autoconfiguration selected.")
     if os.geteuid() == 0:
         install("all")
         create_lvm()
@@ -22,7 +23,7 @@ def auto_configure():
 
 
 def install(package):
-
+    print("Installing package: {}".format(package))
     if os.geteuid() != 0:
         raise exceptions.InsufficientRightsException("Installing packages requires root privileges")
 
@@ -44,6 +45,7 @@ def install(package):
 
 
 def restart(service):
+    print("Restarting service: {}".format(service))
     cmd = "service {}".format(service)
     if service == "openvswitch-switch":
         parameter = " force-reload-kmod"
@@ -57,6 +59,7 @@ def restart(service):
 
 def create_container(container_name="base", backing_store="none", template="ubuntu"):
 
+    print("Creating container {} based on {} with {} as backingstore: {}".format(container_name, template, backing_store))
     if os.geteuid() != 0:
         raise exceptions.InsufficientRightsException("Creating container requires root privileges")
 
@@ -73,7 +76,10 @@ def create_container(container_name="base", backing_store="none", template="ubun
 
 
 def clone_container(container_name, original_container="base", snapshot=False):
-
+    suffix = ""
+    if snapshot:
+        suffix = "using snapshot"
+    print("Cloning {} to {} {}".format(original_container, container_name, suffix))
     if os.geteuid() != 0:
         raise exceptions.InsufficientRightsException("Cloning container requires root privileges")
 
@@ -90,6 +96,7 @@ def clone_container(container_name, original_container="base", snapshot=False):
 
 def create_lvm(name="lxc", device="/dev/sda", partition="4", cachesize=30):
 
+    print("Setting up LVM volume group named {} on {}{} with a cache of {}G".format(name, device, partition, cachesize))
     if os.geteuid() != 0:
         raise exceptions.InsufficientRightsException("Creating LVM requires root privileges")
 
