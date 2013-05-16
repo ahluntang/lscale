@@ -88,13 +88,18 @@ class Container(object):
                 raise lxc.ContainerDoesntExists('Container {} does not exist!'.format(self.container_id))
         elif self.container_type == ContainerType.LXC or self.container_type == ContainerType.LXCLVM:
             try:
+
                 configfile = "output/configs/{}.ini".format(self.container_id)
-                if self.container_type == ContainerType.LXC:
+
+
+                if self.storage == BackingStore.NONE:
                     lxc.create(self.container_id, self.template, None, configfile)
-                else:
+                elif self.storage == BackingStore.LVM:
                     lxc.create(self.container_id, self.template, 'lvm', configfile)
+                elif self.storage == BackingStore.BTRFS:
+                    lxc.create(self.container_id, self.template, 'btrfs', configfile)
             except lxc.ContainerAlreadyExists as e:
-                # Clone was not needed
+                # Creation was not needed
                 pass
 
             if lxc.exists(self.container_id):
