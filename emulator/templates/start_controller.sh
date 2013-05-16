@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-{% for node in nodes %}
-    #echo {{ node.name }} : {{ node.value }}
+{% for node, ip in nodes.items() %}
+    #echo {{ node }} : {{ ip }}
 {% endfor %}
 
 SCRIPT_NAME="rftest2"
