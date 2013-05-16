@@ -17,7 +17,7 @@ def auto_configure():
         create_lvm()
         create_container("base", "lvm", "ubuntu")
         create_container("base_no_backingstore", "none", "ubuntu")
-        build_routeflow(True)
+        build_routeflow(False)
 
         print("Finished autoconfiguration of this host.")
     else:
@@ -109,6 +109,7 @@ def create_lvm(name="lxc", device="/dev/sda", partition="4", cachesize=30, libsi
         script.command(cmd)
     except exceptions.ScriptException as e:
         raise exceptions.ConfiguratorException(e)
+
 
 def build_routeflow(create_vms=False):
     print("Setting up system for RouteFlow.")
