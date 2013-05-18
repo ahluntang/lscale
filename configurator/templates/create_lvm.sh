@@ -20,7 +20,7 @@ add_line_to_config() {
     fi
 }
 
-aptitude -y install lvm2
+aptitude -y install lvm2 nfs-kernel-server
 
 # Changes type of /dev/sda4 to 8e (Linux LVM)
 echo "t
@@ -47,8 +47,8 @@ else
     lvcreate -n cache -L ${CACHE}G ${VOLUMEGROUP}
     lvcreate -n lib -L ${LIB}G ${VOLUMEGROUP}
 
-    lmke2fs -t ext4 /dev/lxc/cache
-    lmke2fs -t ext4 /dev/lxc/lib
+    mke2fs -t ext4 /dev/lxc/cache
+    mke2fs -t ext4 /dev/lxc/lib
 
     # backup existing cache folder
     mv /var/cache/lxc /var/cache/lxc.old
