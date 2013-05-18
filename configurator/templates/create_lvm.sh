@@ -2,7 +2,7 @@
 
 VOLUMEGROUP=${1}
 
-DEVICE=${2}  #"/dev/sda"
+DEVICE=${2}  # "/dev/sda"
 
 PARTITION=${3} # 4
 
@@ -57,8 +57,8 @@ else
     # create new empty cache folder, add mount info to fstab and mount it.
     mkdir /var/cache/lxc
     mkdir /var/lib/lxc
-    add_line_to_config '/dev/${VOLUMEGROUP}/cache /var/cache/lxc ext4 errors=remount-ro 0 1' '/etc/fstab'
-    add_line_to_config '/dev/${VOLUMEGROUP}/lib /var/lib/lxc ext4 errors=remount-ro 0 1' '/etc/fstab'
+    add_line_to_config "/dev/${VOLUMEGROUP}/cache /var/cache/lxc ext4 errors=remount-ro 0 1" '/etc/fstab'
+    add_line_to_config "/dev/${VOLUMEGROUP}/lib /var/lib/lxc ext4 errors=remount-ro 0 1" '/etc/fstab'
     mount -a /dev/${VOLUMEGROUP}/cache
     mount -a /dev/${VOLUMEGROUP}/lib
 fi
