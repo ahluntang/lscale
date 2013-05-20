@@ -94,6 +94,17 @@ def parse_host(template_environment, host, host_id, destroy):
         set_summaries(configured_host)
         set_gateways(configured_host)
 
+        lxcbr_macs = {}
+        dp_interfaces = {}
+        ## set lxcbr0 macs to host post routing variables
+        for container_id, container in containers.items():
+            if container.configuration is not None:
+                lxcbr_macs[container.container_id] = container.configuration.mac
+                dp_interfaces[container.container_id] = container.configuration.interfaces
+        c.postrouting['lxcbr_macs'] = lxcbr_macs
+        c.postrouting['dp_interfaces'] = dp_interfaces
+
+
         for interface_id, gateway in mappings_gateways.items():
             logging.getLogger(__name__).info("%s->%s", interface_id, gateway)
 
@@ -108,6 +119,7 @@ def parse_host(template_environment, host, host_id, destroy):
         for container_id, container in containers.items():
             #run post routing script
             container.run_post_routing(template_environment)
+
 
         return configured_host
     else:
@@ -265,6 +277,19 @@ def parse_bridge(bridge):
 
     # creating the bridge
     b = emulator.elements.Bridge(bridge_id, ip, bridge_type)
+
+    controller = bridge.find("controller")
+    if controller is not None:
+        b.controller = controller.text
+
+    controller_port = bridge.find("controller_port")
+    if controller_port is not None:
+        b.controller_port = controller_port.text
+
+
+    datapath = bridge.find("datapath")
+    if datapath is not None:
+        b.datapath = datapath.text
 
     for interface in bridge.findall('interfaces/interface'):
         b.addif(interface.text)

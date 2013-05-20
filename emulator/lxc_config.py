@@ -20,6 +20,7 @@ class Configuration(object):
         # adding default link (for lxcbr0)
         result += "lxc.network.type = veth\n"
         result += "lxc.network.flags = up\n"
+        result += "lxc.network.veth.pair = {}\n".format(self.name)
         result += "lxc.network.hwaddr = {}\n".format(self.mac)
         result += "lxc.network.link=lxcbr0\n\n"
 

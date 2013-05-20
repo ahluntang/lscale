@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 {% for node, ip in nodes.items() %}
-    #echo {{ node }} : {{ ip }}
+    #{{ node }} : {{ ip }}
 {% endfor %}
 
 SCRIPT_NAME="rftest2"
@@ -13,8 +13,6 @@ export PATH=$PATH:/usr/local/bin:/usr/local/sbin
 export PYTHONPATH=$PYTHONPATH:$RF_HOME
 
 cd $RF_HOME
-
-
 
 wait_port_listen() {
     port=$1
@@ -56,5 +54,40 @@ cd pox
 cd -
 wait_port_listen {{ controller_port }}
 
+echo_bold "-> Creating rfconfig.csv ... "
+
+VM_ID=0
+VM_PORT=1
+CT_ID=0
+DP_ID=0
+DP_PORT=1
+echo "" > rfconfig.csv
+{% for container_name, interfaces in dp_interfaces.items() %}
+    {% for interface, mac in interfaces.items() %}
+
+        echo "{{ mac }},${VM_PORT},${CT_ID},${DP_ID}, ${DP_PORT}" >> rfconfig.csv
+        VM_PORT=$[$VM_PORT+1]
+        DP_PORT=$[DP_PORT+1]
+    {% endfor %}
+    VM_PORT=1
+    DP_PORT=1
+{% endfor %}
+
+
+
 echo_bold "-> Starting RFServer..."
-./rfserver/rfserver.py rftest/rftest2config.csv &
+./rfserver/rfserver.py rfconfig.csv &
+
+
+echo_bold "-> Starting the control plane network (dp0 VS)..."
+ovs-vsctl add-br dp0
+
+
+{% for interface in dp_interfaces %}
+    ovs-vsctl add-port dp0 {{ interface }}
+{% endfor %}
+
+
+echo_bold "-> adding controller to dp0"
+ovs-vsctl set Bridge dp0 other-config:datapath-id=7266767372667673
+ovs-vsctl set-controller dp0 tcp:127.0.0.1:{{ controller_port }}
