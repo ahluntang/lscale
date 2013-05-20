@@ -300,7 +300,7 @@ class Bridge(object):
 
         # creating bridge
         if self.bridge_type == BridgeType.OPENVSWITCH:
-            create_bridge_cmd = "ovs-vsctl add-br %s" % bridge_id
+            create_bridge_cmd = "ovs-vsctl --may-exist add-br %s" % bridge_id
             self.shell.sendline(create_bridge_cmd)
         else:
             create_bridge_cmd = "brctl addbr %s" % bridge_id

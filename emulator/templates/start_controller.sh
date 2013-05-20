@@ -79,7 +79,7 @@ echo_bold "-> Starting RFServer..."
 
 
 echo_bold "-> Starting the control plane network (dp0 VS)..."
-ovs-vsctl add-br dp0
+ovs-vsctl --may-exist add-br dp0
 
 
 echo_bold "-> adding controller to dp0"
