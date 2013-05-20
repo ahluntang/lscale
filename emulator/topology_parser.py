@@ -177,6 +177,8 @@ def set_gateways(configured_host):
             container.routing['gateway'] = route
         else:
             container.routing['gateway'] = emulator.elements.Route("0.0.0.0", "")
+
+
 def find_interfaces(container_id, host):
     # needed for config file
     interfaces = []
@@ -199,7 +201,7 @@ def parse_container(container, host):
         template = ""
         storage = BackingStore.NONE
 
-    if container_type == ContainerType.LXC:
+    if container_type == ContainerType.LXC or container_type == ContainerType.LXCLVM:
         interfaces = find_interfaces(container_id, host)
     else:
         interfaces = None
