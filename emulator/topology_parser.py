@@ -46,9 +46,9 @@ def parse_host(template_environment, host, host_id, destroy):
 
     # only make containers for current host
     if current_host_id == host_id:
-        c = emulator.elements.Container(current_host_id, ContainerType.NONE)
-        c.destroy = destroy
-        containers[current_host_id] = c
+        #c = emulator.elements.Container(current_host_id, ContainerType.NONE)
+        #c.destroy = destroy
+        #containers[current_host_id] = c
 
         for container in host.findall('containers/container'):
             c = parse_container(container, host)
@@ -103,7 +103,6 @@ def parse_host(template_environment, host, host_id, destroy):
                 dp_interfaces[container.container_id] = container.configuration.interfaces
         containers[current_host_id].postrouting['lxcbrmacs'] = lxcbr_macs
         containers[current_host_id].postrouting['dpinterfaces'] = dp_interfaces
-
 
         for interface_id, gateway in mappings_gateways.items():
             logging.getLogger(__name__).info("%s->%s", interface_id, gateway)

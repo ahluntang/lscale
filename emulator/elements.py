@@ -82,6 +82,7 @@ class Container(object):
             cmd = "unshare --net /bin/bash"
 
         # create the shell
+        logging.getLogger(__name__).info("Spawn cmd: {}".format(cmd))
         self.shell = pexpect.spawn(cmd, logfile=self.logfile, timeout=None)
 
         #set prompt
