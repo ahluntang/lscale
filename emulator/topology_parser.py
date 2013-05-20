@@ -201,6 +201,8 @@ def parse_container(container, host):
 
     if container_type == ContainerType.LXC:
         interfaces = find_interfaces(container_id, host)
+    else:
+        interfaces = None
 
     c = emulator.elements.Container(container_id, container_type, template, storage, interfaces)
 
