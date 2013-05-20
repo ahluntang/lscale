@@ -26,7 +26,6 @@ def write_topology_xml(topology_root, output):
         #bridges  = defaultdict(list)
 
         for (container_id, container) in sorted(host['containers'].items()):
-
             container_tree = ET.SubElement(containers_tree, 'container')
             cid_element = ET.SubElement(container_tree, 'id')
             cid_element.text = container_id
@@ -94,7 +93,7 @@ def write_topology_xml(topology_root, output):
             for interface in container.interfaces:
                 # append to links
                 link_id = interface.link_id
-                interface.set_container(container.container_id)
+                interface.set_container(container_id)
                 links[link_id].append(interface)
 
         for bridge_id, bridge in sorted(host['bridges'].items()):

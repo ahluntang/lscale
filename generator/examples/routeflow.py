@@ -48,18 +48,22 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
 
     routeflow1_component = gen_components.create_container(host1, "rfvm", ContainerType.LXC,
                                                            "ubuntu", BackingStore.LVM, rfvm_scripts)
+    routeflow1_id = resources.get_last_id("rfvm")
     components[routeflow1_component.component_id] = routeflow1_component
 
     routeflow2_component = gen_components.create_container(host1, "rfvm", ContainerType.LXC,
                                                            "ubuntu", BackingStore.LVM, rfvm_scripts)
+    routeflow2_id = resources.get_last_id("rfvm")
     components[routeflow2_component.component_id] = routeflow2_component
 
     routeflow3_component = gen_components.create_container(host1, "rfvm", ContainerType.LXC,
                                                            "ubuntu", BackingStore.LVM, rfvm_scripts)
+    routeflow3_id = resources.get_last_id("rfvm")
     components[routeflow3_component.component_id] = routeflow3_component
 
     routeflow4_component = gen_components.create_container(host1, "rfvm", ContainerType.LXC,
                                                            "ubuntu", BackingStore.LVM, rfvm_scripts)
+    routeflow4_id = resources.get_last_id("rfvm")
     components[routeflow4_component.component_id] = routeflow4_component
 
     switch1dp = "0000000000000005"
@@ -102,6 +106,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     components[client4_component.component_id] = client4_component
     client4_id = resources.get_last_id("rfc")
 
+    # adding hosts to bridges
     gen_components.connect_container_bridge(client1_component.topology['containers'][client1_id],
                                             bridge1_component.topology['bridges'][br1_id])
     gen_components.connect_container_bridge(client2_component.topology['containers'][client2_id],
@@ -111,16 +116,32 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     gen_components.connect_container_bridge(client4_component.topology['containers'][client4_id],
                                             bridge4_component.topology['bridges'][br4_id])
 
+    # connecting bridges, do the same for the respective routeflow containers
     gen_components.connect_bridges(bridge1_component.topology['bridges'][br1_id],
                                    bridge2_component.topology['bridges'][br2_id])
+    gen_components.connect_containers(routeflow1_component.topology['containers'][routeflow1_id],
+                                      routeflow2_component.topology['containers'][routeflow2_id])
+
     gen_components.connect_bridges(bridge2_component.topology['bridges'][br2_id],
                                    bridge4_component.topology['bridges'][br4_id])
+    gen_components.connect_containers(routeflow2_component.topology['containers'][routeflow2_id],
+                                      routeflow4_component.topology['containers'][routeflow4_id])
+
     gen_components.connect_bridges(bridge4_component.topology['bridges'][br4_id],
                                    bridge3_component.topology['bridges'][br3_id])
+    gen_components.connect_containers(routeflow4_component.topology['containers'][routeflow4_id],
+                                      routeflow3_component.topology['containers'][routeflow3_id])
+
     gen_components.connect_bridges(bridge3_component.topology['bridges'][br3_id],
                                    bridge1_component.topology['bridges'][br1_id])
+    gen_components.connect_containers(routeflow3_component.topology['containers'][routeflow3_id],
+                                      routeflow1_component.topology['containers'][routeflow1_id])
+
     gen_components.connect_bridges(bridge1_component.topology['bridges'][br1_id],
                                    bridge4_component.topology['bridges'][br4_id])
+    gen_components.connect_containers(routeflow1_component.topology['containers'][routeflow1_id],
+                                      routeflow4_component.topology['containers'][routeflow4_id])
+
     # end creating the topology
     # After every component has been created
     # merge components into one dictionary,
