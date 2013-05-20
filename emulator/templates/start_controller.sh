@@ -83,11 +83,6 @@ echo_bold "-> Starting the control plane network (dp0 VS)..."
 ovs-vsctl add-br dp0
 
 
-{% for interface in dp_interfaces %}
-    ovs-vsctl add-port dp0 {{ interface }}
-{% endfor %}
-
-
 echo_bold "-> adding controller to dp0"
 ovs-vsctl set Bridge dp0 other-config:datapath-id=7266767372667673
 ovs-vsctl set-controller dp0 tcp:127.0.0.1:{{ controller_port }}

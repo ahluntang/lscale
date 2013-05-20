@@ -191,7 +191,6 @@ def parse_container(container, host):
     container_id = container.find("id").text
     container_type = eval("ContainerType.%s" % container.find("type").text)
 
-
     if is_lxc(container_type):
         template = container.find("template").text
         storage = eval("BackingStore.%s" % container.find("storage").text)
