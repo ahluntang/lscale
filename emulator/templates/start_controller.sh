@@ -61,11 +61,10 @@ VM_PORT=1
 CT_ID=0
 DP_ID=0
 DP_PORT=1
-echo "" > rfconfig.csv
+echo "vm_id,vm_port,ct_id,dp_id,dp_port" > rfconfig.csv
 {% for container_name, interfaces in dpinterfaces.items() %}
     {% for interface, mac in interfaces.items() %}
-
-        echo "{{ mac }},${VM_PORT},${CT_ID},${DP_ID}, ${DP_PORT}" >> rfconfig.csv
+        echo "{{ mac }},${VM_PORT},${CT_ID},${DP_ID},${DP_PORT}" >> rfconfig.csv
         VM_PORT=$[$VM_PORT+1]
         DP_PORT=$[DP_PORT+1]
     {% endfor %}
