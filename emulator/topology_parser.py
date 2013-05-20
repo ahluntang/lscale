@@ -202,6 +202,7 @@ def parse_container(container, host):
         storage = BackingStore.NONE
 
     interfaces = find_interfaces(container_id, host)
+    print(interfaces)
     # if container_type == ContainerType.LXC or container_type == ContainerType.LXCCLONE:
     #     interfaces = find_interfaces(container_id, host)
     # else:
