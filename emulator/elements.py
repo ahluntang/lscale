@@ -74,9 +74,9 @@ class Container(object):
 
         cmd = "/bin/bash"  # default shell
 
-        if self.container_type == ContainerType.LXCCLONE or self.container_type == ContainerType.LXCLVMCLONE:
+        if self.container_type == ContainerType.LXCCLONE:
             self.clone()
-        elif self.container_type == ContainerType.LXC or self.container_type == ContainerType.LXCLVM:
+        elif self.container_type == ContainerType.LXC:
             self.create(interfaces)
         else:  # elif container_type == ContainerType.UNSHARED:
             cmd = "unshare --net /bin/bash"
@@ -116,7 +116,7 @@ class Container(object):
             pass
 
     def clone(self):
-        if self.container_type == ContainerType.LXCCLONE or self.container_type == ContainerType.LXCLVMCLONE:
+        if self.container_type == ContainerType.LXCCLONE:
             self.clone()
             try:
                 if self.container_type == ContainerType.LXCCLONE:
@@ -133,7 +133,7 @@ class Container(object):
                 raise lxc.ContainerDoesntExists('Container {} does not exist!'.format(self.container_id))
 
     def create(self, interfaces):
-        if self.container_type == ContainerType.LXC or self.container_type == ContainerType.LXCLVM:
+        if self.container_type == ContainerType.LXC:
             try:
                 base_mac = randomMAC()
                 self.configuration = lxc_config.Configuration(self.container_id, base_mac)
