@@ -201,10 +201,11 @@ def parse_container(container, host):
         template = ""
         storage = BackingStore.NONE
 
-    if container_type == ContainerType.LXC or container_type == ContainerType.LXCCLONE:
-        interfaces = find_interfaces(container_id, host)
-    else:
-        interfaces = None
+    interfaces = find_interfaces(container_id, host)
+    # if container_type == ContainerType.LXC or container_type == ContainerType.LXCCLONE:
+    #     interfaces = find_interfaces(container_id, host)
+    # else:
+    #     interfaces = None
 
     c = emulator.elements.Container(container_id, container_type, template, storage, interfaces)
 
