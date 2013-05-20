@@ -66,6 +66,7 @@ class NetworkInterface(object):
         self.interface_id = interface_id
         self.link_id = link_id
         self.address = address
+        self.mac = None
         self.routes = []
         self.gateway = None
         self.summarizes = None

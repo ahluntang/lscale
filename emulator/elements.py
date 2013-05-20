@@ -63,6 +63,7 @@ class Container(object):
         self.template = template
         self.destroy = True
         self.storage = storage
+        self.configuration = None
 
         logdir = "logs/container_logs"
         if not os.path.exists(logdir):
@@ -73,9 +74,9 @@ class Container(object):
 
         cmd = "/bin/bash"  # default shell
 
-        if self.container_type == ContainerType.LXCCLONE or self.container_type == ContainerType.LXCLVMCLONE:
+        if self.container_type == ContainerType.LXCCLONE:
             self.clone()
-        elif self.container_type == ContainerType.LXC or self.container_type == ContainerType.LXCLVM:
+        elif self.container_type == ContainerType.LXC:
             self.create(interfaces)
         else:  # elif container_type == ContainerType.UNSHARED:
             cmd = "unshare --net /bin/bash"
@@ -115,7 +116,7 @@ class Container(object):
             pass
 
     def clone(self):
-        if self.container_type == ContainerType.LXCCLONE or self.container_type == ContainerType.LXCLVMCLONE:
+        if self.container_type == ContainerType.LXCCLONE:
             self.clone()
             try:
                 if self.container_type == ContainerType.LXCCLONE:
@@ -132,23 +133,23 @@ class Container(object):
                 raise lxc.ContainerDoesntExists('Container {} does not exist!'.format(self.container_id))
 
     def create(self, interfaces):
-        if self.container_type == ContainerType.LXC or self.container_type == ContainerType.LXCLVM:
+        if self.container_type == ContainerType.LXC:
             try:
                 base_mac = randomMAC()
-                configuration = lxc_config.Configuration(self.container_id, base_mac)
+                self.configuration = lxc_config.Configuration(self.container_id, base_mac)
 
                 for interface in interfaces:
                     new_mac = randomMAC()
-                    configuration.add_interface(interface, new_mac)
+                    self.configuration.add_interface(interface, new_mac)
 
-                configuration.write()
+                self.configuration.write()
 
                 if self.storage == BackingStore.NONE:
-                    lxc.create(self.container_id, self.template, None, configuration.file)
+                    lxc.create(self.container_id, self.template, None, self.configuration.file)
                 elif self.storage == BackingStore.LVM:
-                    lxc.create(self.container_id, self.template, 'lvm', configuration.file)
+                    lxc.create(self.container_id, self.template, 'lvm', self.configuration.file)
                 elif self.storage == BackingStore.BTRFS:
-                    lxc.create(self.container_id, self.template, 'btrfs', configuration.file)
+                    lxc.create(self.container_id, self.template, 'btrfs', self.configuration.file)
             except lxc.ContainerAlreadyExists as e:
                 # Creation was not needed
                 pass
@@ -274,7 +275,7 @@ class Bridge(object):
         self.shell -- holds the pexpect shell object for this instance
     """
 
-    def __init__(self, bridge_id, address='0.0.0.0', bridge_type=BridgeType.BRIDGE):
+    def __init__(self, bridge_id, address='0.0.0.0', bridge_type=BridgeType.BRIDGE, controller=None, controller_port=None, datapath=None):
         """Constructs a new bridge instance.
 
         Argument is the identification of the bridge.
@@ -287,6 +288,9 @@ class Bridge(object):
         self.bridge_id = bridge_id
         self.address = address
         self.bridge_type = bridge_type
+        self.controller = controller
+        self.controller_port = controller_port
+        self.datapath = datapath
         self.interfaces = []
 
         # bridges must be cleaned after class destruction
@@ -445,6 +449,8 @@ class VirtualInterface(object):
         self.veth = veth
         self.shell = None
         self.address = None
+        self.mac = None
+        self.datapath = None
         self.routes = []
 
 

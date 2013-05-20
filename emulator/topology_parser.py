@@ -94,6 +94,17 @@ def parse_host(template_environment, host, host_id, destroy):
         set_summaries(configured_host)
         set_gateways(configured_host)
 
+        lxcbr_macs = {}
+        dp_interfaces = {}
+        ## set lxcbr0 macs to host post routing variables
+        for container_id, container in containers.items():
+            if container.configuration is not None:
+                lxcbr_macs[container.container_id] = container.configuration.mac
+                dp_interfaces[container.container_id] = container.configuration.interfaces
+        containers[current_host_id].postrouting['lxcbrmacs'] = lxcbr_macs
+        containers[current_host_id].postrouting['dpinterfaces'] = dp_interfaces
+
+
         for interface_id, gateway in mappings_gateways.items():
             logging.getLogger(__name__).info("%s->%s", interface_id, gateway)
 
@@ -108,6 +119,7 @@ def parse_host(template_environment, host, host_id, destroy):
         for container_id, container in containers.items():
             #run post routing script
             container.run_post_routing(template_environment)
+
 
         return configured_host
     else:
@@ -164,6 +176,8 @@ def set_gateways(configured_host):
             container.routing['gateway'] = route
         else:
             container.routing['gateway'] = emulator.elements.Route("0.0.0.0", "")
+
+
 def find_interfaces(container_id, host):
     # needed for config file
     interfaces = []
@@ -179,7 +193,6 @@ def parse_container(container, host):
     container_id = container.find("id").text
     container_type = eval("ContainerType.%s" % container.find("type").text)
 
-
     if is_lxc(container_type):
         template = container.find("template").text
         storage = eval("BackingStore.%s" % container.find("storage").text)
@@ -187,8 +200,11 @@ def parse_container(container, host):
         template = ""
         storage = BackingStore.NONE
 
-    if container_type == ContainerType.LXC:
-        interfaces = find_interfaces(container_id, host)
+    interfaces = find_interfaces(container_id, host)
+    # if container_type == ContainerType.LXC or container_type == ContainerType.LXCCLONE:
+    #     interfaces = find_interfaces(container_id, host)
+    # else:
+    #     interfaces = None
 
     c = emulator.elements.Container(container_id, container_type, template, storage, interfaces)
 
@@ -265,6 +281,19 @@ def parse_bridge(bridge):
 
     # creating the bridge
     b = emulator.elements.Bridge(bridge_id, ip, bridge_type)
+
+    controller = bridge.find("controller")
+    if controller is not None:
+        b.controller = controller.text
+
+    controller_port = bridge.find("controller_port")
+    if controller_port is not None:
+        b.controller_port = controller_port.text
+
+
+    datapath = bridge.find("datapath")
+    if datapath is not None:
+        b.datapath = datapath.text
 
     for interface in bridge.findall('interfaces/interface'):
         b.addif(interface.text)
