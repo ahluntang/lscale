@@ -101,7 +101,6 @@ def parse_host(template_environment, host, host_id, destroy):
             if container.configuration is not None:
                 lxcbr_macs[container.container_id] = container.configuration.mac
                 dp_interfaces[container.container_id] = container.configuration.interfaces
-        print(dp_interfaces)
         containers[current_host_id].postrouting['lxcbrmacs'] = lxcbr_macs
         containers[current_host_id].postrouting['dpinterfaces'] = dp_interfaces
 
@@ -182,10 +181,8 @@ def set_gateways(configured_host):
 def find_interfaces(container_id, host):
     # needed for config file
     interfaces = []
-    print(container_id)
     for link in host.findall('links/link'):
         for vinterface in link.findall('vinterface'):
-            print(vinterface.find('container').text)
             if vinterface.find('container').text == container_id:
                 interfaces.append(vinterface.find('id').text)
     return interfaces
@@ -204,7 +201,6 @@ def parse_container(container, host):
         storage = BackingStore.NONE
 
     interfaces = find_interfaces(container_id, host)
-    print(interfaces)
     # if container_type == ContainerType.LXC or container_type == ContainerType.LXCCLONE:
     #     interfaces = find_interfaces(container_id, host)
     # else:
