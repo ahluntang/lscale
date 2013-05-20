@@ -78,7 +78,7 @@ class Container(object):
             self.clone()
         elif self.container_type == ContainerType.LXC:
             self.create(interfaces)
-        else:  # elif container_type == ContainerType.UNSHARED:
+        elif self.container_type == ContainerType.UNSHARED:  # elif container_type == ContainerType.UNSHARED:
             cmd = "unshare --net /bin/bash"
 
         # create the shell
