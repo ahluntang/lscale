@@ -9,6 +9,8 @@ export PATH=$PATH:/usr/local/bin:/usr/local/sbin
 export PYTHONPATH=$PYTHONPATH:$RF_HOME
 
 cd $RF_HOME
+make clean
+make rfclient
 
 wait_port_listen() {
     port=$1
@@ -43,11 +45,12 @@ echo_bold "-> Setting up MongoDB..."
 sed -i "/bind_ip/c\bind_ip = 127.0.0.1,${1}" $MONGODB_CONF
 service mongodb restart
 #wait_port_listen ${2}
-
+sleep 10
 echo_bold "-> Starting the controller and RFPRoxy..."
 cd pox
 ./pox.py log.level --=INFO topology openflow.topology openflow.discovery rfproxy rfstats &
 cd -
 #wait_port_listen ${3}
+sleep 10
 
 #echo_bold "-> Creating rfconfig.csv ... "
