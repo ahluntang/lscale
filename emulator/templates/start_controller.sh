@@ -36,7 +36,8 @@ echo "-> Starting RFServer..."
 
 
 echo "-> Starting the control plane network (dp0 VS)..."
-ovs-vsctl --may-exist add-br dp0
+ovs-vsctl add-br dp0
+
 {% for container_name, interfaces in dpinterfaces.items() %}
     {% for interface, mac in interfaces.items() %}
         ovs-vsctl add-port dp0 {{ interface }}
