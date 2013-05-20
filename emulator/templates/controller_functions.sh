@@ -5,10 +5,12 @@ LXCDIR=/var/lib/lxc
 MONGODB_CONF=/etc/mongodb.conf
 RF_HOME=RouteFlow
 
-export PATH=$PATH:/usr/local/bin:/usr/local/sbin
-export PYTHONPATH=$PYTHONPATH:$RF_HOME
 
 cd $RF_HOME
+
+
+export PATH=$PATH:/usr/local/bin:/usr/local/sbin
+export PYTHONPATH=$PYTHONPATH:.
 make clean
 make rfclient
 

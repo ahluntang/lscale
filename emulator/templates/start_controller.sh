@@ -9,7 +9,7 @@
 
 cd RouteFlow
 export PATH=$PATH:/usr/local/bin:/usr/local/sbin
-export PYTHONPATH=$PYTHONPATH:$RF_HOME
+export PYTHONPATH=$PYTHONPATH:.
 
 echo "-> Creating rfconfig.csv ... "
 
