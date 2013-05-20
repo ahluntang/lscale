@@ -45,14 +45,14 @@ kill_process_tree() {
 
 echo_bold "-> Setting up MongoDB..."
 sed -i "/bind_ip/c\bind_ip = 127.0.0.1,{{ mongodb_address }}" $MONGODB_CONF
-#service mongodb restart
-#wait_port_listen {{ mongodb_port }}
+service mongodb restart
+wait_port_listen {{ mongodb_port }}
 
 echo_bold "-> Starting the controller and RFPRoxy..."
 cd pox
-#./pox.py log.level --=INFO topology openflow.topology openflow.discovery rfproxy rfstats &
+./pox.py log.level --=INFO topology openflow.topology openflow.discovery rfproxy rfstats &
 cd -
-#wait_port_listen {{ controller_port }}
+wait_port_listen {{ controller_port }}
 
 echo_bold "-> Creating rfconfig.csv ... "
 
@@ -75,11 +75,16 @@ echo "vm_id,vm_port,ct_id,dp_id,dp_port" > rfconfig.csv
 
 
 echo_bold "-> Starting RFServer..."
-#./rfserver/rfserver.py rfconfig.csv &
+./rfserver/rfserver.py rfconfig.csv &
 
 
 echo_bold "-> Starting the control plane network (dp0 VS)..."
 ovs-vsctl --may-exist add-br dp0
+{% for container_name, interfaces in dpinterfaces.items() %}
+    {% for interface, mac in interfaces.items() %}
+        ovs-vsctl add-port dp0 {{ interface }}
+    {% endfor %}
+{% endfor %}
 
 
 echo_bold "-> adding controller to dp0"
