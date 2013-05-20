@@ -101,6 +101,7 @@ def parse_host(template_environment, host, host_id, destroy):
             if container.configuration is not None:
                 lxcbr_macs[container.container_id] = container.configuration.mac
                 dp_interfaces[container.container_id] = container.configuration.interfaces
+        print(dp_interfaces)
         containers[current_host_id].postrouting['lxcbrmacs'] = lxcbr_macs
         containers[current_host_id].postrouting['dpinterfaces'] = dp_interfaces
 
