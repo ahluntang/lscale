@@ -449,6 +449,8 @@ class VirtualInterface(object):
         self.veth = veth
         self.shell = None
         self.address = None
+        self.mac = None
+        self.datapath = None
         self.routes = []
 
 
