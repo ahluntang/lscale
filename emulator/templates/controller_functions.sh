@@ -11,7 +11,7 @@ cd $RF_HOME
 
 export PATH=$PATH:/usr/local/bin:/usr/local/sbin
 export PYTHONPATH=$PYTHONPATH:.
-make clean
+#make clean
 make rfclient
 
 wait_port_listen() {
