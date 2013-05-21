@@ -332,44 +332,44 @@ def parse_link(link, interfaces, mappings_container, mappings_interfaces, mappin
     routes1 = []
     ignore = False
     for vinterface in link.findall('vinterface'):
+        if vinterface.find("id").text in ignored_interfaces:
+                ignore = True
+    for vinterface in link.findall('vinterface'):
         if not ignore:
             vinterface_id = vinterface.find("id").text
-            if vinterface_id in ignored_interfaces:
-                ignore = True
+            container_id = vinterface.find("container").text
+            address = vinterface.find("address")
+
+            mappings_container[vinterface_id] = container_id
+
+            routes_tree = vinterface.find("routes")
+            veth = None
+            if count == 1:
+                veth0 = emulator.elements.VirtualInterface(vinterface_id)
+                if not address is None:
+                    veth0_ip = address.text
+                    veth0.address = veth0_ip
+                    #veth0.routes.extend(routes)
+                    parse_summaries(vinterface, mappings_summaries, veth0_ip)
+                    parse_routes(routes_tree, routes0, vinterface_id)
+                    veth = veth0
             else:
-                container_id = vinterface.find("container").text
-                address = vinterface.find("address")
+                veth1 = emulator.elements.VirtualInterface(vinterface_id)
+                if not address is None:
+                    veth1_ip = address.text
+                    veth1.address = address.text
+                    parse_summaries(vinterface, mappings_summaries, veth1_ip)
+                    #veth1.routes.extend(routes)
+                    parse_routes(routes_tree, routes1, vinterface_id)
+                    veth = veth1
 
-                mappings_container[vinterface_id] = container_id
+            if container_id not in mappings_interfaces:
+                mappings_interfaces[container_id] = []
+            mappings_interfaces[container_id].append(veth)
+            if veth is not None:
+                interfaces[veth.veth] = veth
 
-                routes_tree = vinterface.find("routes")
-                veth = None
-                if count == 1:
-                    veth0 = emulator.elements.VirtualInterface(vinterface_id)
-                    if not address is None:
-                        veth0_ip = address.text
-                        veth0.address = veth0_ip
-                        #veth0.routes.extend(routes)
-                        parse_summaries(vinterface, mappings_summaries, veth0_ip)
-                        parse_routes(routes_tree, routes0, vinterface_id)
-                        veth = veth0
-                else:
-                    veth1 = emulator.elements.VirtualInterface(vinterface_id)
-                    if not address is None:
-                        veth1_ip = address.text
-                        veth1.address = address.text
-                        parse_summaries(vinterface, mappings_summaries, veth1_ip)
-                        #veth1.routes.extend(routes)
-                        parse_routes(routes_tree, routes1, vinterface_id)
-                        veth = veth1
-
-                if container_id not in mappings_interfaces:
-                    mappings_interfaces[container_id] = []
-                mappings_interfaces[container_id].append(veth)
-                if veth is not None:
-                    interfaces[veth.veth] = veth
-
-                count += 1
+            count += 1
     if not ignore:
         # map gateways on interfaces
         if veth1_ip is not None:
