@@ -236,7 +236,7 @@ install_ubuntu()
     rootfs=$1
     release=$2
     flushcache=$3
-    cache="/var/cache/lxc/$release"
+    cache="/var/cache/lxc/$release-rfvm"
     mkdir -p /var/lock/subsys/
 
     (
