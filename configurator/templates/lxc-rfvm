@@ -113,6 +113,9 @@ finalize_user()
 
         echo "Inserted SSH public key from $auth_key into /home/${user}/.ssh/authorized_keys"
     fi
+
+    echo "setting root..."
+    echo "root:root" | chroot $rootfs chpasswd
     return 0
 }
 
@@ -559,7 +562,6 @@ do_bindhome()
     grp=`echo $pwd | cut -d: -f 4`  # group number for $user
     grpe=`getent group $grp` || return 0  # if host doesn't define grp, ignore in container
     chroot $rootfs getent group "$grpe" || echo "$grpe" >> $rootfs/etc/group
-    echo "root:root" | chroot $rootfs chpasswd
 }
 
 usage()
