@@ -161,6 +161,7 @@ class Container(object):
 
             if lxc.exists(self.container_id):
                 lxc.start(self.container_id)
+                time.sleep(5)
             else:
                 raise lxc.ContainerDoesntExists('Container {} does not exist!'.format(self.container_id))
 
