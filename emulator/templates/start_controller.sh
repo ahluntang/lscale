@@ -10,6 +10,8 @@
 cd RouteFlow
 export PATH=$PATH:/usr/local/bin:/usr/local/sbin
 export PYTHONPATH=$PYTHONPATH:.
+echo $PATH
+echo $PYTHONPATH
 
 echo "-> Creating rfconfig.csv ... "
 
@@ -29,7 +31,7 @@ echo "vm_id,vm_port,ct_id,dp_id,dp_port" > rfconfig.csv
     DP_PORT=1
 {% endfor %}
 
-
+sed -i -e 's/://g' rfconfig.csv
 
 echo "-> Starting RFServer..."
 ./rfserver/rfserver.py rfconfig.csv &

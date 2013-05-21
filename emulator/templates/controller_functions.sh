@@ -8,9 +8,11 @@ RF_HOME=RouteFlow
 
 cd $RF_HOME
 
-
 export PATH=$PATH:/usr/local/bin:/usr/local/sbin
 export PYTHONPATH=$PYTHONPATH:.
+echo $PATH
+echo $PYTHONPATH
+
 #make clean
 make rfclient
 
@@ -42,8 +44,8 @@ kill_process_tree() {
     fi
 }
 
-echo_bold "-> Setting up the management bridge (lxcbr0)..."
-ifconfig lxcbr0 ${1} up
+#echo_bold "-> Setting up the management bridge (lxcbr0)..."
+#ifconfig lxcbr0 ${1} up
 
 echo "-> Setting up MongoDB..."
 #sed -i "/bind_ip/c\bind_ip = 127.0.0.1,${1}" $MONGODB_CONF
