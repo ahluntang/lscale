@@ -72,37 +72,39 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     switch3dp = "0000000000000007"
     switch4dp = "0000000000000008"
 
-
-
-    bridge1_component = gen_components.create_bridge(host1, BridgeType.OPENVSWITCH, controller, controller_port, switch1dp)
+    bridge1_component = gen_components.create_bridge(host2, BridgeType.OPENVSWITCH, controller,
+                                                     controller_port, switch1dp)
     components[bridge1_component.component_id] = bridge1_component
     br1_id = resources.get_last_id("b")
 
-    bridge2_component = gen_components.create_bridge(host1, BridgeType.OPENVSWITCH, controller, controller_port, switch2dp)
+    bridge2_component = gen_components.create_bridge(host2, BridgeType.OPENVSWITCH, controller,
+                                                     controller_port, switch2dp)
     components[bridge2_component.component_id] = bridge2_component
     br2_id = resources.get_last_id("b")
 
-    bridge3_component = gen_components.create_bridge(host1, BridgeType.OPENVSWITCH, controller, controller_port, switch3dp)
+    bridge3_component = gen_components.create_bridge(host2, BridgeType.OPENVSWITCH, controller,
+                                                     controller_port, switch3dp)
     components[bridge3_component.component_id] = bridge3_component
     br3_id = resources.get_last_id("b")
 
-    bridge4_component = gen_components.create_bridge(host1, BridgeType.OPENVSWITCH, controller, controller_port, switch4dp)
+    bridge4_component = gen_components.create_bridge(host2, BridgeType.OPENVSWITCH, controller,
+                                                     controller_port, switch4dp)
     components[bridge4_component.component_id] = bridge4_component
     br4_id = resources.get_last_id("b")
 
-    client1_component = gen_components.create_container(host1, "rfc", ContainerType.UNSHARED)
+    client1_component = gen_components.create_container(host2, "rfc", ContainerType.UNSHARED)
     components[client1_component.component_id] = client1_component
     client1_id = resources.get_last_id("rfc")
 
-    client2_component = gen_components.create_container(host1, "rfc", ContainerType.UNSHARED)
+    client2_component = gen_components.create_container(host2, "rfc", ContainerType.UNSHARED)
     components[client2_component.component_id] = client2_component
     client2_id = resources.get_last_id("rfc")
 
-    client3_component = gen_components.create_container(host1, "rfc", ContainerType.UNSHARED)
+    client3_component = gen_components.create_container(host2, "rfc", ContainerType.UNSHARED)
     components[client3_component.component_id] = client3_component
     client3_id = resources.get_last_id("rfc")
 
-    client4_component = gen_components.create_container(host1, "rfc", ContainerType.UNSHARED)
+    client4_component = gen_components.create_container(host2, "rfc", ContainerType.UNSHARED)
     components[client4_component.component_id] = client4_component
     client4_id = resources.get_last_id("rfc")
 
