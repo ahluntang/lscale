@@ -130,3 +130,16 @@ def build_routeflow(create_vms=False):
         script.command(cmd)
     except exceptions.ScriptException as e:
         raise exceptions.ConfiguratorException(e)
+
+    make_rfvm_template()
+
+def make_rfvm_template():
+    print("Setting up rfvm template for RouteFlow.")
+    if os.geteuid() != 0:
+        raise exceptions.InsufficientRightsException("Setting up system for RouteFlow requires root privileges")
+    cmd = "cp ./configurator/templates/lxc-rfvm /usr/lib/lxc/templates/"
+
+    try:
+        script.command(cmd)
+    except exceptions.ScriptException as e:
+        raise exceptions.ConfiguratorException(e)
