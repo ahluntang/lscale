@@ -21,7 +21,7 @@ def set_logging(logging_level):
         datetime_format_file = '%d-%m-%Y_%H-%M-%S'
 
         # location for logfile.
-        logfile = "%s/%s_topology_generator.log" % (logdir, time.strftime(datetime_format_file, time.gmtime() ) )
+        logfile = "%s/%s_lscale.log" % (logdir, time.strftime(datetime_format_file, time.gmtime()))
 
         # logformat for each line
         logformat='%(asctime)s [%(levelname)s] %(message)s'

@@ -9,7 +9,7 @@ import threading
 
 import lxml.etree as ET
 import emulator.elements
-from utilities import ContainerType, BridgeType, is_lxc, BackingStore
+from utilities import ContainerType, BridgeType, is_lxc, BackingStore, systemconfig
 
 
 def parse(filename, template_environment, parsed_topology, host_id, destroy):
@@ -41,17 +41,18 @@ def parse_host(template_environment, host, host_id, destroy):
     mappings_gateways = {}      # Mapping interfaces to gateways
     mappings_ip = {}            # Mapping interfaces to ip
     mappings_summaries = {}     # Mapping summaries to ip
+    ignored_interfaces = []
 
     current_host_id = host.find("id").text
 
     # only make containers for current host
     if current_host_id == host_id:
-        c = emulator.elements.Container(current_host_id, ContainerType.NONE)
-        c.destroy = destroy
-        containers[current_host_id] = c
+        #c = emulator.elements.Container(current_host_id, ContainerType.NONE)
+        #c.destroy = destroy
+        #containers[current_host_id] = c
 
         for container in host.findall('containers/container'):
-            c = parse_container(container, host)
+            c = parse_container(container, host, ignored_interfaces)
             containers[c.container_id] = c
 
         logging.getLogger(__name__).info("Waiting until lxc-containers have successfully booted.")
@@ -63,15 +64,16 @@ def parse_host(template_environment, host, host_id, destroy):
             boot_queue.append(t)
 
         [x.start() for x in boot_queue]
+
+        logging.getLogger(__name__).info("Waiting for containers to boot.")
         [x.join() for x in boot_queue]
 
         for link in host.findall('links/link'):
             l = parse_link(link, interfaces, mappings_container, mappings_interfaces, mappings_gateways, mappings_ip,
-                           mappings_summaries,
-                           containers)
-
-            links[l.veth0.veth] = l
-            links[l.veth1.veth] = l
+                           mappings_summaries, containers, ignored_interfaces)
+            if l is not None:
+                links[l.veth0.veth] = l
+                links[l.veth1.veth] = l
 
         for bridge in host.findall('bridges/bridge'):
             b = parse_bridge(bridge)
@@ -90,9 +92,14 @@ def parse_host(template_environment, host, host_id, destroy):
             "mappings_ip": mappings_ip
         }
 
+
         move_vinterfaces(configured_host)
         set_summaries(configured_host)
         set_gateways(configured_host)
+
+        # set controllers to bridges.
+        for bridge_id, bridge in bridges.items():
+            bridge.set_controller()
 
         lxcbr_macs = {}
         dp_interfaces = {}
@@ -103,7 +110,6 @@ def parse_host(template_environment, host, host_id, destroy):
                 dp_interfaces[container.container_id] = container.configuration.interfaces
         containers[current_host_id].postrouting['lxcbrmacs'] = lxcbr_macs
         containers[current_host_id].postrouting['dpinterfaces'] = dp_interfaces
-
 
         for interface_id, gateway in mappings_gateways.items():
             logging.getLogger(__name__).info("%s->%s", interface_id, gateway)
@@ -188,7 +194,7 @@ def find_interfaces(container_id, host):
     return interfaces
 
 
-def parse_container(container, host):
+def parse_container(container, host, ignored_interfaces):
 
     container_id = container.find("id").text
     container_type = eval("ContainerType.%s" % container.find("type").text)
@@ -206,7 +212,7 @@ def parse_container(container, host):
     # else:
     #     interfaces = None
 
-    c = emulator.elements.Container(container_id, container_type, template, storage, interfaces)
+    c = emulator.elements.Container(container_id, container_type, template, storage, interfaces, ignored_interfaces)
 
     password = container.find("password")
     if password is not None:
@@ -284,7 +290,8 @@ def parse_bridge(bridge):
 
     controller = bridge.find("controller")
     if controller is not None:
-        b.controller = controller.text
+        b.controller = systemconfig.nodes[controller.text]
+        #b.controller = controller.text
 
     controller_port = bridge.find("controller_port")
     if controller_port is not None:
@@ -302,7 +309,7 @@ def parse_bridge(bridge):
 
 
 def parse_link(link, interfaces, mappings_container, mappings_interfaces, mappings_gateways, mappings_ip,
-               mappings_summaries, containers):
+               mappings_summaries, containers, ignored_interfaces):
     """
 
     :param link:
@@ -323,75 +330,82 @@ def parse_link(link, interfaces, mappings_container, mappings_interfaces, mappin
     count = 1
     routes0 = []
     routes1 = []
+    ignore = False
     for vinterface in link.findall('vinterface'):
-        vinterface_id = vinterface.find("id").text
-        container_id = vinterface.find("container").text
-        address = vinterface.find("address")
+        if vinterface.find("id").text in ignored_interfaces:
+                ignore = True
+    for vinterface in link.findall('vinterface'):
+        if not ignore:
+            vinterface_id = vinterface.find("id").text
+            container_id = vinterface.find("container").text
+            address = vinterface.find("address")
 
-        mappings_container[vinterface_id] = container_id
+            mappings_container[vinterface_id] = container_id
 
-        routes_tree = vinterface.find("routes")
-        veth = None
-        if count == 1:
-            veth0 = emulator.elements.VirtualInterface(vinterface_id)
-            if not address is None:
-                veth0_ip = address.text
-                veth0.address = veth0_ip
-                #veth0.routes.extend(routes)
-                parse_summaries(vinterface, mappings_summaries, veth0_ip)
-                parse_routes(routes_tree, routes0, vinterface_id)
-                veth = veth0
-        else:
-            veth1 = emulator.elements.VirtualInterface(vinterface_id)
-            if not address is None:
-                veth1_ip = address.text
-                veth1.address = address.text
-                parse_summaries(vinterface, mappings_summaries, veth1_ip)
-                #veth1.routes.extend(routes)
-                parse_routes(routes_tree, routes1, vinterface_id)
-                veth = veth1
+            routes_tree = vinterface.find("routes")
+            veth = None
+            if count == 1:
+                veth0 = emulator.elements.VirtualInterface(vinterface_id)
+                if not address is None:
+                    veth0_ip = address.text
+                    veth0.address = veth0_ip
+                    #veth0.routes.extend(routes)
+                    parse_summaries(vinterface, mappings_summaries, veth0_ip)
+                    parse_routes(routes_tree, routes0, vinterface_id)
+                    veth = veth0
+            else:
+                veth1 = emulator.elements.VirtualInterface(vinterface_id)
+                if not address is None:
+                    veth1_ip = address.text
+                    veth1.address = address.text
+                    parse_summaries(vinterface, mappings_summaries, veth1_ip)
+                    #veth1.routes.extend(routes)
+                    parse_routes(routes_tree, routes1, vinterface_id)
+                    veth = veth1
 
-        if container_id not in mappings_interfaces:
-            mappings_interfaces[container_id] = []
-        mappings_interfaces[container_id].append(veth)
-        if veth is not None:
-            interfaces[veth.veth] = veth
+            if container_id not in mappings_interfaces:
+                mappings_interfaces[container_id] = []
+            mappings_interfaces[container_id].append(veth)
+            if veth is not None:
+                interfaces[veth.veth] = veth
 
-        count += 1
+            count += 1
+    if not ignore:
+        # map gateways on interfaces
+        if veth1_ip is not None:
+            mappings_gateways[veth0.veth] = netaddr.IPNetwork(veth1_ip).ip
+        if veth0_ip is not None:
+            mappings_gateways[veth1.veth] = netaddr.IPNetwork(veth0_ip).ip
+            # set routing via
+        for route in routes0:
+            route.via = netaddr.IPNetwork(veth1.address).ip
+        for route in routes1:
+            route.via = netaddr.IPNetwork(veth0.address).ip
 
-    # map gateways on interfaces
-    if veth1_ip is not None:
-        mappings_gateways[veth0.veth] = netaddr.IPNetwork(veth1_ip).ip
-    if veth0_ip is not None:
-        mappings_gateways[veth1.veth] = netaddr.IPNetwork(veth0_ip).ip
-        # set routing via
-    for route in routes0:
-        route.via = netaddr.IPNetwork(veth1.address).ip
-    for route in routes1:
-        route.via = netaddr.IPNetwork(veth0.address).ip
+        # creating the link
+        l = emulator.elements.VirtualLink(veth0, veth1)
 
-    # creating the link
-    l = emulator.elements.VirtualLink(veth0, veth1)
+        # moving virtual interface to containers.
+        c1 = containers[mappings_container[veth0.veth]]
 
-    # moving virtual interface to containers.
-    c1 = containers[mappings_container[veth0.veth]]
+        c2 = containers[mappings_container[veth1.veth]]
 
-    c2 = containers[mappings_container[veth1.veth]]
+        # setting ip addresses and routing
+        if not veth0_ip is None:
+            mappings_ip[veth0.veth] = veth0_ip
+            c1.config_link(veth0)
+            if len(routes0) > 0:
+                c1.routing['routes'].extend(routes0)
 
-    # setting ip addresses and routing
-    if not veth0_ip is None:
-        mappings_ip[veth0.veth] = veth0_ip
-        c1.config_link(veth0)
-        if len(routes0) > 0:
-            c1.routing['routes'].extend(routes0)
+        if not veth1_ip is None:
+            mappings_ip[veth1] = veth1_ip
+            c2.config_link(veth1)
+            if len(routes1) > 0:
+                c2.routing['routes'].extend(routes1)
 
-    if not veth1_ip is None:
-        mappings_ip[veth1] = veth1_ip
-        c2.config_link(veth1)
-        if len(routes1) > 0:
-            c2.routing['routes'].extend(routes1)
-
-    return l
+        return l
+    else:
+        return None
 
 
 def parse_routes(routes_tree, routes, vinterface_id):

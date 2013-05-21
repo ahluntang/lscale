@@ -5,6 +5,7 @@ import sys
 import logging
 import os
 import random
+import time
 
 import pexpect
 
@@ -47,7 +48,8 @@ class Container(object):
         self.interfaces -- used for routing
     """
 
-    def __init__(self, container_id, container_type=ContainerType.UNSHARED, template="base", storage=BackingStore.NONE, interfaces=None):
+    def __init__(self, container_id, container_type=ContainerType.UNSHARED, template="base", storage=BackingStore.NONE,
+                 interfaces=None, ignored_interfaces=None):
         """Constructs a new Container instance.
 
         Argument is identification for the container.
@@ -77,11 +79,12 @@ class Container(object):
         if self.container_type == ContainerType.LXCCLONE:
             self.clone()
         elif self.container_type == ContainerType.LXC:
-            self.create(interfaces)
-        else:  # elif container_type == ContainerType.UNSHARED:
+            self.create(interfaces, ignored_interfaces)
+        elif self.container_type == ContainerType.UNSHARED:  # elif container_type == ContainerType.UNSHARED:
             cmd = "unshare --net /bin/bash"
 
         # create the shell
+        logging.getLogger(__name__).info("Spawn cmd: {}".format(cmd))
         self.shell = pexpect.spawn(cmd, logfile=self.logfile, timeout=None)
 
         #set prompt
@@ -132,7 +135,7 @@ class Container(object):
             else:
                 raise lxc.ContainerDoesntExists('Container {} does not exist!'.format(self.container_id))
 
-    def create(self, interfaces):
+    def create(self, interfaces, ignored_interfaces):
         if self.container_type == ContainerType.LXC:
             try:
                 base_mac = randomMAC()
@@ -141,6 +144,8 @@ class Container(object):
                 for interface in interfaces:
                     new_mac = randomMAC()
                     self.configuration.add_interface(interface, new_mac)
+                    # link already set using configuration, add to ignore list in parser.
+                    ignored_interfaces.append(interface)
 
                 self.configuration.write()
 
@@ -182,8 +187,11 @@ class Container(object):
             # log into the lxc shell
             self.shell.sendline(self.username)
             self.shell.sendline(self.password)
+            #self.shell.expect(".*Documentation.*")
+            time.sleep(10)
             self.shell.sendline("sudo su")
             self.shell.sendline(self.password)
+            logging.getLogger(__name__).info("Changed user to root.")
 
     def cleanup(self, template_environment=None):
         """Cleans up resources on destruction.
@@ -314,6 +322,32 @@ class Bridge(object):
 
         logging.getLogger(__name__).info("Added bridge %8s with address %8s", self.bridge_id, self.address)
 
+    def set_controller(self, controller=None, controller_port=None, datapath=None):
+        if controller is not None:
+            self.controller = controller
+        if controller_port is not None:
+            self.controller_port = controller_port
+        if datapath is not None:
+            self.datapath = datapath
+
+        if self.controller is not None:
+            cmd = "ovs-vsctl set Bridge {} other-config:datapath-id={}".format(self.bridge_id, self.datapath)
+            self.shell.sendline(cmd)
+
+            cmd = "ovs-vsctl set-controller {} tcp:{}:{}".format(self.bridge_id,
+                                                                 self.controller, self.controller_port)
+            self.shell.sendline(cmd)
+
+            logging.getLogger(__name__).info("Datapath for {} set to {}".format(self.bridge_id, self.datapath))
+            logging.getLogger(__name__).info(
+                "Switch {} attached to tcp:{}:{}".format(self.bridge_id, self.controller, self.controller_port))
+
+            self.shell.sendeof()
+            #for line in self.shell.readlines():
+            #    print(line)
+        else:
+            logging.getLogger(__name__).info("Switch {} has no controller".format(self.bridge_id))
+
     def __del__(self):
         try:
             self.cleanup()
@@ -331,10 +365,12 @@ class Bridge(object):
             cmd = "ifconfig %s down" % self.bridge_id
             self.shell.sendline(cmd)
 
-            if self.bridge_type == BridgeType.OPENVSWITCH:
-                cmd = "ovs-vsctl del-br %s\n" % self.bridge_id
-            else:
-                cmd = "brctl delbr %s\n" % self.bridge_id
+            # if self.bridge_type == BridgeType.OPENVSWITCH:
+            #     cmd = "ovs-vsctl del-br %s\n" % self.bridge_id
+            # else:
+            #     cmd = "brctl delbr %s\n" % self.bridge_id
+
+            cmd = "brctl delbr %s\n" % self.bridge_id
             self.shell.write(cmd)
             sys.stdout.write(".")
             sys.stdout.flush()

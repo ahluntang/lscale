@@ -25,7 +25,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     mongodb_address = "192.169.1.1"
     mongodb_port = "27017"
 
-    controller = "h001"
+    controller = "h002"
     controller_port = "6633"
 
     # Adding two hosts to topology.
@@ -33,6 +33,8 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     host1 = topology_root[host1_id]['id']
 
     host1_scripts = SetupScripts()
+    host1_scripts.prerouting = "mongodb.sh"
+    host1_scripts.add_parameter("prerouting", "mongodb_address", mongodb_address)
     host1_scripts.postrouting = "start_controller.sh"
     host1_scripts.add_parameter("postrouting", "mongodb_address", mongodb_address)
     host1_scripts.add_parameter("postrouting", "mongodb_port", mongodb_port)
@@ -72,37 +74,39 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     switch3dp = "0000000000000007"
     switch4dp = "0000000000000008"
 
-
-
-    bridge1_component = gen_components.create_bridge(host1, BridgeType.OPENVSWITCH, controller, controller_port, switch1dp)
+    bridge1_component = gen_components.create_bridge(host2, BridgeType.OPENVSWITCH, controller,
+                                                     controller_port, switch1dp)
     components[bridge1_component.component_id] = bridge1_component
     br1_id = resources.get_last_id("b")
 
-    bridge2_component = gen_components.create_bridge(host1, BridgeType.OPENVSWITCH, controller, controller_port, switch2dp)
+    bridge2_component = gen_components.create_bridge(host2, BridgeType.OPENVSWITCH, controller,
+                                                     controller_port, switch2dp)
     components[bridge2_component.component_id] = bridge2_component
     br2_id = resources.get_last_id("b")
 
-    bridge3_component = gen_components.create_bridge(host1, BridgeType.OPENVSWITCH, controller, controller_port, switch3dp)
+    bridge3_component = gen_components.create_bridge(host2, BridgeType.OPENVSWITCH, controller,
+                                                     controller_port, switch3dp)
     components[bridge3_component.component_id] = bridge3_component
     br3_id = resources.get_last_id("b")
 
-    bridge4_component = gen_components.create_bridge(host1, BridgeType.OPENVSWITCH, controller, controller_port, switch4dp)
+    bridge4_component = gen_components.create_bridge(host2, BridgeType.OPENVSWITCH, controller,
+                                                     controller_port, switch4dp)
     components[bridge4_component.component_id] = bridge4_component
     br4_id = resources.get_last_id("b")
 
-    client1_component = gen_components.create_container(host1, "rfc", ContainerType.UNSHARED)
+    client1_component = gen_components.create_container(host2, "rfc", ContainerType.UNSHARED)
     components[client1_component.component_id] = client1_component
     client1_id = resources.get_last_id("rfc")
 
-    client2_component = gen_components.create_container(host1, "rfc", ContainerType.UNSHARED)
+    client2_component = gen_components.create_container(host2, "rfc", ContainerType.UNSHARED)
     components[client2_component.component_id] = client2_component
     client2_id = resources.get_last_id("rfc")
 
-    client3_component = gen_components.create_container(host1, "rfc", ContainerType.UNSHARED)
+    client3_component = gen_components.create_container(host2, "rfc", ContainerType.UNSHARED)
     components[client3_component.component_id] = client3_component
     client3_id = resources.get_last_id("rfc")
 
-    client4_component = gen_components.create_container(host1, "rfc", ContainerType.UNSHARED)
+    client4_component = gen_components.create_container(host2, "rfc", ContainerType.UNSHARED)
     components[client4_component.component_id] = client4_component
     client4_id = resources.get_last_id("rfc")
 
@@ -146,6 +150,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
                                                        controller, controller_port, "7266767372667673")
     dp_id = resources.get_last_id("b")
     components[dataplane_component.component_id] = dataplane_component
+
     gen_components.connect_container_bridge(routeflow1_component.topology['containers'][routeflow1_id],
                                             dataplane_component.topology['bridges'][dp_id])
     gen_components.connect_container_bridge(routeflow1_component.topology['containers'][routeflow1_id],
@@ -155,14 +160,12 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     gen_components.connect_container_bridge(routeflow1_component.topology['containers'][routeflow1_id],
                                             dataplane_component.topology['bridges'][dp_id])
 
-
     gen_components.connect_container_bridge(routeflow2_component.topology['containers'][routeflow2_id],
                                             dataplane_component.topology['bridges'][dp_id])
     gen_components.connect_container_bridge(routeflow2_component.topology['containers'][routeflow2_id],
                                             dataplane_component.topology['bridges'][dp_id])
     gen_components.connect_container_bridge(routeflow2_component.topology['containers'][routeflow2_id],
                                             dataplane_component.topology['bridges'][dp_id])
-
 
     gen_components.connect_container_bridge(routeflow3_component.topology['containers'][routeflow3_id],
                                             dataplane_component.topology['bridges'][dp_id])
@@ -180,6 +183,8 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     gen_components.connect_container_bridge(routeflow4_component.topology['containers'][routeflow4_id],
                                             dataplane_component.topology['bridges'][dp_id])
 
+    # changing id for dataplane bridge.
+    dataplane_component.topology['bridges'][dp_id].bridge_id = "dp0"
 
 
     # end creating the topology
