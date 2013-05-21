@@ -15,3 +15,5 @@ EOF
 cat > /etc/quagga/zebra.conf << EOF
 {{ zebra }}
 EOF
+
+service quagga restart
