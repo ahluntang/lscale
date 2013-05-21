@@ -325,9 +325,10 @@ class Bridge(object):
 
         if self.controller is not None:
             cmd = "ovs-vsctl set Bridge {} other-config:datapath-id={}".format(self.bridge_id, self.datapath)
-            cmd += "ovs-vsctl set-controller {} tcp:{}:{}".format(self.bridge_id,
-                                                                  self.controller, self.controller_port)
+            self.shell.sendline(cmd)
 
+            cmd = "ovs-vsctl set-controller {} tcp:{}:{}".format(self.bridge_id,
+                                                                 self.controller, self.controller_port)
             self.shell.sendline(cmd)
 
             logging.getLogger(__name__).info("Datapath for {} set to {}".format(self.bridge_id, self.datapath))
