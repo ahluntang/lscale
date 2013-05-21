@@ -353,10 +353,12 @@ class Bridge(object):
             cmd = "ifconfig %s down" % self.bridge_id
             self.shell.sendline(cmd)
 
-            if self.bridge_type == BridgeType.OPENVSWITCH:
-                cmd = "ovs-vsctl del-br %s\n" % self.bridge_id
-            else:
-                cmd = "brctl delbr %s\n" % self.bridge_id
+            # if self.bridge_type == BridgeType.OPENVSWITCH:
+            #     cmd = "ovs-vsctl del-br %s\n" % self.bridge_id
+            # else:
+            #     cmd = "brctl delbr %s\n" % self.bridge_id
+
+            cmd = "brctl delbr %s\n" % self.bridge_id
             self.shell.write(cmd)
             sys.stdout.write(".")
             sys.stdout.flush()

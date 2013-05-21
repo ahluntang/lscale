@@ -95,6 +95,10 @@ def parse_host(template_environment, host, host_id, destroy):
         set_summaries(configured_host)
         set_gateways(configured_host)
 
+        # set controllers to bridges.
+        for bridge in bridges:
+            bridge.set_controller()
+
         lxcbr_macs = {}
         dp_interfaces = {}
         ## set lxcbr0 macs to host post routing variables
