@@ -47,7 +47,8 @@ class Container(object):
         self.interfaces -- used for routing
     """
 
-    def __init__(self, container_id, container_type=ContainerType.UNSHARED, template="base", storage=BackingStore.NONE, interfaces=None):
+    def __init__(self, container_id, container_type=ContainerType.UNSHARED, template="base", storage=BackingStore.NONE,
+                 interfaces=None, ignored_interfaces=None):
         """Constructs a new Container instance.
 
         Argument is identification for the container.
@@ -77,7 +78,7 @@ class Container(object):
         if self.container_type == ContainerType.LXCCLONE:
             self.clone()
         elif self.container_type == ContainerType.LXC:
-            self.create(interfaces)
+            self.create(interfaces, ignored_interfaces)
         elif self.container_type == ContainerType.UNSHARED:  # elif container_type == ContainerType.UNSHARED:
             cmd = "unshare --net /bin/bash"
 
@@ -133,7 +134,7 @@ class Container(object):
             else:
                 raise lxc.ContainerDoesntExists('Container {} does not exist!'.format(self.container_id))
 
-    def create(self, interfaces):
+    def create(self, interfaces, ignored_interfaces):
         if self.container_type == ContainerType.LXC:
             try:
                 base_mac = randomMAC()
@@ -142,6 +143,8 @@ class Container(object):
                 for interface in interfaces:
                     new_mac = randomMAC()
                     self.configuration.add_interface(interface, new_mac)
+                    # link already set using configuration, add to ignore list in parser.
+                    ignored_interfaces.append(interface)
 
                 self.configuration.write()
 
