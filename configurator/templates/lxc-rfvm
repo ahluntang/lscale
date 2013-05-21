@@ -703,7 +703,8 @@ else
     finalize_user ubuntu
 fi
 
-chroot $rootfs sysctl -w net.ipv4.ip_forward=1
+echo "Enable ip forwarding"
+chroot $rootfs sed -i "/#net.ipv4.ip_forward=1/c\net.ipv4.ip_forward=1" /etc/sysctl.conf
 
 
 echo ""
