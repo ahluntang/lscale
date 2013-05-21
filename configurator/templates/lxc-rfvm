@@ -705,8 +705,8 @@ fi
 
 echo "Enable ip forwarding"
 chroot $rootfs sed -i "/#net.ipv4.ip_forward=1/c\net.ipv4.ip_forward=1" /etc/sysctl.conf
-chroot $rootfs echo "/opt/rfclient/rfclient &" > /etc/rc.local
-chroot $rootfs echo "exit 0" >> /etc/rc.local
+echo "/opt/rfclient/rfclient &" > $rootfs/etc/rc.local
+echo "exit 0" >> $rootfs/etc/rc.local
 
 echo ""
 echo "##"
