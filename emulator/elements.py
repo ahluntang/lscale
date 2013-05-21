@@ -182,15 +182,15 @@ class Container(object):
             logging.getLogger(__name__).info("Waiting for full boot to attach console.")
             self.shell.sendline("lxc-console -n %s" % self.container_id)
             self.shell.expect('.*login.*')
-            time.sleep(2)
+            time.sleep(4)
 
             logging.getLogger(__name__).info("Container {} has successfully started, logging in.".format(self.pid))
             # log into the lxc shell
             self.shell.sendline(self.username)
             self.shell.sendline(self.password)
 
-            self.shell.expect('.*Documentation.*')
-            time.sleep(2)
+            #self.shell.expect('.*Documentation.*')
+            time.sleep(4)
             #time.sleep(5)
             self.shell.sendline("sudo su")
             self.shell.sendline(self.password)
