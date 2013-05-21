@@ -148,7 +148,7 @@ def start(container):
     '''
     Starts a container
     '''
-    if not exists(container): raise ContainerDoesntExists('Container {} does not exists!'.format(container))
+    if not exists(container): raise ContainerDoesntExists('Container {} does not exist!'.format(container))
     if container in running(): raise ContainerAlreadyRunning('Container {} is already running!'.format(container))
     return _run('lxc-start -dn {}'.format(container))
 
@@ -157,7 +157,7 @@ def stop(container):
     '''
     Stops a container
     '''
-    if not exists(container): raise ContainerDoesntExists('Container {} does not exists!'.format(container))
+    if not exists(container): raise ContainerDoesntExists('Container {} does not exist!'.format(container))
     if container in stopped(): raise ContainerNotRunning('Container {} is not running!'.format(container))
     return _run('lxc-stop -n {}'.format(container))
 
@@ -166,7 +166,7 @@ def freeze(container):
     '''
     Freezes a container
     '''
-    if not exists(container): raise ContainerDoesntExists('Container {} does not exists!'.format(container))
+    if not exists(container): raise ContainerDoesntExists('Container {} does not exist!'.format(container))
     if not container in running(): raise ContainerNotRunning('Container {} is not running!'.format(container))
     return _run('lxc-freeze -n {}'.format(container))
 
@@ -175,7 +175,7 @@ def unfreeze(container):
     '''
     Unfreezes a container
     '''
-    if not exists(container): raise ContainerDoesntExists('Container {} does not exists!'.format(container))
+    if not exists(container): raise ContainerDoesntExists('Container {} does not exist!'.format(container))
     if not container in frozen(): raise ContainerNotRunning('Container {} is not frozen!'.format(container))
     return _run('lxc-unfreeze -n {}'.format(container))
 
@@ -184,7 +184,7 @@ def destroy(container):
     '''
     Destroys a container
     '''
-    if not exists(container): raise ContainerDoesntExists('Container {} does not exists!'.format(container))
+    if not exists(container): raise ContainerDoesntExists('Container {} does not exist!'.format(container))
     return _run('lxc-destroy -fn {}'.format(container))
 
 

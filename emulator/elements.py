@@ -161,6 +161,7 @@ class Container(object):
 
             if lxc.exists(self.container_id):
                 lxc.start(self.container_id)
+                time.sleep(5)
             else:
                 raise lxc.ContainerDoesntExists('Container {} does not exist!'.format(self.container_id))
 
@@ -181,17 +182,20 @@ class Container(object):
                                              "changing pid to {}.".format(self.container_id, self.pid))
             logging.getLogger(__name__).info("Waiting for full boot to attach console.")
             self.shell.sendline("lxc-console -n %s" % self.container_id)
-            self.shell.expect(".* login:")
+            self.shell.expect('.*login.*')
+            time.sleep(4)
 
             logging.getLogger(__name__).info("Container {} has successfully started, logging in.".format(self.pid))
             # log into the lxc shell
             self.shell.sendline(self.username)
             self.shell.sendline(self.password)
-            #self.shell.expect(".*Documentation.*")
-            time.sleep(10)
+
+            #self.shell.expect('.*Documentation.*')
+            time.sleep(4)
+            #time.sleep(5)
             self.shell.sendline("sudo su")
             self.shell.sendline(self.password)
-            logging.getLogger(__name__).info("Changed user to root.")
+            logging.getLogger(__name__).info("{}: changed user to root.".format(self.container_id))
 
     def cleanup(self, template_environment=None):
         """Cleans up resources on destruction.
