@@ -96,7 +96,7 @@ def parse_host(template_environment, host, host_id, destroy):
         set_gateways(configured_host)
 
         # set controllers to bridges.
-        for bridge in bridges:
+        for bridge_id, bridge in bridges.items():
             bridge.set_controller()
 
         lxcbr_macs = {}
