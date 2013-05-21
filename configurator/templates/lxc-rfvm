@@ -165,7 +165,7 @@ download_ubuntu()
     arch=$2
     release=$3
 
-    packages=vim,ssh
+    packages=vim,ssh,quagga,libboost-thread-dev,libboost-system-dev,libboost-filesystem-dev,libboost-program-options-dev,rsyslog,vlan,tcpdump
     echo "installing packages: $packages"
 
     trap cleanup EXIT SIGHUP SIGINT SIGTERM
@@ -478,8 +478,8 @@ post_process()
 
         chroot $rootfs apt-get update
         chroot $rootfs apt-get install --force-yes -y lxcguest
-        echo "Installing Routeflow dependencies..."
-        chroot $rootfs apt-get install --force-yes -y quagga libboost-thread-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev rsyslog vlan tcpdump
+        #echo "Installing Routeflow dependencies..."
+        #chroot $rootfs apt-get install --force-yes -y quagga libboost-thread-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev rsyslog vlan tcpdump
 
         # Restore old resolv.conf
         rm -f ${cresolvonf}
