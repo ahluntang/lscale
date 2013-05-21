@@ -703,9 +703,12 @@ else
     finalize_user ubuntu
 fi
 
+chroot $rootfs sysctl -w net.ipv4.ip_forward=1
+
+
 echo ""
 echo "##"
 echo "# The default user is 'ubuntu' with password 'ubuntu'!"
-echo "# Use the 'sudo' command to run tasks as root in the container."
+echo "# The 'root' password is 'root'!"
 echo "##"
 echo ""
