@@ -315,6 +315,27 @@ class Bridge(object):
 
         logging.getLogger(__name__).info("Added bridge %8s with address %8s", self.bridge_id, self.address)
 
+    def set_controller(self, controller=None, controller_port=None, datapath=None):
+        if controller is not None:
+            self.controller = controller
+        if controller_port is not None:
+            self.controller_port = controller_port
+        if datapath is not None:
+            self.datapath = datapath
+
+        if self.controller is not None:
+            cmd = "ovs-vsctl set Bridge {} other-config:datapath-id={}".format(self.bridge_id, self.datapath)
+            cmd += "ovs-vsctl set-controller {} tcp:{}:{}".format(self.bridge_id,
+                                                                  self.controller, self.controller_port)
+
+            self.shell.sendline(cmd)
+
+            logging.getLogger(__name__).info("Datapath for {} set to {}".format(self.bridge_id, self.datapath))
+            logging.getLogger(__name__).info(
+                "Switch {} attached to tcp:{}:{}".format(self.bridge_id, self.controller, self.controller_port))
+        else:
+            logging.getLogger(__name__).info("Switch {} has no controller".format(self.bridge_id))
+
     def __del__(self):
         try:
             self.cleanup()

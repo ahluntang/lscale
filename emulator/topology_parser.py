@@ -9,7 +9,7 @@ import threading
 
 import lxml.etree as ET
 import emulator.elements
-from utilities import ContainerType, BridgeType, is_lxc, BackingStore
+from utilities import ContainerType, BridgeType, is_lxc, BackingStore, systemconfig
 
 
 def parse(filename, template_environment, parsed_topology, host_id, destroy):
@@ -284,7 +284,8 @@ def parse_bridge(bridge):
 
     controller = bridge.find("controller")
     if controller is not None:
-        b.controller = controller.text
+        b.controller = systemconfig.nodes[controller.text]
+        #b.controller = controller.text
 
     controller_port = bridge.find("controller_port")
     if controller_port is not None:
