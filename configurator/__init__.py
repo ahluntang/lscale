@@ -132,6 +132,7 @@ def build_routeflow(create_vms=False):
         raise exceptions.ConfiguratorException(e)
 
     make_rfvm_template()
+    create_container("baserfvm", "lvm", "rfvm")
 
 def make_rfvm_template():
     print("Setting up rfvm template for RouteFlow.")
