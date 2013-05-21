@@ -9,7 +9,8 @@
 
 cd RouteFlow
 export PATH=$PATH:/usr/local/bin:/usr/local/sbin
-export PYTHONPATH=$PYTHONPATH:.
+DIR=`pwd`
+export PYTHONPATH=$PYTHONPATH:${DIR}
 echo $PATH
 echo $PYTHONPATH
 
