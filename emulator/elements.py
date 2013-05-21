@@ -336,8 +336,8 @@ class Bridge(object):
                 "Switch {} attached to tcp:{}:{}".format(self.bridge_id, self.controller, self.controller_port))
 
             self.shell.sendeof()
-            for line in self.shell.readlines():
-                print(line)
+            #for line in self.shell.readlines():
+            #    print(line)
         else:
             logging.getLogger(__name__).info("Switch {} has no controller".format(self.bridge_id))
 
