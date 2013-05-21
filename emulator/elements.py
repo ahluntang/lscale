@@ -5,6 +5,7 @@ import sys
 import logging
 import os
 import random
+import time
 
 import pexpect
 
@@ -186,7 +187,8 @@ class Container(object):
             # log into the lxc shell
             self.shell.sendline(self.username)
             self.shell.sendline(self.password)
-            self.shell.expect(".*Documentation.*")
+            #self.shell.expect(".*Documentation.*")
+            time.sleep(10)
             self.shell.sendline("sudo su")
             self.shell.sendline(self.password)
             logging.getLogger(__name__).info("Changed user to root.")
