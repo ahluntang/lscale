@@ -173,7 +173,7 @@ def connect_containers(c1, c2, c1_component=None, c2_component=None, addressing_
     c2.add_interface(c2_interface)
 
 
-def connect_container_bridge(container, bridge, container_component=None, addressing_scheme=None):
+def connect_container_bridge(container, bridge, container_component=None, addressing_scheme=None, container_ip=None):
     link_id = used_resources.get_new_link_id()
 
     container_interface_id = "%s.%03d" % (container.container_id, container.get_next_interface() )
@@ -191,6 +191,11 @@ def connect_container_bridge(container, bridge, container_component=None, addres
 
         if container_component is not None:
             container_component.addresses.append(address)
+    elif container_ip is not None:
+        container_interface.address = container_ip
+        gateway = str(netaddr.IPNetwork(container_ip)[1])
+        container.gateway = gateway
+        bridge.address = gateway
 
     container.add_interface(container_interface)
     bridge.add_interface(bridge_interface)
@@ -293,14 +298,14 @@ def create_bridge(host, bridgetype=BridgeType.BRIDGE, controller=None, controlle
 
 
 def create_container(host, prefix="c", container_type=ContainerType.UNSHARED, template="base",
-                     storage=BackingStore.NONE, scripts=SetupScripts()):
+                     storage=BackingStore.NONE, scripts=SetupScripts(), username="ubuntu", password="ubuntu"):
     component = NetworkComponent()
     logging.getLogger(__name__).info("Creating containercomponent (%s)", component.component_id)
     component.host_id = host.container_id
     component.type = "container"
 
     container_id = used_resources.get_new_id(prefix)
-    container = Container(container_id, container_type, template)
+    container = Container(container_id, container_type, template, username, password)
     container.container_id = container.container_id
     container.storage = storage
     container.scripts = scripts

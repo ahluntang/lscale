@@ -33,6 +33,14 @@ def write_topology_xml(topology_root, output):
             contype_element = ET.SubElement(container_tree, 'type')
             contype_element.text = str(container.container_type.name)
 
+            # adding username and password
+            if container.username is not None:
+                uname_element = ET.SubElement(container_tree, 'username')
+                uname_element.text = container.username
+            if container.password is not None:
+                pw_element = ET.SubElement(container_tree, 'password')
+                pw_element.text = container.password
+
             if is_lxc(container.container_type):
                 template_element = ET.SubElement(container_tree, 'template')
                 template_element.text = container.template
@@ -88,6 +96,7 @@ def write_topology_xml(topology_root, output):
             if container.gateway is not None:
                 gw_element = ET.SubElement(container_tree, 'gateway')
                 gw_element.text = container.gateway
+
 
             # get interfaces
             for interface in container.interfaces:

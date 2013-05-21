@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-sleep 3
+sleep 10
 /etc/init.d/quagga start

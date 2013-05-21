@@ -134,6 +134,15 @@ def build_routeflow(create_vms=False):
     make_rfvm_template()
     create_container("baserfvm", "lvm", "rfvm")
 
+    print("Moving rfclient to rfvm.")
+    cmd = "cp -r ./RouteFlow/build /var/cache/lxc/precise-rfvm/rootfs-amd64/opt/rfclient"
+
+    try:
+        script.command(cmd)
+    except exceptions.ScriptException as e:
+        raise exceptions.ConfiguratorException(e)
+
+
 def make_rfvm_template():
     print("Setting up rfvm template for RouteFlow.")
     if os.geteuid() != 0:

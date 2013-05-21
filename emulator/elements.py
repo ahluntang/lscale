@@ -189,13 +189,14 @@ class Container(object):
             # log into the lxc shell
             self.shell.sendline(self.username)
             self.shell.sendline(self.password)
+            if self.username != "root":
+                #self.shell.expect('.*Documentation.*')
+                time.sleep(4)
+                #time.sleep(5)
 
-            #self.shell.expect('.*Documentation.*')
-            time.sleep(4)
-            #time.sleep(5)
-            self.shell.sendline("sudo su")
-            self.shell.sendline(self.password)
-            logging.getLogger(__name__).info("{}: changed user to root.".format(self.container_id))
+                self.shell.sendline("sudo su")
+                self.shell.sendline(self.password)
+                logging.getLogger(__name__).info("{}: changed user to root.".format(self.container_id))
 
     def cleanup(self, template_environment=None):
         """Cleans up resources on destruction.
