@@ -173,7 +173,7 @@ def connect_containers(c1, c2, c1_component=None, c2_component=None, addressing_
     c2.add_interface(c2_interface)
 
 
-def connect_container_bridge(container, bridge, container_component=None, addressing_scheme=None):
+def connect_container_bridge(container, bridge, container_component=None, addressing_scheme=None, container_ip=None):
     link_id = used_resources.get_new_link_id()
 
     container_interface_id = "%s.%03d" % (container.container_id, container.get_next_interface() )
@@ -191,6 +191,11 @@ def connect_container_bridge(container, bridge, container_component=None, addres
 
         if container_component is not None:
             container_component.addresses.append(address)
+    elif container_ip is not None:
+        container_interface.address = container_ip
+        gateway = str(netaddr.IPNetwork(container_ip)[1])
+        container.gateway = gateway
+        bridge.address = gateway
 
     container.add_interface(container_interface)
     bridge.add_interface(bridge_interface)

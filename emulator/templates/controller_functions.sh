@@ -15,7 +15,7 @@ echo $PATH
 echo $PYTHONPATH
 
 #make clean
-make rfclient
+#make rfclient
 
 wait_port_listen() {
     port=$1
