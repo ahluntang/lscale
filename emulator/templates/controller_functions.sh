@@ -42,6 +42,8 @@ kill_process_tree() {
     fi
 }
 
+echo_bold "-> Setting up the management bridge (lxcbr0)..."
+ifconfig lxcbr0 ${1} up
 
 echo "-> Setting up MongoDB..."
 #sed -i "/bind_ip/c\bind_ip = 127.0.0.1,${1}" $MONGODB_CONF

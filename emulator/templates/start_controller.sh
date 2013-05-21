@@ -5,7 +5,7 @@
 {% endfor %}
 
 
-./emulator/templates/controller_functions.sh {{ mongodb_address }} {{ mongodb_port }} {{ controller_port }}
+./emulator/templates/controller_functions.sh l{{ mongodb_port }} {{ controller_port }}
 
 cd RouteFlow
 export PATH=$PATH:/usr/local/bin:/usr/local/sbin

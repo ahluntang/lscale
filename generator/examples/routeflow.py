@@ -22,10 +22,10 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
 
     # begin creating the topology
 
-    mongodb_address = "192.169.2.1"
+    mongodb_address = "192.169.1.1"
     mongodb_port = "27017"
 
-    controller = "h001"
+    controller = "h002"
     controller_port = "6633"
 
     # Adding two hosts to topology.
