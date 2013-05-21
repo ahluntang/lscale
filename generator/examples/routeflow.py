@@ -33,6 +33,8 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     host1 = topology_root[host1_id]['id']
 
     host1_scripts = SetupScripts()
+    host1_scripts.prerouting = "mongodb.sh"
+    host1_scripts.add_parameter("prerouting", "mongodb_address", mongodb_address)
     host1_scripts.postrouting = "start_controller.sh"
     host1_scripts.add_parameter("postrouting", "mongodb_address", mongodb_address)
     host1_scripts.add_parameter("postrouting", "mongodb_port", mongodb_port)
