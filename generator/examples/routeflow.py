@@ -49,23 +49,23 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     rfvm_scripts.routing = "routing.sh"
     rfvm_scripts.postrouting = "run_rfclient.sh"
 
-    routeflow1_component = gen_components.create_container(host1, "rfvm", ContainerType.LXC,
-                                                           "ubuntu", BackingStore.LVM, rfvm_scripts)
+    routeflow1_component = gen_components.create_container(host1, "rfvm", ContainerType.LXC, "rfvm", BackingStore.LVM,
+                                                           rfvm_scripts, "root", "root")
     routeflow1_id = resources.get_last_id("rfvm")
     components[routeflow1_component.component_id] = routeflow1_component
 
-    routeflow2_component = gen_components.create_container(host1, "rfvm", ContainerType.LXC,
-                                                           "ubuntu", BackingStore.LVM, rfvm_scripts)
+    routeflow2_component = gen_components.create_container(host1, "rfvm", ContainerType.LXC, "rfvm", BackingStore.LVM,
+                                                           rfvm_scripts, "root", "root")
     routeflow2_id = resources.get_last_id("rfvm")
     components[routeflow2_component.component_id] = routeflow2_component
 
-    routeflow3_component = gen_components.create_container(host1, "rfvm", ContainerType.LXC,
-                                                           "ubuntu", BackingStore.LVM, rfvm_scripts)
+    routeflow3_component = gen_components.create_container(host1, "rfvm", ContainerType.LXC, "rfvm", BackingStore.LVM,
+                                                           rfvm_scripts, "root", "root")
     routeflow3_id = resources.get_last_id("rfvm")
     components[routeflow3_component.component_id] = routeflow3_component
 
-    routeflow4_component = gen_components.create_container(host1, "rfvm", ContainerType.LXC,
-                                                           "ubuntu", BackingStore.LVM, rfvm_scripts)
+    routeflow4_component = gen_components.create_container(host1, "rfvm", ContainerType.LXC, "rfvm", BackingStore.LVM,
+                                                           rfvm_scripts, "root", "root")
     routeflow4_id = resources.get_last_id("rfvm")
     components[routeflow4_component.component_id] = routeflow4_component
 

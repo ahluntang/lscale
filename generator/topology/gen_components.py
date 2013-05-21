@@ -293,14 +293,14 @@ def create_bridge(host, bridgetype=BridgeType.BRIDGE, controller=None, controlle
 
 
 def create_container(host, prefix="c", container_type=ContainerType.UNSHARED, template="base",
-                     storage=BackingStore.NONE, scripts=SetupScripts()):
+                     storage=BackingStore.NONE, scripts=SetupScripts(), username="ubuntu", password="ubuntu"):
     component = NetworkComponent()
     logging.getLogger(__name__).info("Creating containercomponent (%s)", component.component_id)
     component.host_id = host.container_id
     component.type = "container"
 
     container_id = used_resources.get_new_id(prefix)
-    container = Container(container_id, container_type, template)
+    container = Container(container_id, container_type, template, username, password)
     container.container_id = container.container_id
     container.storage = storage
     container.scripts = scripts
