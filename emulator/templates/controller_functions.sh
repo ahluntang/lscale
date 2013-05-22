@@ -56,8 +56,8 @@ echo_bold "-> Starting the controller and RFPRoxy..."
 cd pox
 ./pox.py log.level --=INFO topology openflow.topology openflow.discovery rfproxy rfstats &
 cd -
-wait_port_listen ${3}
-#sleep 10
+#wait_port_listen ${3}
+sleep 10
 
 #echo_bold "-> Creating rfconfig.csv ... "
 
