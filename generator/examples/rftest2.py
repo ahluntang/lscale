@@ -177,42 +177,42 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
                                                        controller, controller_port, "7266767372667673")
     dp_id = resources.get_last_id("b")
     components[dataplane_component.component_id] = dataplane_component
-
-    gen_components.connect_container_bridge(routeflow1_component.topology['containers'][routeflow1_id],
-                                            dataplane_component.topology['bridges'][dp_id])
-    gen_components.connect_container_bridge(routeflow1_component.topology['containers'][routeflow1_id],
-                                            dataplane_component.topology['bridges'][dp_id])
-    gen_components.connect_container_bridge(routeflow1_component.topology['containers'][routeflow1_id],
-                                            dataplane_component.topology['bridges'][dp_id])
-    gen_components.connect_container_bridge(routeflow1_component.topology['containers'][routeflow1_id],
-                                            dataplane_component.topology['bridges'][dp_id])
-
-    gen_components.connect_container_bridge(routeflow2_component.topology['containers'][routeflow2_id],
-                                            dataplane_component.topology['bridges'][dp_id])
-    gen_components.connect_container_bridge(routeflow2_component.topology['containers'][routeflow2_id],
-                                            dataplane_component.topology['bridges'][dp_id])
-    gen_components.connect_container_bridge(routeflow2_component.topology['containers'][routeflow2_id],
-                                            dataplane_component.topology['bridges'][dp_id])
-
-    gen_components.connect_container_bridge(routeflow3_component.topology['containers'][routeflow3_id],
-                                            dataplane_component.topology['bridges'][dp_id])
-    gen_components.connect_container_bridge(routeflow3_component.topology['containers'][routeflow3_id],
-                                            dataplane_component.topology['bridges'][dp_id])
-    gen_components.connect_container_bridge(routeflow3_component.topology['containers'][routeflow3_id],
-                                            dataplane_component.topology['bridges'][dp_id])
-
-    gen_components.connect_container_bridge(routeflow4_component.topology['containers'][routeflow4_id],
-                                            dataplane_component.topology['bridges'][dp_id])
-    gen_components.connect_container_bridge(routeflow4_component.topology['containers'][routeflow4_id],
-                                            dataplane_component.topology['bridges'][dp_id])
-    gen_components.connect_container_bridge(routeflow4_component.topology['containers'][routeflow4_id],
-                                            dataplane_component.topology['bridges'][dp_id])
-    gen_components.connect_container_bridge(routeflow4_component.topology['containers'][routeflow4_id],
-                                            dataplane_component.topology['bridges'][dp_id])
-
     # changing id for dataplane bridge.
     dataplane_component.topology['bridges'][dp_id].bridge_id = "dp0"
     dataplane_component.topology['bridges'][dp_id].address = mongodb_address
+
+    gen_components.connect_container_bridge(routeflow1_component.topology['containers'][routeflow1_id],
+                                            dataplane_component.topology['bridges'][dp_id])
+    gen_components.connect_container_bridge(routeflow1_component.topology['containers'][routeflow1_id],
+                                            dataplane_component.topology['bridges'][dp_id])
+    gen_components.connect_container_bridge(routeflow1_component.topology['containers'][routeflow1_id],
+                                            dataplane_component.topology['bridges'][dp_id])
+    gen_components.connect_container_bridge(routeflow1_component.topology['containers'][routeflow1_id],
+                                            dataplane_component.topology['bridges'][dp_id])
+
+    gen_components.connect_container_bridge(routeflow2_component.topology['containers'][routeflow2_id],
+                                            dataplane_component.topology['bridges'][dp_id])
+    gen_components.connect_container_bridge(routeflow2_component.topology['containers'][routeflow2_id],
+                                            dataplane_component.topology['bridges'][dp_id])
+    gen_components.connect_container_bridge(routeflow2_component.topology['containers'][routeflow2_id],
+                                            dataplane_component.topology['bridges'][dp_id])
+
+    gen_components.connect_container_bridge(routeflow3_component.topology['containers'][routeflow3_id],
+                                            dataplane_component.topology['bridges'][dp_id])
+    gen_components.connect_container_bridge(routeflow3_component.topology['containers'][routeflow3_id],
+                                            dataplane_component.topology['bridges'][dp_id])
+    gen_components.connect_container_bridge(routeflow3_component.topology['containers'][routeflow3_id],
+                                            dataplane_component.topology['bridges'][dp_id])
+
+    gen_components.connect_container_bridge(routeflow4_component.topology['containers'][routeflow4_id],
+                                            dataplane_component.topology['bridges'][dp_id])
+    gen_components.connect_container_bridge(routeflow4_component.topology['containers'][routeflow4_id],
+                                            dataplane_component.topology['bridges'][dp_id])
+    gen_components.connect_container_bridge(routeflow4_component.topology['containers'][routeflow4_id],
+                                            dataplane_component.topology['bridges'][dp_id])
+    gen_components.connect_container_bridge(routeflow4_component.topology['containers'][routeflow4_id],
+                                            dataplane_component.topology['bridges'][dp_id])
+
 
 
     # end creating the topology
