@@ -297,6 +297,9 @@ class Bridge(object):
             Default value: 0.0.0.0
         """
 
+        # bridges must be cleaned after class destruction
+        cleanup_bridges.append(self)
+
         logging.getLogger(__name__).info("Creating bridge %8s" % bridge_id)
 
         self.bridge_id = bridge_id
@@ -307,10 +310,16 @@ class Bridge(object):
         self.datapath = datapath
         self.interfaces = []
 
-        # bridges must be cleaned after class destruction
-        cleanup_bridges.append(self)
 
-        self.shell = pexpect.spawn("/bin/bash")
+
+        logdir = "logs/bridge_logs"
+        if not os.path.exists(logdir):
+            os.makedirs(logdir)
+
+        self.log_location = "%s/%s.log" % (logdir, bridge_id)
+        self.logfile = open(self.log_location, 'w+')
+
+        self.shell = pexpect.spawn("/bin/bash", logfile=self.logfile)
 
         # creating bridge
         if self.bridge_type == BridgeType.OPENVSWITCH:
@@ -418,15 +427,21 @@ class VirtualLink(object):
 
         Arguments are the identification of the virtual interfaces veth0 and veth1
         """
+        # links must be cleaned after class destruction
+        cleanup_links.append(self)
 
         logging.getLogger(__name__).info("Creating virtual link %8s - %8s", veth0.veth, veth1.veth)
         self.veth0 = veth0
         self.veth1 = veth1
 
-        # links must be cleaned after class destruction
-        cleanup_links.append(self)
+        logdir = "logs/link_logs"
+        if not os.path.exists(logdir):
+            os.makedirs(logdir)
 
-        self.shell = pexpect.spawn("/bin/bash")
+        self.log_location = "%s/%s.log" % (logdir, "{}-{}".format(veth0, veth1))
+        self.logfile = open(self.log_location, 'w+')
+
+        self.shell = pexpect.spawn("/bin/bash", logfile=self.logfile)
 
         # create the link
         create_link_cmd = "ip link add name %s type veth peer name  %s" % (self.veth0.veth, self.veth1.veth)
