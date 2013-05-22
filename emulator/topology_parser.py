@@ -97,6 +97,7 @@ def parse_host(template_environment, host, host_id, destroy):
         set_gateways(configured_host)
 
         # set controllers to bridges.
+        time.sleep(20)
         for bridge_id, bridge in bridges.items():
             bridge.set_controller()
 

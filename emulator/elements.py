@@ -345,8 +345,6 @@ class Bridge(object):
         if datapath is not None:
             self.datapath = datapath
 
-        time.sleep(4)
-
         if self.controller is not None:
             cmd = "ovs-vsctl set Bridge {} other-config:datapath-id={}".format(self.bridge_id, self.datapath)
             self.shell.sendline(cmd)
