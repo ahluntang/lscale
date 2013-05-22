@@ -290,7 +290,7 @@ def parse_bridge(bridge):
     b = emulator.elements.Bridge(bridge_id, ip, bridge_type)
 
     controller = bridge.find("controller")
-    if controller is not None:
+    if controller is not None and controller.text in systemconfig.nodes:
         b.controller = systemconfig.nodes[controller.text]
         #b.controller = controller.text
 
