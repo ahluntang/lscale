@@ -338,6 +338,7 @@ class Bridge(object):
         logging.getLogger(__name__).info("Added bridge %8s with address %8s", self.bridge_id, self.address)
 
     def set_controller(self, controller=None, controller_port=None, datapath=None):
+        logging.getLogger(__name__).info("Setting datapath for {} to {}".format(self.bridge_id, self.datapath))
         if controller is not None:
             self.controller = controller
         if controller_port is not None:
