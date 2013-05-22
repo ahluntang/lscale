@@ -24,7 +24,6 @@ wait_port_listen() {
         sleep 1
     done
 }
-echo "SCRIPTFINISHED"
 echo_bold() {
     echo -e "\033[1m${1}\033[0m"
 }
@@ -61,3 +60,4 @@ wait_port_listen ${3}
 #sleep 10
 
 #echo_bold "-> Creating rfconfig.csv ... "
+
