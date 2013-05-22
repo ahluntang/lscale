@@ -96,11 +96,6 @@ def parse_host(template_environment, host, host_id, destroy):
         set_summaries(configured_host)
         set_gateways(configured_host)
 
-        # set controllers to bridges.
-        time.sleep(20)
-        for bridge_id, bridge in bridges.items():
-            bridge.set_controller()
-
         lxcbr_macs = {}
         dp_interfaces = {}
         ## set lxcbr0 macs to host post routing variables
@@ -126,6 +121,10 @@ def parse_host(template_environment, host, host_id, destroy):
             #run post routing script
             container.run_post_routing(template_environment)
 
+        logging.getLogger(__name__).info("Set controllers to bridges.")
+        time.sleep(20)
+        for bridge_id, bridge in bridges.items():
+            bridge.set_controller()
 
         return configured_host
     else:
