@@ -98,10 +98,6 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
                                             dataplane_component.topology['bridges'][dp_id], routeflow=True)
     gen_components.connect_container_bridge(routeflow1_component.topology['containers'][routeflow1_id],
                                             dataplane_component.topology['bridges'][dp_id], routeflow=True)
-    gen_components.connect_container_bridge(routeflow1_component.topology['containers'][routeflow1_id],
-                                            dataplane_component.topology['bridges'][dp_id], routeflow=True)
-    gen_components.connect_container_bridge(routeflow1_component.topology['containers'][routeflow1_id],
-                                            dataplane_component.topology['bridges'][dp_id], routeflow=True)
 
     # end creating the topology
     # After every component has been created
