@@ -83,22 +83,22 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     rfvmD_scripts.add_parameter("prerouting", "zebra", quagga_zebra("rfvmD"))
 
 
-    routeflow1_component = gen_components.create_container(host1, "rfvm", ContainerType.LXC, "rfvm", BackingStore.LVM,
+    routeflow1_component = gen_components.create_container(host1, "rfvm", ContainerType.LXC, "rfvm", BackingStore.NONE,
                                                            rfvmA_scripts, "root", "root")
     routeflow1_id = resources.get_last_id("rfvm")
     components[routeflow1_component.component_id] = routeflow1_component
 
-    routeflow2_component = gen_components.create_container(host1, "rfvm", ContainerType.LXC, "rfvm", BackingStore.LVM,
+    routeflow2_component = gen_components.create_container(host1, "rfvm", ContainerType.LXC, "rfvm", BackingStore.NONE,
                                                            rfvmB_scripts, "root", "root")
     routeflow2_id = resources.get_last_id("rfvm")
     components[routeflow2_component.component_id] = routeflow2_component
 
-    routeflow3_component = gen_components.create_container(host1, "rfvm", ContainerType.LXC, "rfvm", BackingStore.LVM,
+    routeflow3_component = gen_components.create_container(host1, "rfvm", ContainerType.LXC, "rfvm", BackingStore.NONE,
                                                            rfvmC_scripts, "root", "root")
     routeflow3_id = resources.get_last_id("rfvm")
     components[routeflow3_component.component_id] = routeflow3_component
 
-    routeflow4_component = gen_components.create_container(host1, "rfvm", ContainerType.LXC, "rfvm", BackingStore.LVM,
+    routeflow4_component = gen_components.create_container(host1, "rfvm", ContainerType.LXC, "rfvm", BackingStore.NONE,
                                                            rfvmD_scripts, "root", "root")
     routeflow4_id = resources.get_last_id("rfvm")
     components[routeflow4_component.component_id] = routeflow4_component

@@ -106,6 +106,8 @@ def parse_host(template_environment, host, host_id, destroy):
         containers[current_host_id].postrouting['lxcbrmacs'] = lxcbr_macs
         containers[current_host_id].postrouting['dpinterfaces'] = dp_interfaces
 
+        print(containers[current_host_id].postrouting['dpinterfaces'])
+
         for interface_id, gateway in mappings_gateways.items():
             logging.getLogger(__name__).info("%s->%s", interface_id, gateway)
 
@@ -122,7 +124,6 @@ def parse_host(template_environment, host, host_id, destroy):
             container.run_post_routing(template_environment)
 
         logging.getLogger(__name__).info("Set controllers to bridges.")
-        time.sleep(20)
         for bridge_id, bridge in bridges.items():
             bridge.set_controller()
 
