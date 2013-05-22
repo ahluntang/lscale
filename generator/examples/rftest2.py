@@ -421,6 +421,9 @@ log file /var/log/quagga/zebra.log
 password 123
 enable password 123
 !
+interface eth0
+    ip address 192.169.1.101/24
+!
 interface eth1
     ip address 172.31.1.1/24
 !
@@ -443,6 +446,9 @@ log file /var/log/quagga/zebra.log
 password 123
 enable password 123
 !
+interface eth0
+    ip address 192.169.1.102/24
+!
 interface eth1
         ip address 172.31.2.1/24
 !
@@ -463,6 +469,9 @@ log file /var/log/quagga/zebra.log
 password 123
 enable password 123
 !
+interface eth0
+    ip address 192.169.1.103/24
+!
 interface eth1
         ip address 172.31.3.1/24
 !
@@ -482,6 +491,9 @@ enable password routeflow
 log file /var/log/quagga/zebra.log
 password 123
 enable password 123
+!
+interface eth0
+    ip address 192.169.1.104/24
 !
 interface eth1
         ip address 172.31.4.1/24
