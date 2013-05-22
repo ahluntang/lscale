@@ -22,8 +22,8 @@ CT_ID=0
 DP_ID=5
 DP_PORT=1
 echo "vm_id,vm_port,ct_id,dp_id,dp_port" > rfconfig.csv
-{% for container_name, interfaces in dpinterfaces.items()|dictsort %}
-    {% for interface, mac in interfaces.items()|dictsort %}
+{% for interfaces in dpinterfaces|dictsort %}
+    {% for mac in interfaces|dictsort %}
         echo "{{ mac }},${VM_PORT},${CT_ID},${DP_ID},${DP_PORT}" >> rfconfig.csv
         VM_PORT=$[$VM_PORT+1]
         DP_PORT=$[DP_PORT+1]
