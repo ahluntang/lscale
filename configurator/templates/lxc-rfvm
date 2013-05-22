@@ -168,7 +168,7 @@ download_ubuntu()
     arch=$2
     release=$3
 
-    packages=vim,ssh,quagga,libboost-thread-dev,libboost-system-dev,libboost-filesystem-dev,libboost-program-options-dev,rsyslog,vlan,tcpdump
+    packages=vim,ssh,quagga,libboost-thread-dev,libboost-system-dev,libboost-filesystem-dev,libboost-program-options-dev,rsyslog,vlan,tcpdump,netcat-traditional
     echo "installing packages: $packages"
 
     trap cleanup EXIT SIGHUP SIGINT SIGTERM
