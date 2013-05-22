@@ -127,19 +127,26 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     components[bridge4_component.component_id] = bridge4_component
     br4_id = resources.get_last_id("b")
 
-    client1_component = gen_components.create_container(host2, "rfc", ContainerType.UNSHARED)
+    clientscripts = SetupScripts()
+    clientscripts.routing = "routing.sh"
+
+    client1_component = gen_components.create_container(host2, "rfc", ContainerType.UNSHARED,
+                                                        scripts=clientscripts)
     components[client1_component.component_id] = client1_component
     client1_id = resources.get_last_id("rfc")
 
-    client2_component = gen_components.create_container(host2, "rfc", ContainerType.UNSHARED)
+    client2_component = gen_components.create_container(host2, "rfc", ContainerType.UNSHARED,
+                                                        scripts=clientscripts)
     components[client2_component.component_id] = client2_component
     client2_id = resources.get_last_id("rfc")
 
-    client3_component = gen_components.create_container(host2, "rfc", ContainerType.UNSHARED)
+    client3_component = gen_components.create_container(host2, "rfc", ContainerType.UNSHARED,
+                                                        scripts=clientscripts)
     components[client3_component.component_id] = client3_component
     client3_id = resources.get_last_id("rfc")
 
-    client4_component = gen_components.create_container(host2, "rfc", ContainerType.UNSHARED)
+    client4_component = gen_components.create_container(host2, "rfc", ContainerType.UNSHARED,
+                                                        scripts=clientscripts)
     components[client4_component.component_id] = client4_component
     client4_id = resources.get_last_id("rfc")
 
