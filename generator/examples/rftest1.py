@@ -89,6 +89,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
                                                        controller, controller_port, "7266767372667673")
     dp_id = resources.get_last_id("b")
     components[dataplane_component.component_id] = dataplane_component
+
     # changing id for dataplane bridge.
     dataplane_component.topology['bridges'][dp_id].bridge_id = "dp0"
     dataplane_component.topology['bridges'][dp_id].address = mongodb_address
@@ -115,7 +116,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
 def quagga_daemons():
 
     return """
-zebra=no
+zebra=yes
 bgpd=no
 ospfd=no
 ospf6d=no
@@ -146,5 +147,20 @@ def quagga_ospf(rfvm):
 def quagga_zebra(rfvm):
     if rfvm == "rfvm1":
         return """
-
+password routeflow
+enable password routeflow
+!
+log file /var/log/quagga/zebra.log
+password 123
+enable password 123
+!
+interface eth0
+    ip address 192.169.1.101/24
+!
+interface eth1
+    ip address 172.31.1.1/24
+!
+interface eth2
+    ip address 172.31.2.1/24
+!
 """
