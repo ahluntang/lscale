@@ -179,6 +179,8 @@ def set_gateways(configured_host):
             gw_address = configured_host['mappings_gateways'][gw_interface]
             route = emulator.elements.Route(gw_address, gw_interface)
             container.routing['gateway'] = route
+        elif gw_interface is not None:
+            container.routing['gateway'] = emulator.elements.Route(gw_interface, "")
         else:
             container.routing['gateway'] = emulator.elements.Route("0.0.0.0", "")
 

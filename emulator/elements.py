@@ -241,7 +241,6 @@ class Container(object):
     def run_routing(self, template_environment):
         if self.routingscript is not None:
             logging.getLogger(__name__).info("# Running routing script for %s", self.container_id)
-
             template = template_environment.get_template(self.routingscript)
             cmd = template.render(self.routing)
             self.shell.sendline(cmd)
