@@ -102,10 +102,10 @@ def parse_host(template_environment, host, host_id, destroy):
         for container_id, container in containers.items():
             if container.configuration is not None:
                 lxcbr_macs[container.container_id] = container.configuration.mac
-                dp_interfaces[container.container_id] = sorted(container.configuration.interfaces, key=container.configuration.interfaces.get)
+                dp_interfaces[container.container_id] = container.configuration.interfaces
         containers[current_host_id].postrouting['lxcbrmacs'] = lxcbr_macs
 
-        containers[current_host_id].postrouting['dpinterfaces'] = sorted(dp_interfaces, key=dp_interfaces.get)
+        containers[current_host_id].postrouting['dpinterfaces'] = dp_interfaces
 
         print(containers[current_host_id].postrouting['dpinterfaces'])
 
