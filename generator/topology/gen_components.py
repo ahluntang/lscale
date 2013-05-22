@@ -200,6 +200,8 @@ def connect_container_bridge(container, bridge, container_component=None, addres
     container.add_interface(container_interface)
     if not routeflow:
         bridge.add_interface(bridge_interface)
+    else:
+        bridge.add_interface(bridge_interface)
 
 
 def connect_line_bridge(line_component, bridge_component, addressing_scheme=None):
