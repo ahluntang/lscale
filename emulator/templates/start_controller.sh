@@ -19,18 +19,18 @@ echo "-> Creating rfconfig.csv ... "
 VM_ID=0
 VM_PORT=1
 CT_ID=0
-DP_ID=8
+DP_ID=5
 DP_PORT=1
 echo "vm_id,vm_port,ct_id,dp_id,dp_port" > rfconfig.csv
-{% for container_name, interfaces in dpinterfaces.items() %}
-    {% for interface, mac in interfaces.items() %}
+{% for container_name, interfaces in dpinterfaces.items()  %}
+    {% for mac in interfaces.value()|sort %}
         echo "{{ mac }},${VM_PORT},${CT_ID},${DP_ID},${DP_PORT}" >> rfconfig.csv
         VM_PORT=$[$VM_PORT+1]
         DP_PORT=$[DP_PORT+1]
     {% endfor %}
     VM_PORT=1
     DP_PORT=1
-    DP_ID=$[DP_ID-1]
+    DP_ID=$[DP_ID+1]
 {% endfor %}
 
 sed -i -e 's/://g' rfconfig.csv
