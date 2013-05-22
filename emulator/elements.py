@@ -235,6 +235,7 @@ class Container(object):
             template = template_environment.get_template(self.preroutingscript)
             cmd = template.render(self.prerouting)
             self.shell.sendline(cmd)
+            self.shell.expect('.*SCRIPTFINISHED.*')
         else:
             logging.getLogger(__name__).info("# No prerouting script defined for %s", self.container_id)
 

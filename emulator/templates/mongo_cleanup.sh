@@ -9,3 +9,5 @@ mongo db --eval "
     "
 
 service mongodb restart
+
+echo "SCRIPTFINISHED"

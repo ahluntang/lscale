@@ -24,7 +24,7 @@ wait_port_listen() {
         sleep 1
     done
 }
-
+echo "SCRIPTFINISHED"
 echo_bold() {
     echo -e "\033[1m${1}\033[0m"
 }
@@ -52,12 +52,12 @@ kill_process_tree() {
 #sed -i "/bind_ip/c\bind_ip = 127.0.0.1,${1}" $MONGODB_CONF
 #service mongodb restart
 #wait_port_listen ${2}
-sleep 10
+
 echo_bold "-> Starting the controller and RFPRoxy..."
 cd pox
 ./pox.py log.level --=INFO topology openflow.topology openflow.discovery rfproxy rfstats &
 cd -
-#wait_port_listen ${3}
-sleep 10
+wait_port_listen ${3}
+#sleep 10
 
 #echo_bold "-> Creating rfconfig.csv ... "

@@ -16,3 +16,5 @@ cat > /etc/quagga/zebra.conf << EOF
 {{ zebra }}
 EOF
 
+
+echo "SCRIPTFINISHED"

@@ -13,3 +13,5 @@
 #	    sudo kill $pid
 #	fi
 #done
+
+echo "SCRIPTFINISHED"

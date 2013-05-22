@@ -6,3 +6,5 @@ ip link set lo up
     ip address add {{ address.address }} dev {{ address.interface }}
     ip link set {{ address.interface }} up
 {% endfor %}
+
+echo "SCRIPTFINISHED"

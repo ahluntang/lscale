@@ -13,3 +13,5 @@ route add default gw {{ gateway.address }} {{ gateway.interface }}
     ip route add {{ route.address }} \
     via {{ route.via }} dev {{ route.interface }}
 {% endfor %}
+
+echo "SCRIPTFINISHED"

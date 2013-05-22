@@ -16,3 +16,5 @@ ip link set lo up
     ip route add {{ route.address }} \
     via {{ route.via }} dev {{ route.interface }}
 {% endfor %}
+
+echo "SCRIPTFINISHED"
