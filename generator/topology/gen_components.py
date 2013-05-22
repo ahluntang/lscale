@@ -195,7 +195,7 @@ def connect_container_bridge(container, bridge, container_component=None, addres
         container_interface.address = container_ip
         gateway = str(netaddr.IPNetwork(container_ip)[1])
         container.gateway = gateway
-        bridge.address = gateway
+        #bridge.address = gateway
 
     container.add_interface(container_interface)
     bridge.add_interface(bridge_interface)

@@ -10,3 +10,4 @@ ip link set lo up
     dev {{ address.interface }}
     ip link set {{ address.interface }} up
 {% endfor %}
+route add default gw {{ gateway.address }} {{ gateway.interface }}
