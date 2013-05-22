@@ -182,12 +182,13 @@ class Container(object):
                                              "changing pid to {}.".format(self.container_id, self.pid))
             logging.getLogger(__name__).info("Waiting for full boot to attach console.")
             self.shell.sendline("lxc-console -n %s" % self.container_id)
-            self.shell.expect('.*login.*')
+            self.shell.expect('.* login:.*')
             time.sleep(4)
 
             logging.getLogger(__name__).info("Container {} has successfully started, logging in.".format(self.pid))
             # log into the lxc shell
             self.shell.sendline(self.username)
+            self.shell.expect('.*Password:.*')
             self.shell.sendline(self.password)
             if self.username != "root":
                 #self.shell.expect('.*Documentation.*')
