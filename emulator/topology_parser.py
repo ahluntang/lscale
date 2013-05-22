@@ -6,6 +6,7 @@ import time
 import netaddr
 import logging
 import threading
+import collections
 
 import lxml.etree as ET
 import emulator.elements
@@ -102,11 +103,10 @@ def parse_host(template_environment, host, host_id, destroy):
         for container_id, container in containers.items():
             if container.configuration is not None:
                 lxcbr_macs[container.container_id] = container.configuration.mac
-                dp_interfaces[container.container_id] = container.configuration.interfaces
+                dp_interfaces[container.container_id] = collections.OrderedDict(sorted(container.configuration.interfaces.items(), key=lambda t: t[0]))
         containers[current_host_id].postrouting['lxcbrmacs'] = lxcbr_macs
 
-        containers[current_host_id].postrouting['dpinterfaces'] = dp_interfaces
-
+        containers[current_host_id].postrouting['dpinterfaces'] = collections.OrderedDict(sorted(dp_interfaces.items(), key=lambda t: t[0]))
         print(containers[current_host_id].postrouting['dpinterfaces'])
 
         for interface_id, gateway in mappings_gateways.items():
