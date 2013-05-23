@@ -18,6 +18,7 @@ def auto_configure():
         create_container("base", "none", "ubuntu")
         create_container("baselvm", "lvm", "ubuntu")
         build_routeflow(False)
+        make_quagga_template()
 
         print("Finished autoconfiguration of this host.")
     else:
@@ -35,6 +36,12 @@ def install(package):
 
     if package == "all" or package == "lxc":
         cmd += "./configurator/templates/install_lxc.sh\n"
+
+    if package == "all" or package == "monitor":
+        cmd += "./configurator/templates/install_monitoring.sh\n"
+
+    if package == "all" or package == "quagga":
+        cmd += "./configurator/templates/install_quagga.sh\n"
 
     # check if proxy needed
     if systemconfig.proxy:
@@ -144,10 +151,22 @@ def build_routeflow(create_vms=False):
 
 
 def make_rfvm_template():
-    print("Setting up rfvm template for RouteFlow.")
+    print("Setting up rfvm lxc-template for RouteFlow.")
     if os.geteuid() != 0:
         raise exceptions.InsufficientRightsException("Setting up system for RouteFlow requires root privileges")
     cmd = "cp ./configurator/templates/lxc-rfvm /usr/lib/lxc/templates/"
+
+    try:
+        script.command(cmd)
+    except exceptions.ScriptException as e:
+        raise exceptions.ConfiguratorException(e)
+
+
+def make_quagga_template():
+    print("Setting up quagga lxc-template .")
+    if os.geteuid() != 0:
+        raise exceptions.InsufficientRightsException("Setting up system for Quagga requires root privileges")
+    cmd = "cp ./configurator/templates/lxc-quagga /usr/lib/lxc/templates/"
 
     try:
         script.command(cmd)

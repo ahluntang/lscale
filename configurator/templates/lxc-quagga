@@ -239,7 +239,7 @@ install_ubuntu()
     rootfs=$1
     release=$2
     flushcache=$3
-    cache="/var/cache/lxc/$release-rfvm"
+    cache="/var/cache/lxc/$release-quagga"
     mkdir -p /var/lock/subsys/
 
     (
@@ -705,13 +705,6 @@ fi
 
 echo "Enable ip forwarding"
 chroot $rootfs sed -i "/#net.ipv4.ip_forward=1/c\net.ipv4.ip_forward=1" /etc/sysctl.conf
-echo "#!/bin/sh -e" > $rootfs/etc/rc.local
-echo "/opt/rfclient/rfclient.sh &" >> $rootfs/etc/rc.local
-echo "exit 0" >> $rootfs/etc/rc.local
-chmod +x $rootfs/etc/rc.local
-
-echo "while [ 1 ]; do /opt/rfclient/rfclient > /dev/null 2>&1 ; done" > $rootfs/opt/rfclient/rfclient.sh
-chmod +x $rootfs/opt/rfclient/rfclient.sh
 
 echo ""
 echo "##"
