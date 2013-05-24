@@ -34,7 +34,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     addressing_scheme = addressing.addressing_for_line_component(hosts, 1)
 
     # Create a ring component for topology
-    ring_component = gen_components.create_line(host, hosts, addressing_scheme, ContainerType.UNSHAREDMOUNT)
+    ring_component = gen_components.create_line(host, hosts, addressing_scheme, ContainerType.LXC, "quagga")
     components[ring_component.component_id] = ring_component
 
     daemons = """
@@ -64,12 +64,12 @@ isisd_options=" --daemon -A 127.0.0.1"
         ospf_conf = quagga.ospf(networks, container)
         zebra_conf = quagga.zebra(container)
         container_scripts = SetupScripts()
-        #container_scripts.prerouting = "quagga_config.sh"  #lxc
-        container_scripts.prerouting = "ospf_config_unshared.sh"  #unshare
+        container_scripts.prerouting = "quagga_config.sh"  #lxc
+        #container_scripts.prerouting = "ospf_config_unshared.sh"  #unshare
         container_scripts.add_parameter("prerouting", "ospf", ospf_conf)
         container_scripts.add_parameter("prerouting", "zebra", zebra_conf)
-        #container_scripts.add_parameter("prerouting", "daemons", daemons)  #lxc
-        #container_scripts.add_parameter("prerouting", "debian", debian)  #lxc
+        container_scripts.add_parameter("prerouting", "daemons", daemons)  #lxc
+        container_scripts.add_parameter("prerouting", "debian", debian)  #lxc
         container_scripts.routing = "zebra_addressing.sh"
         container_scripts.postrouting = "ospfd_unshared.sh"
 
