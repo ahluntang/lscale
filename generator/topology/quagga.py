@@ -3,7 +3,11 @@ def daemons(container):
 
 
 def zebra(container):
-    return ""
+    config = ""
+    for interface in container.interfaces:
+        config += "interface {}\n".format(interface.interface_id)
+        config += "  ip address {}\n".format(interface.address)
+    return config
 
 
 def debian(container):
