@@ -149,6 +149,8 @@ def build_routeflow(create_vms=False):
     except exceptions.ScriptException as e:
         raise exceptions.ConfiguratorException(e)
 
+    create_container("baserfvm", "lvm", "rfvm")
+
 
 def make_rfvm_template():
     print("Setting up rfvm lxc-template for RouteFlow.")
