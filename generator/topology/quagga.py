@@ -14,6 +14,6 @@ def ospf(component):
     config = 'router ospf'
     for address in component.addresses:
         #addresses.append("network {} area 0".format(address))
-        config += "\n\tnetwork {} area 0".format(address)
+        config += "\n    network {} area 0".format(address)
 
     return config
