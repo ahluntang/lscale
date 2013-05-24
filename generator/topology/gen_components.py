@@ -449,6 +449,7 @@ def create_star(host, amount_of_containers=5, addressing_scheme=None, type=Conta
 
         c.add_interface(container_interface)
         center.add_interface(center_interface)
+    component.connection_points.append(center)
     return component
 
 
