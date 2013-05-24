@@ -10,11 +10,11 @@ def zebra(container):
     config += 'enable password routeflow\n'
     config += 'password 123\n'
     config += 'enable password 123\n'
-    count = 0
+    count = 1
     for interface in container.interfaces:
         if is_lxc(container.container_type):
             interface_name = "eth{}".format(count)
-            count = count + 1
+            count += 1
         else:
             interface_name = interface.interface_id
         config += "interface {}\n".format(interface_name)
@@ -34,11 +34,11 @@ def ospf(networks, container):
         #addresses.append("network {} area 0".format(network))
         config += "\n    network {} area 0".format(network)
     config += "\n!\n"
-    count = 0
+    count = 1
     for interface in container.interfaces:
         if is_lxc(container.container_type):
             interface_name = "eth{}".format(count)
-            count = count + 1
+            count += 1
         else:
             interface_name = interface.interface_id
         config += "interface {}\n".format(interface_name)
