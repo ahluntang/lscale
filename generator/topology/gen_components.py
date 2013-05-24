@@ -448,11 +448,11 @@ def create_star(host, amount_of_containers=5, addressing_scheme=None):
     return component
 
 
-def create_line(host, amount_of_containers=5, addressing_scheme=None):
-    return create_ring(host, amount_of_containers, addressing_scheme, True)
+def create_line(host, amount_of_containers=5, addressing_scheme=None, type=ContainerType.UNSHARED, template="ubuntu"):
+    return create_ring(host, amount_of_containers, addressing_scheme, True, type,template)
 
 
-def create_ring(host, amount_of_containers=5, addressing_scheme=None, is_line=False):
+def create_ring(host, amount_of_containers=5, addressing_scheme=None, is_line=False, type=ContainerType.UNSHARED, template="ubuntu"):
     """ Creates a ring component.
 
     :param host:  the host where the ring should be added
@@ -482,7 +482,7 @@ def create_ring(host, amount_of_containers=5, addressing_scheme=None, is_line=Fa
     # create all containers
     for i in range(0, amount_of_containers):
         # get id for current container
-        cur_container_id = "r%03d.%s" % (component.component_id, used_resources.get_new_container_id() )
+        cur_container_id = "r%03d.%s" % (component.component_id, used_resources.get_new_container_id())
 
         # keep a reference to the first and last container.
         if i == 0:
@@ -490,7 +490,7 @@ def create_ring(host, amount_of_containers=5, addressing_scheme=None, is_line=Fa
         elif i == amount_of_containers - 1:
             last_container = cur_container_id
 
-        cur_container = Container(cur_container_id)
+        cur_container = Container(cur_container_id, type, template)
 
         scripts = SetupScripts()
         scripts.prerouting = "ring_pre_routing.sh"

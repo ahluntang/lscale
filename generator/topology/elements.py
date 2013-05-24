@@ -4,14 +4,14 @@
 
 import netaddr
 
-from utilities import ContainerType, BridgeType
+from utilities import ContainerType, BridgeType, BackingStore
 
 
 class Container(object):
     """ Represents a container or host.
     """
 
-    def __init__(self, container_id, container_type=ContainerType.UNSHARED, template="base", username="ubuntu", password="ubuntu"):
+    def __init__(self, container_id, container_type=ContainerType.UNSHARED, template="base", username="root", password="root"):
         self.container_id = container_id
         self.container_type = container_type
         self.template = template
@@ -22,7 +22,7 @@ class Container(object):
         self.username = username
         self.password = password
         self.gateway = None
-        self.storage = None
+        self.storage = BackingStore.LVM
         self.networks = []
 
     def add_interface(self, interface):

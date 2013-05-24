@@ -34,10 +34,8 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     addressing_scheme = addressing.addressing_for_line_component(hosts, 1)
 
     # Create a ring component for topology
-    ring_component = gen_components.create_line(host, hosts, addressing_scheme)
+    ring_component = gen_components.create_line(host, hosts, addressing_scheme, ContainerType.LXC, "quagga")
     components[ring_component.component_id] = ring_component
-
-
 
     for container_id, container in ring_component.topology['containers'].items():
         #adapting scripts
