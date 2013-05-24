@@ -82,6 +82,8 @@ class Container(object):
             self.create(interfaces, ignored_interfaces)
         elif self.container_type == ContainerType.UNSHARED:  # elif container_type == ContainerType.UNSHARED:
             cmd = "unshare --net /bin/bash"
+        elif self.container_type == ContainerType.UNSHAREDMOUNT:  # elif container_type == ContainerType.UNSHARED:
+            cmd = "unshare --mount --net /bin/bash"
 
         # create the shell
         logging.getLogger(__name__).info("Spawn cmd: {}".format(cmd))
