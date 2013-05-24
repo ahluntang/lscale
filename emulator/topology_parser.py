@@ -191,6 +191,7 @@ def find_interfaces(container_id, host):
     # needed for config file
     interfaces = {}
     for link in host.findall('links/link'):
+        link_id = link.find('id').text
         for vinterface in link.findall('vinterface'):
             if vinterface.find('container').text == container_id:
                 interface_id = vinterface.find('id').text
@@ -199,7 +200,8 @@ def find_interfaces(container_id, host):
                     address = ""
                 else:
                     address = addr_node.text
-                interfaces[interface_id] = address
+                interfaces[interface_id] = {'linkid': link_id,
+                                            'address': address}
     return interfaces
 
 

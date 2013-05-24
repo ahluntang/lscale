@@ -143,10 +143,11 @@ class Container(object):
                 base_mac = randomMAC()
                 self.configuration = lxc_config.Configuration(self.container_id, base_mac)
 
-                for interface_id, address in interfaces.items():
+                for interface_id, setting in interfaces.items():
                     new_mac = randomMAC()
-                    self.configuration.add_interface(interface_id, new_mac, address)
+                    self.configuration.add_interface(interface_id, new_mac, setting['address'], setting['linkid'])
                     # link already set using configuration, add to ignore list in parser.
+                    cleanup_bridges.append(Bridge(setting['linkid']))
                     ignored_interfaces.append(interface_id)
 
                 self.configuration.write()

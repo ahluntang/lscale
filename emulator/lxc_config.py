@@ -9,9 +9,10 @@ class Configuration(object):
         self.interfaces = {}  # 'vethname : macaddress'
         pass
 
-    def add_interface(self, interface_id, mac, address):
+    def add_interface(self, interface_id, mac, address, linkid):
         self.interfaces[interface_id] = {'mac': mac,
-                                         'address': address}
+                                         'address': address,
+                                         'linkid': linkid}
 
     def output(self):
 
@@ -31,7 +32,8 @@ class Configuration(object):
             result += "lxc.network.flags = up\n"
             result += "lxc.network.veth.pair = {}\n".format(interface_id)
             result += "lxc.network.hwaddr = {}\n".format(setting['mac'])
-            result += "lxc.network.ipv4 = {}\n\n".format(setting['address'])
+            result += "lxc.network.ipv4 = {}\n".format(setting['address'])
+            result += "lxc.network.link={}\n\n".format(setting['linkid'])
 
         return result
 
