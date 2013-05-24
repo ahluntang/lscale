@@ -48,7 +48,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
         container_scripts.prerouting = "ospf_config_unshared.sh"
         container_scripts.add_parameter("prerouting", "ospf", ospf_conf)
         container_scripts.add_parameter("prerouting", "zebra", zebra_conf)
-        container_scripts.routing = "routing.sh"
+        container_scripts.routing = "zebra_addressing.sh"
         container_scripts.postrouting = "ospfd_unshared.sh"
 
         #setting new scripts in container
