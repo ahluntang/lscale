@@ -38,7 +38,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     components[ring_component.component_id] = ring_component
 
     daemons = """
-zebra=no
+zebra=yes
 bgpd=no
 ospfd=yes
 ospf6d=no
