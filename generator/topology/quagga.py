@@ -5,7 +5,11 @@ def daemons(container):
 
 
 def zebra(container):
-    config = ""
+
+    config = 'password routeflow\n'
+    config += 'enable password routeflow\n'
+    config += 'password 123\n'
+    config += 'enable password 123\n'
     count = 0
     for interface in container.interfaces:
         if is_lxc(container.container_type):
@@ -23,7 +27,9 @@ def debian(container):
 
 
 def ospf(networks, container):
-    config = '!\nrouter ospf\n!'
+    config = 'password routeflow\n'
+    config += 'enable password routeflow\n'
+    config += '!\nrouter ospf\n!'
     for network in networks:
         #addresses.append("network {} area 0".format(network))
         config += "\n    network {} area 0".format(network)
