@@ -42,7 +42,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     for container_id, container in ring_component.topology['containers'].items():
         #adapting scripts
         networks = ring_component.networks
-        ospf_conf = quagga.ospf(networks)
+        ospf_conf = quagga.ospf(networks,container)
         zebra_conf = quagga.zebra(container)
         container_scripts = SetupScripts()
         container_scripts.prerouting = "ospf_config_unshared.sh"
