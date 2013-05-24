@@ -71,7 +71,7 @@ isisd_options=" --daemon -A 127.0.0.1"
         container_scripts.add_parameter("prerouting", "daemons", daemons)  #lxc
         container_scripts.add_parameter("prerouting", "debian", debian)  #lxc
         container_scripts.routing = "zebra_addressing.sh"
-        container_scripts.postrouting = "ospfd_unshared.sh"
+        container_scripts.postrouting = "quagga_lxc.sh"
 
         #setting new scripts in container
         container.scripts = container_scripts
