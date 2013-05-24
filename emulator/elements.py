@@ -209,7 +209,7 @@ class Container(object):
         if template_environment is not None:
             self.run_cleanup(template_environment)
 
-        if is_lxc(self.container_type):
+        if self.container_type is not None and is_lxc(self.container_type):
             #cmd = "lxc-stop -n %s" % self.container_id
             #self.shell.sendline(cmd)
             lxc.stop(self.container_id)
