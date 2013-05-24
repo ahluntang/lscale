@@ -382,7 +382,7 @@ def create_bus(host, amount_of_containers=5, addressing_scheme=None):
     return component
 
 
-def create_star(host, amount_of_containers=5, addressing_scheme=None):
+def create_star(host, amount_of_containers=5, addressing_scheme=None, type=ContainerType.UNSHARED, template="ubuntu"):
     """ Creates a star component
 
     :param amount_of_containers: number of containers the star should create
@@ -403,7 +403,7 @@ def create_star(host, amount_of_containers=5, addressing_scheme=None):
 
     #create center container in as central point of the star
     container_id = "s%03d.%s" % (component.component_id, used_resources.get_new_container_id() )
-    center = Container(container_id)
+    center = Container(container_id, type, template)
 
     scripts = SetupScripts()
     scripts.prerouting = "star_pre_routing.sh"
@@ -419,7 +419,7 @@ def create_star(host, amount_of_containers=5, addressing_scheme=None):
             network = addressing_scheme['host_links'].pop()
 
         container_id = "s%03d.%s" % (component.component_id, used_resources.get_new_container_id() )
-        c = Container(container_id)
+        c = Container(container_id, type, template)
         containers[container_id] = c
         scripts2 = SetupScripts()
         scripts2.prerouting = "star_pre_routing.sh"
@@ -434,14 +434,18 @@ def create_star(host, amount_of_containers=5, addressing_scheme=None):
         if addressing_scheme is not None:
             address = "%s/%s" % (network[2], prefix)
             container_interface.address = address
+            c.networks.append(network)
             component.addresses.append(address)
+            component.networks.append(network)
 
         center_interface_id = "%s.%03d" % (center.container_id, center.get_next_interface() )
         center_interface = NetworkInterface(center_interface_id, link_id)
         if addressing_scheme is not None:
             address = "%s/%s" % (network[1], prefix)
             center_interface.address = address
+            c.networks.append(network)
             component.addresses.append(address)
+            component.networks.append(network)
 
         c.add_interface(container_interface)
         center.add_interface(center_interface)
