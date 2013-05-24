@@ -37,10 +37,15 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     ring_component = gen_components.create_line(host, hosts, addressing_scheme)
     components[ring_component.component_id] = ring_component
 
-    print("ospf: {}".format(ring_component.addresses))
+    ospf_conf = quagga.ospf(ring_component)
+    container_scripts = SetupScripts()
+    container_scripts.prerouting = "ospf_config_unshared.sh"
+    container_scripts.add_parameter("prerouting", "ospf", ospf_conf)
+    container_scripts.routing = "routing.sh"
+    container_scripts.postrouting = "ospfd_unshared.sh"
 
-    for container in ring_component.topology['containers']:
-        quagga_conf = quagga.ospf(container)
+    for container_id, container in ring_component.topology['containers'].items():
+        container.scripts = container_scripts
 
     # After every component has been created
     # merge components into one dictionary,
