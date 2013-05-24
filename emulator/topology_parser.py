@@ -189,11 +189,17 @@ def set_gateways(configured_host):
 
 def find_interfaces(container_id, host):
     # needed for config file
-    interfaces = []
+    interfaces = {}
     for link in host.findall('links/link'):
         for vinterface in link.findall('vinterface'):
             if vinterface.find('container').text == container_id:
-                interfaces.append(vinterface.find('id').text)
+                interface_id = vinterface.find('id').text
+                addr_node = vinterface.find('address')
+                if addr_node is None:
+                    address = ""
+                else:
+                    address = addr_node.text
+                interfaces[interface_id] = address
     return interfaces
 
 

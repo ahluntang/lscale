@@ -9,8 +9,9 @@ class Configuration(object):
         self.interfaces = {}  # 'vethname : macaddress'
         pass
 
-    def add_interface(self, name, mac):
-        self.interfaces[name] = mac
+    def add_interface(self, interface_id, mac, address):
+        self.interfaces[interface_id] = {'mac': mac,
+                                         'address': address}
 
     def output(self):
 
@@ -25,11 +26,12 @@ class Configuration(object):
         result += "lxc.network.link=lxcbr0\n\n"
 
         # add specified links
-        for interface, mac in self.interfaces.items():
+        for interface_id, setting in self.interfaces.items():
             result += "lxc.network.type = veth\n"
             result += "lxc.network.flags = up\n"
-            result += "lxc.network.veth.pair = {}\n".format(interface)
-            result += "lxc.network.hwaddr = {}\n\n".format(mac)
+            result += "lxc.network.veth.pair = {}\n".format(interface_id)
+            result += "lxc.network.hwaddr = {}\n".format(setting['mac'])
+            result += "lxc.network.ipv4 = {}\n\n".format(setting['address'])
 
         return result
 

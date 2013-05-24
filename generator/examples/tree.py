@@ -38,7 +38,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     components[ring_component.component_id] = ring_component
 
     daemons = """
-zebra=yes
+zebra=no
 bgpd=no
 ospfd=yes
 ospf6d=no
@@ -70,7 +70,7 @@ isisd_options=" --daemon -A 127.0.0.1"
         container_scripts.add_parameter("prerouting", "zebra", zebra_conf)
         container_scripts.add_parameter("prerouting", "daemons", daemons)  #lxc
         container_scripts.add_parameter("prerouting", "debian", debian)  #lxc
-        container_scripts.routing = "zebra_addressing.sh"
+        #container_scripts.routing = "zebra_addressing.sh"
         container_scripts.postrouting = "quagga_lxc.sh"
 
         #setting new scripts in container
