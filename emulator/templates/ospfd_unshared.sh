@@ -2,6 +2,6 @@
 
 cd ~/quagga/{{ container_id }}
 
-/usr/lib/quagga/ospfd -f ospfd.conf -i pid.conf &
+/usr/lib/quagga/ospfd -f ospfd.conf -i pid.conf -d
 
 echo "SCRIPTFINISHED"
