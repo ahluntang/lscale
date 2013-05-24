@@ -22,7 +22,7 @@ class Container(object):
         self.username = username
         self.password = password
         self.gateway = None
-        self.storage = BackingStore.LVM
+        self.storage = BackingStore.NONE
         self.networks = []
 
     def add_interface(self, interface):
