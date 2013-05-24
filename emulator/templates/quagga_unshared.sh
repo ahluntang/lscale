@@ -8,15 +8,15 @@ cat > daemons << EOF
 {{ daemons }}
 EOF
 
-cat > debian.conf << EOF
+cat > debian.conf <<EOF
 {{ debian }}
 EOF
 
-cat > ospfd.conf << EOF
+cat > ospfd.conf <<EOF
 {{ ospf }}
 EOF
 
-cat > zebra.conf << EOF
+cat > zebra.conf <<EOF
 {{ zebra }}
 EOF
 
