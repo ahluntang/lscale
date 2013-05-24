@@ -7,7 +7,7 @@ from utilities import ContainerType, BridgeType, BackingStore
 def create(last_host_id, last_container_id, last_link_id, starting_address):
     # create an IPComponent instance with the starting address
     addressing = IPComponent(starting_address)
-    hosts = 3
+    hosts = 5
 
      # set the starting number from where the topology module can generate new IDs
     # also add the IPComponent instance
@@ -37,14 +37,20 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     ring_component = gen_components.create_line(host, hosts, addressing_scheme)
     components[ring_component.component_id] = ring_component
 
-    ospf_conf = quagga.ospf(ring_component)
-    container_scripts = SetupScripts()
-    container_scripts.prerouting = "ospf_config_unshared.sh"
-    container_scripts.add_parameter("prerouting", "ospf", ospf_conf)
-    container_scripts.routing = "routing.sh"
-    container_scripts.postrouting = "ospfd_unshared.sh"
+
 
     for container_id, container in ring_component.topology['containers'].items():
+        #adapting scripts
+        networks = ring_component.networks
+        exclusion = container.networks
+        ospf_conf = quagga.ospf(networks)
+        container_scripts = SetupScripts()
+        container_scripts.prerouting = "ospf_config_unshared.sh"
+        container_scripts.add_parameter("prerouting", "ospf", ospf_conf)
+        container_scripts.routing = "routing.sh"
+        container_scripts.postrouting = "ospfd_unshared.sh"
+
+        #setting new scripts in container
         container.scripts = container_scripts
 
     # After every component has been created

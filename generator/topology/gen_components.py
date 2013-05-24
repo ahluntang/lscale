@@ -521,10 +521,12 @@ def create_ring(host, amount_of_containers=5, addressing_scheme=None, is_line=Fa
                     if2_ip = "%s/%s" % (network[2], network.prefixlen)
                     interface_prev.address = if1_ip
                     interface_cur.address = if2_ip
+                    cur_container.networks.append(network)
 
                     # also add addresses to list in component
                     component.addresses.append(if1_ip)
                     component.addresses.append(if2_ip)
+                    component.networks.append(network)
                 except Exception as e:
                     raise exceptions.IPComponentException(e)
 

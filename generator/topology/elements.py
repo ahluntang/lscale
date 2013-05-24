@@ -23,6 +23,7 @@ class Container(object):
         self.password = password
         self.gateway = None
         self.storage = None
+        self.networks = []
 
     def add_interface(self, interface):
         self.interfaces.append(interface)
@@ -120,6 +121,7 @@ class NetworkComponent(object):
         #self.free_link_interfaces   = []
         self.connection_points = []
         self.addresses = []
+        self.networks = []
 
         self.topology = {}
 

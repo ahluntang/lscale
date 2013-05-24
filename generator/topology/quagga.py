@@ -10,10 +10,10 @@ def debian(container):
     return ""
 
 
-def ospf(component):
+def ospf(networks):
     config = 'router ospf'
-    for address in component.addresses:
-        #addresses.append("network {} area 0".format(address))
-        config += "\n    network {} area 0".format(address)
+    for network in networks:
+        #addresses.append("network {} area 0".format(network))
+        config += "\n    network {} area 0".format(network)
 
     return config
