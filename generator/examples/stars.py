@@ -51,6 +51,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     gen_components.connect_containers(star1_center, star2_center, star1_component, star2_component, subnet)
 
     # connecting third star component
+    addressing_scheme = addressing.addressing_for_star_component(hosts)
     star3_component = gen_components.create_star(host, hosts, addressing_scheme, ContainerType.LXC, "quagga")
     components[star3_component.component_id] = star3_component
 
