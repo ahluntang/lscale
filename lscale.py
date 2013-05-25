@@ -75,6 +75,8 @@ def parse_arguments():
     lvm_parser.add_argument('-p', '--partition', default='4', help='partition (default: 4)', required=False)
     lvm_parser.add_argument('-c', '--cache', default='30', help='size for cache in G (default: 30, 0 for no cache)',
                             required=False)
+    lvm_parser.add_argument('-l', '--lib', default='100', help='size for lib in G (default: 100, 0 for lib)',
+                            required=False)
 
     # subparser for creating clone
     lvm_parser = sub_conf_parsers.add_parser('clone', help='help for cloning containers')
@@ -132,8 +134,9 @@ def main():
             device = args['device']
             partition = args['partition']
             cachesize = args['cache']
+            libsize = args['lib']
 
-            configurator.create_lvm(name, device, partition, cachesize)
+            configurator.create_lvm(name, device, partition, cachesize, libsize)
 
         elif args['confparser_name'] == "clone":
             original = args['original']
