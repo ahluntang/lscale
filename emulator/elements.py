@@ -120,10 +120,21 @@ class Container(object):
         except exceptions.CleanupException as e:
             pass
 
-    def clone(self):
+    def clone(self, interfaces, ignored_interfaces):
         if self.container_type == ContainerType.LXCCLONE:
-            self.clone()
             try:
+                base_mac = randomMAC()
+                self.configuration = lxc_config.Configuration(self.container_id, base_mac)
+
+                for interface_id, setting in interfaces.items():
+                    new_mac = randomMAC()
+                    self.configuration.add_interface(interface_id, new_mac, setting['address'], setting['linkid'])
+                    # link already set using configuration, add to ignore list in parser.
+                    cleanup_bridges.append(Bridge(setting['linkid']))
+                    ignored_interfaces.append(interface_id)
+
+                self.configuration.write()
+
                 if self.container_type == ContainerType.LXCCLONE:
                     lxc.clone(self.template, self.container_id)
                 else:
@@ -131,7 +142,14 @@ class Container(object):
             except lxc.ContainerAlreadyExists as e:
                 # Clone was not needed
                 pass
-
+            # modify config file
+            # removing network settings
+            cmd = "sed -i '/lxc.network/d' /var/lib/lxc/{}/config\n".format(self.container_id)
+            #applying new network settings
+            cmd += "cat {} /var/lib/lxc/{}/config > /var/lib/lxc/{}/config\n".format(self.configuration.file,
+                                                                                     self.container_id,
+                                                                                     self.container_id)
+            self.shell.sendline(cmd)
             if lxc.exists(self.container_id):
                 lxc.start(self.container_id)
             else:
