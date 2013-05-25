@@ -103,7 +103,7 @@ def clone_container(container_name, original_container="base", snapshot=False):
         raise exceptions.ConfiguratorException(e)
 
 
-def create_lvm(name="lxc", device="/dev/sda", partition="4", cachesize=30, libsize=30):
+def create_lvm(name="lxc", device="/dev/sda", partition="4", cachesize=30, libsize=100):
 
     print("Setting up LVM volume group named {} on {}{} with a cache of {}G "
           "and a lib of {}G".format(name, device, partition, cachesize, libsize))
