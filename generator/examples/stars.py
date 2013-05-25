@@ -37,13 +37,12 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     star1_component = gen_components.create_star(host, hosts, addressing_scheme, ContainerType.LXC, "quagga")
     components[star1_component.component_id] = star1_component
 
-
     # Use the IPComponent to get an addressing scheme for a star component
     addressing_scheme = addressing.addressing_for_star_component(hosts)
 
     # Create a star component for topology
     star2_component = gen_components.create_star(host, hosts, addressing_scheme, ContainerType.LXC, "quagga")
-    components[star1_component.component_id] = star2_component
+    components[star2_component.component_id] = star2_component
 
     # connecting star components
     star1_center = star1_component.connection_points.pop()
@@ -51,6 +50,18 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     subnet = addressing.addressing_for_container_connection()
     gen_components.connect_containers(star1_center, star2_center, star1_component, star2_component, subnet)
 
+    # connecting third star component
+    star3_component = gen_components.create_star(host, hosts, addressing_scheme, ContainerType.LXC, "quagga")
+    components[star3_component.component_id] = star3_component
+
+    # connecting star components
+    star3_center = star3_component.connection_points.pop()
+    subnet = addressing.addressing_for_container_connection()
+    gen_components.connect_containers(star2_center, star3_center, star2_component, star3_component, subnet)
+
+    #
+    # modify containers for quagga.
+    #
     daemons = """
 zebra=yes
 bgpd=no
