@@ -34,7 +34,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     addressing_scheme = addressing.addressing_for_star_component(hosts)
 
     # Create a star component for topology
-    star1_component = gen_components.create_star(host, hosts, addressing_scheme, ContainerType.LXC, "quagga")
+    star1_component = gen_components.create_star(host, hosts, addressing_scheme, ContainerType.LXCCLONE, "quagga")
     components[star1_component.component_id] = star1_component
 
     # Use the IPComponent to get an addressing scheme for a star component

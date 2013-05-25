@@ -174,3 +174,5 @@ def make_quagga_template():
         script.command(cmd)
     except exceptions.ScriptException as e:
         raise exceptions.ConfiguratorException(e)
+
+    create_container("quagga", "lvm", "quagga")
