@@ -66,11 +66,12 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
         if component.type == "star":
             networks.extend(component.networks)
 
+    # removing duplicates
+    networks = list(set(networks))
     # make sure every component knows each network
     for component_id, component in components.items():
         if component.type == "star":
             component.networks = networks
-
     #
     # modify containers for quagga.
     #
