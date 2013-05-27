@@ -77,7 +77,7 @@ class Container(object):
         cmd = "/bin/bash"  # default shell
 
         if self.container_type == ContainerType.LXCCLONE:
-            self.clone()
+            self.clone(interfaces, ignored_interfaces)
         elif self.container_type == ContainerType.LXC:
             self.create(interfaces, ignored_interfaces)
         elif self.container_type == ContainerType.UNSHARED:  # elif container_type == ContainerType.UNSHARED:
