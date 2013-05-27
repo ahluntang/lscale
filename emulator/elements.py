@@ -148,9 +148,11 @@ class Container(object):
             # removing network settings
             cmd = "sed -i '/lxc.network/d' /var/lib/lxc/{}/config\n".format(self.container_id)
             #applying new network settings
-            cmd += "cat {} /var/lib/lxc/{}/config | tee /var/lib/lxc/{}/config\n".format(self.configuration.file,
+            cmd += "mv /var/lib/lxc/{}/config /var/lib/lxc/{}/config_old\n".format(self.container_id, self.container_id)
+            cmd += "cat {} /var/lib/lxc/{}/config_old > /var/lib/lxc/{}/config\n".format(self.configuration.file,
                                                                                          self.container_id,
                                                                                          self.container_id)
+            cmd += "cat /var/lib/lxc/{}/config\n".format(self.container_id)
             #temp_shell = pexpect.spawn("/bin/bash", logfile=self.logfile, timeout=None)
             #temp_shell.sendline(cmd)
             script.command(cmd)
