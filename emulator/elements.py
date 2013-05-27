@@ -133,7 +133,7 @@ class Container(object):
                     cleanup_bridges.append(Bridge(setting['linkid']))
                     ignored_interfaces.append(interface_id)
 
-                self.configuration.write()
+
 
                 if self.container_type == ContainerType.LXCCLONE:
                     lxc.clone(self.template, self.container_id, True)
@@ -148,7 +148,7 @@ class Container(object):
 
             # modify config file
             # removing network settings
-
+            self.configuration.write()
             cmd = "sed -i '/lxc.network/d' /var/lib/lxc/{}/config\n".format(self.container_id)
             #applying new network settings
             cmd += "cat {} /var/lib/lxc/{}/config | tee /var/lib/lxc/{}/config\n".format(self.configuration.file,
