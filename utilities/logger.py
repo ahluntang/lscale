@@ -16,6 +16,7 @@ def set_logging(logging_level):
     # if log dir exists, configure the logging.
     if os.path.exists(logdir) and os.path.isdir(logdir):
 
+        print("dirs set")
         # datetime format
         datetime_format = '%d/%m/%Y %H:%M:%S'
         datetime_format_file = '%d-%m-%Y_%H-%M-%S'
@@ -29,7 +30,6 @@ def set_logging(logging_level):
         # configure the logging framework.
         logging.basicConfig(filename=logfile, format=logformat, datefmt=datetime_format, level=logging_level)
 
-        print("config set")
         # Log INFO and higher to console as well.
         # define a Handler which writes INFO messages or higher to the sys.stderr
         console = logging.StreamHandler()
