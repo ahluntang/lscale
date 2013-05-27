@@ -41,7 +41,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     addressing_scheme = addressing.addressing_for_star_component(hosts)
 
     # Create a star component for topology
-    star2_component = gen_components.create_star(host, hosts, addressing_scheme, ContainerType.LXC, "quagga")
+    star2_component = gen_components.create_star(host, hosts, addressing_scheme, ContainerType.LXCCLONE, "quagga")
     components[star2_component.component_id] = star2_component
 
     # connecting star components
@@ -52,7 +52,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
 
     # connecting third star component
     addressing_scheme = addressing.addressing_for_star_component(hosts)
-    star3_component = gen_components.create_star(host, hosts, addressing_scheme, ContainerType.LXC, "quagga")
+    star3_component = gen_components.create_star(host, hosts, addressing_scheme, ContainerType.LXCCLONE, "quagga")
     components[star3_component.component_id] = star3_component
 
     # connecting star components
