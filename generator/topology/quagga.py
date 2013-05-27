@@ -29,7 +29,7 @@ def debian(container):
 def ospf(networks, container):
     config = 'password routeflow\n'
     config += 'enable password routeflow\n'
-    config += '!\nrouter ospf\n!'
+    config += '!\nrouter ospf\n!\n'
     config += '    ospf router-id {}\n'.format(container.interfaces[0].address)
     for network in networks:
         config += "    network {} area 0\n".format(network)
