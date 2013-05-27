@@ -35,7 +35,6 @@ def ospf(networks, container):
         config += "    network {} area 0\n".format(network)
 
     config += '    redistribute kernel\n'
-    config += '    redistribute kernel\n'
     config += '    redistribute connected\n'
     config += '    redistribute static\n'
     config += '    default-information originate\n'
