@@ -42,10 +42,5 @@ class Configuration(object):
         self.config = self.output()
 
     def write(self):
-        #with open(self.file, "w") as text_file:
-        #    text_file.write(self.output())
-        self.create_config()
-        fo = open(self.file, "w")
-        fo.write(self.config)
-        # Close opened file
-        fo.close()
+        with open(self.file, "w") as text_file:
+            text_file.write(self.output())

@@ -142,9 +142,13 @@ class Container(object):
             except lxc.ContainerAlreadyExists as e:
                 # Clone was not needed
                 pass
+            except IOError as e:
+                print(str(e))
+                logging.getLogger(__name__).exception("error writing config")
+
             # modify config file
             # removing network settings
-            print(self.configuration.output())
+
             cmd = "sed -i '/lxc.network/d' /var/lib/lxc/{}/config\n".format(self.container_id)
             #applying new network settings
             cmd += "cat {} /var/lib/lxc/{}/config | tee /var/lib/lxc/{}/config\n".format(self.configuration.file,
