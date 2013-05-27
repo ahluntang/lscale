@@ -75,7 +75,9 @@ def parse_arguments():
     lvm_parser.add_argument('-p', '--partition', default='4', help='partition (default: 4)', required=False)
     lvm_parser.add_argument('-c', '--cache', default='30', help='size for cache in G (default: 30, 0 for no cache)',
                             required=False)
-    lvm_parser.add_argument('-l', '--lib', default='100', help='size for lib in G (default: 100, 0 for lib)',
+    lvm_parser.add_argument('-l', '--lib', default='30', help='size for lib in G (default: 30)',
+                            required=False)
+    lvm_parser.add_argument('-d', '--data', default='10', help='size for data in G (default: 10)',
                             required=False)
 
     # subparser for creating clone
