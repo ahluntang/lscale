@@ -7,6 +7,7 @@ class Configuration(object):
         self.name = name
         self.mac = mac
         self.interfaces = {}  # 'vethname : macaddress'
+        self.config = None
         pass
 
     def add_interface(self, interface_id, mac, address, linkid):
@@ -37,6 +38,14 @@ class Configuration(object):
 
         return result
 
+    def create_config(self):
+        self.config = self.output()
+
     def write(self):
-        with open(self.file, "w") as text_file:
-            text_file.write(self.output())
+        #with open(self.file, "w") as text_file:
+        #    text_file.write(self.output())
+        self.create_config()
+        fo = open(self.file, "w")
+        fo.write(self.config)
+        # Close opened file
+        fo.close()
