@@ -364,7 +364,7 @@ class Bridge(object):
 
             cmd = "brctl stp %s on" % bridge_id
             self.shell.sendline(cmd)
-
+        time.sleep(2)
         cmd = "ifconfig %s %s up" % (bridge_id, self.address)
         self.shell.sendline(cmd)
 

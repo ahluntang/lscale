@@ -7,7 +7,7 @@ from utilities import ContainerType, BridgeType, BackingStore
 def create(last_host_id, last_container_id, last_link_id, starting_address):
     # create an IPComponent instance with the starting address
     addressing = IPComponent(starting_address)
-    hosts = 16
+    hosts = 15
 
      # set the starting number from where the topology module can generate new IDs
     # also add the IPComponent instance
@@ -63,6 +63,23 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     #
     # modify containers for quagga.
     #
+    componentsetup_quagga(star1_component)
+    componentsetup_quagga(star2_component)
+    componentsetup_quagga(star3_component)
+
+    # After every component has been created
+    # merge components into one dictionary,
+    for component_id, component in components.items():
+        gen_components.add_component_to_topology(topology_root, component)
+
+    # return the dictionary with the topology.
+    return topology_root
+
+def componentsetup_quagga(component):
+    for container_id, container in component.topology['containers'].items():
+        containersetup_quagga(component, container)
+
+def containersetup_quagga(component, container):
     daemons = """
 zebra=yes
 bgpd=no
@@ -83,29 +100,19 @@ ripd_options="  --daemon -A 127.0.0.1"
 ripngd_options="--daemon -A ::1"
 isisd_options=" --daemon -A 127.0.0.1"
 """   #lxc
+    # #adapting scripts
+    networks = component.networks
+    ospf_conf = quagga.ospf(networks, container)
+    zebra_conf = quagga.zebra(container)
+    container_scripts = SetupScripts()
+    container_scripts.prerouting = "quagga_config.sh"  #lxc
+    #container_scripts.prerouting = "ospf_config_unshared.sh"  #unshare
+    container_scripts.add_parameter("prerouting", "ospf", ospf_conf)
+    container_scripts.add_parameter("prerouting", "zebra", zebra_conf)
+    container_scripts.add_parameter("prerouting", "daemons", daemons)  #lxc
+    container_scripts.add_parameter("prerouting", "debian", debian)  #lxc
+    #container_scripts.routing = "zebra_addressing.sh"
+    container_scripts.postrouting = "quagga_lxc.sh"
 
-    for container_id, container in star1_component.topology['containers'].items():
-        #adapting scripts
-        networks = star1_component.networks
-        ospf_conf = quagga.ospf(networks, container)
-        zebra_conf = quagga.zebra(container)
-        container_scripts = SetupScripts()
-        container_scripts.prerouting = "quagga_config.sh"  #lxc
-        #container_scripts.prerouting = "ospf_config_unshared.sh"  #unshare
-        container_scripts.add_parameter("prerouting", "ospf", ospf_conf)
-        container_scripts.add_parameter("prerouting", "zebra", zebra_conf)
-        container_scripts.add_parameter("prerouting", "daemons", daemons)  #lxc
-        container_scripts.add_parameter("prerouting", "debian", debian)  #lxc
-        #container_scripts.routing = "zebra_addressing.sh"
-        container_scripts.postrouting = "quagga_lxc.sh"
-
-        #setting new scripts in container
-        container.scripts = container_scripts
-
-    # After every component has been created
-    # merge components into one dictionary,
-    for component_id, component in components.items():
-        gen_components.add_component_to_topology(topology_root, component)
-
-    # return the dictionary with the topology.
-    return topology_root
+    #setting new scripts in container
+    container.scripts = container_scripts
