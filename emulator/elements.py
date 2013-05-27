@@ -206,7 +206,6 @@ class Container(object):
             # readpid = pexpect.spawn(cmd)
             # self.pid = readpid.readline()
             # print(" (pid: %8s)" % self.pid)
-
             lxc.wait(self.container_id, 'RUNNING')
 
             info = lxc.info(self.container_id)

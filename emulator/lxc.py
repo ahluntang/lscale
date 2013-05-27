@@ -204,4 +204,13 @@ def wait(name, states):
         raise ContainerDoesntExists("The container {} does not exist!".format(name))
 
     cmd = "lxc-wait -n %s -s %s" % (name, states)
-    return _run(cmd)
+
+    result = None
+    finished = False
+    while not finished:
+        try:
+            result = _run(cmd)
+            finished = True
+        except:
+            pass
+    return result
