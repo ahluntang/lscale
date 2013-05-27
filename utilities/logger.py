@@ -38,10 +38,10 @@ def set_logging(logging_level):
 
         # add the handler to the root logger
         logging.getLogger('').addHandler(console)
-
+        print("logging set")
     elif os.path.exists(logdir):
-        #raise IOError("Path to logs is not a directory!")
+        raise IOError("Path to logs is not a directory!")
         pass
     else:
-        #raise IOError("Log directory not created!")
+        raise IOError("Log directory not created!")
         pass
