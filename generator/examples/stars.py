@@ -60,12 +60,23 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     subnet = addressing.addressing_for_container_connection()
     gen_components.connect_containers(star2_center, star3_center, star2_component, star3_component, subnet)
 
+    # combine networklist for ospf
+    networks = []
+    for component_id, component in components.items():
+        if component.type == "star":
+            networks.extend(component.networks)
+
+    # make sure every component knows each network
+    for component_id, component in components.items():
+        if component.type == "star":
+            component.networks = networks
+
     #
     # modify containers for quagga.
     #
-    componentsetup_quagga(star1_component)
-    componentsetup_quagga(star2_component)
-    componentsetup_quagga(star3_component)
+    for component_id, component in components.items():
+        if component.type == "star":
+            componentsetup_quagga(component)
 
     # After every component has been created
     # merge components into one dictionary,
