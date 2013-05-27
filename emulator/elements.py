@@ -144,6 +144,7 @@ class Container(object):
                 pass
             # modify config file
             # removing network settings
+            print(self.configuration.output())
             cmd = "sed -i '/lxc.network/d' /var/lib/lxc/{}/config\n".format(self.container_id)
             #applying new network settings
             cmd += "cat {} /var/lib/lxc/{}/config | tee /var/lib/lxc/{}/config\n".format(self.configuration.file,
@@ -170,7 +171,7 @@ class Container(object):
                     ignored_interfaces.append(interface_id)
 
                 self.configuration.write()
-
+                print(self.configuration.output())
                 if self.storage == BackingStore.NONE:
                     lxc.create(self.container_id, self.template, None, self.configuration.file)
                 elif self.storage == BackingStore.LVM:

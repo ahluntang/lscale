@@ -7,7 +7,7 @@ from utilities import ContainerType, BridgeType, BackingStore
 def create(last_host_id, last_container_id, last_link_id, starting_address):
     # create an IPComponent instance with the starting address
     addressing = IPComponent(starting_address)
-    hosts = 16
+    hosts = 4
 
      # set the starting number from where the topology module can generate new IDs
     # also add the IPComponent instance
