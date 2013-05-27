@@ -143,7 +143,6 @@ class Container(object):
             except lxc.ContainerAlreadyExists as e:
                 # Clone was not needed
                 pass
-
             # modify config file
             # removing network settings
             cmd = "sed -i '/lxc.network/d' /var/lib/lxc/{}/config\n".format(self.container_id)
@@ -152,10 +151,11 @@ class Container(object):
             cmd += "cat {} /var/lib/lxc/{}/config_old > /var/lib/lxc/{}/config\n".format(self.configuration.file,
                                                                                          self.container_id,
                                                                                          self.container_id)
-            cmd += "cat /var/lib/lxc/{}/config\n".format(self.container_id)
             #temp_shell = pexpect.spawn("/bin/bash", logfile=self.logfile, timeout=None)
             #temp_shell.sendline(cmd)
             script.command(cmd)
+
+            time.sleep(2)
 
             if lxc.exists(self.container_id):
                 lxc.start(self.container_id)
