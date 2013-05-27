@@ -152,7 +152,7 @@ class Container(object):
                                                                                          self.container_id,
                                                                                          self.container_id)
             temp_shell = pexpect.spawn(cmd, logfile=self.logfile, timeout=None)
-            temp_shell.sendline(cmd)
+            #temp_shell.sendline(cmd)
             if lxc.exists(self.container_id):
                 lxc.start(self.container_id)
             else:
