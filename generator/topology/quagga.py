@@ -32,8 +32,15 @@ def ospf(networks, container):
     config += '!\nrouter ospf\n!'
     config += '    ospf router-id {}\n'.format(container.interfaces[0].address)
     for network in networks:
-        config += "\n    network {} area 0".format(network)
+        config += "    network {} area 0\n".format(network)
+
+    config += '    redistribute kernel\n'
+    config += '    redistribute kernel\n'
+    config += '    redistribute connected\n'
+    config += '    redistribute static\n'
+    config += '    default-information originate\n'
     config += "\n!\n"
+
     count = 1
     for interface in container.interfaces:
         if is_lxc(container.container_type):
@@ -45,10 +52,5 @@ def ospf(networks, container):
         config += "    ip ospf hello-interval 1\n"
         config += "    ip ospf dead-interval 4\n"
 
-    config += '    redistribute kernel\n'
-    config += '    redistribute kernel\n'
-    config += '    redistribute connected\n'
-    config += '    redistribute static\n'
-    config += '    default-information originate\n'
 
     return config
