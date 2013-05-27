@@ -78,7 +78,7 @@ def parse_arguments():
                             required=False)
     lvm_parser.add_argument('-l', '--lib', default='30', help='size for lib in G (default: 30)',
                             required=False)
-    lvm_parser.add_argument('-d', '--data', default='10', help='size for data in G (default: 10)',
+    lvm_parser.add_argument('-s', '--stats', default='10', help='size for stats volume in G (default: 10)',
                             required=False)
 
     # subparser for creating clone
@@ -104,7 +104,6 @@ def main():
         err_msg = "Could not configure logging framework."
         print(err_msg)
         #raise exceptions.LoggingException(err_msg)
-
     # parse arguments
     try:
         args = parse_arguments()
@@ -138,8 +137,9 @@ def main():
             partition = args['partition']
             cachesize = args['cache']
             libsize = args['lib']
+            statssize = args['stats']
 
-            configurator.create_lvm(name, device, partition, cachesize, libsize)
+            configurator.create_lvm(name, device, partition, cachesize, libsize, statssize)
 
         elif args['confparser_name'] == "clone":
             original = args['original']

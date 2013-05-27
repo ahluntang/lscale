@@ -8,6 +8,7 @@ PARTITION=${3} # 4
 
 CACHE=${4}
 LIB=${5}
+STATS=${6}
 
 add_line_to_config() {
     line=$1
@@ -46,9 +47,11 @@ else
     # creating logical volume cache in volume group lxc
     lvcreate -n cache -L ${CACHE}G ${VOLUMEGROUP}
     lvcreate -n lib -L ${LIB}G ${VOLUMEGROUP}
+    lvcreate -n stats -L ${STATS}G ${VOLUMEGROUP}
 
     mke2fs -t ext4 /dev/lxc/cache
     mke2fs -t ext4 /dev/lxc/lib
+    mke2fs -t ext4 /dev/lxc/stats
 
     # backup existing cache folder
     mv /var/cache/lxc /var/cache/lxc.old
@@ -57,8 +60,11 @@ else
     # create new empty cache folder, add mount info to fstab and mount it.
     mkdir /var/cache/lxc
     mkdir /var/lib/lxc
+    mkdir /var/stats
     add_line_to_config "/dev/${VOLUMEGROUP}/cache /var/cache/lxc ext4 errors=remount-ro 0 1" '/etc/fstab'
     add_line_to_config "/dev/${VOLUMEGROUP}/lib /var/lib/lxc ext4 errors=remount-ro 0 1" '/etc/fstab'
+    add_line_to_config "/dev/${VOLUMEGROUP}/lib /var/stats ext4 errors=remount-ro 0 1" '/etc/fstab'
     mount -a /dev/${VOLUMEGROUP}/cache
     mount -a /dev/${VOLUMEGROUP}/lib
+    mount -a /dev/${VOLUMEGROUP}/stats
 fi

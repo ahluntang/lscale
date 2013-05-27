@@ -16,7 +16,7 @@ def set_logging(logging_level):
     # if log dir exists, configure the logging.
     if os.path.exists(logdir) and os.path.isdir(logdir):
 
-        print("dirs set")
+
         # datetime format
         datetime_format = '%d/%m/%Y %H:%M:%S'
         datetime_format_file = '%d-%m-%Y_%H-%M-%S'
@@ -39,7 +39,7 @@ def set_logging(logging_level):
 
         # add the handler to the root logger
         logging.getLogger('').addHandler(console)
-        print("logging set")
+
     elif os.path.exists(logdir):
         raise IOError("Path to logs is not a directory!")
         pass
