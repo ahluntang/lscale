@@ -155,12 +155,12 @@ class Container(object):
             #temp_shell.sendline(cmd)
             script.command(cmd)
 
-            time.sleep(2)
+            #time.sleep(2)
 
-            if lxc.exists(self.container_id):
-                lxc.start(self.container_id)
-            else:
-                raise lxc.ContainerDoesntExists('Container {} does not exist!'.format(self.container_id))
+            # if lxc.exists(self.container_id):
+            #     lxc.start(self.container_id)
+            # else:
+            #     raise lxc.ContainerDoesntExists('Container {} does not exist!'.format(self.container_id))
 
     def create(self, interfaces, ignored_interfaces):
         if self.container_type == ContainerType.LXC:
@@ -187,15 +187,21 @@ class Container(object):
                 # Creation was not needed
                 pass
 
-            if lxc.exists(self.container_id):
-                lxc.start(self.container_id)
-                time.sleep(5)
-            else:
-                raise lxc.ContainerDoesntExists('Container {} does not exist!'.format(self.container_id))
+            # if lxc.exists(self.container_id):
+            #     lxc.start(self.container_id)
+            #     time.sleep(5)
+            # else:
+            #     raise lxc.ContainerDoesntExists('Container {} does not exist!'.format(self.container_id))
 
     def set_pid(self):
         # get pid of container
         if is_lxc(self.container_type):
+
+            if lxc.exists(self.container_id):
+                lxc.start(self.container_id)
+            else:
+                raise lxc.ContainerDoesntExists('Container {} does not exist!'.format(self.container_id))
+
             # cmd = "lxc-info -n %s | awk 'END{print $NF}'" % container_id
             # readpid = pexpect.spawn(cmd)
             # self.pid = readpid.readline()
