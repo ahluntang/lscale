@@ -136,7 +136,7 @@ class Container(object):
                 self.configuration.write()
 
                 if self.container_type == ContainerType.LXCCLONE:
-                    lxc.clone(self.template, self.container_id)
+                    lxc.clone(self.template, self.container_id, True)
                 else:
                     lxc.clone(self.template, self.container_id, True)
             except lxc.ContainerAlreadyExists as e:
