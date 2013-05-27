@@ -9,7 +9,7 @@ import time
 
 import pexpect
 
-from utilities import exceptions, systemconfig
+from utilities import exceptions, systemconfig, script
 from utilities import ContainerType, BridgeType, is_lxc, BackingStore
 from emulator import lxc, lxc_config
 
@@ -151,8 +151,10 @@ class Container(object):
             cmd += "cat {} /var/lib/lxc/{}/config | tee /var/lib/lxc/{}/config\n".format(self.configuration.file,
                                                                                          self.container_id,
                                                                                          self.container_id)
-            temp_shell = pexpect.spawn("/bin/bash", logfile=self.logfile, timeout=None)
+            #temp_shell = pexpect.spawn("/bin/bash", logfile=self.logfile, timeout=None)
             #temp_shell.sendline(cmd)
+            script.command(cmd)
+
             if lxc.exists(self.container_id):
                 lxc.start(self.container_id)
             else:
