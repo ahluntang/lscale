@@ -360,13 +360,14 @@ class Bridge(object):
             self.shell.sendline(create_bridge_cmd)
         else:
             create_bridge_cmd = "brctl addbr %s" % bridge_id
-            self.shell.sendline(create_bridge_cmd)
+            script.command(create_bridge_cmd)
 
             cmd = "brctl stp %s on" % bridge_id
-            self.shell.sendline(cmd)
-        time.sleep(2)
+            script.command(cmd)
+        time.sleep(3)
         cmd = "ifconfig %s %s up" % (bridge_id, self.address)
-        self.shell.sendline(cmd)
+        script.command(cmd)
+        time.sleep(3)
 
         logging.getLogger(__name__).info("Added bridge %8s with address %8s", self.bridge_id, self.address)
 
