@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import sys
 import os
+sys.path.insert(1, os.path.dirname(sys.argv[0]))
 import traceback
 import argparse
 import logging
