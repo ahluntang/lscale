@@ -29,6 +29,7 @@ def set_logging(logging_level):
         # configure the logging framework.
         logging.basicConfig(filename=logfile, format=logformat, datefmt=datetime_format, level=logging_level)
 
+        print("config set")
         # Log INFO and higher to console as well.
         # define a Handler which writes INFO messages or higher to the sys.stderr
         console = logging.StreamHandler()
