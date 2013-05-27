@@ -102,7 +102,7 @@ def main():
     except:
         err_msg = "Could not configure logging framework."
         print(err_msg)
-        raise exceptions.LoggingException(err_msg)
+        #raise exceptions.LoggingException(err_msg)
 
     # parse arguments
     try:

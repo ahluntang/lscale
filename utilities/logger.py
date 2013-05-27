@@ -24,17 +24,17 @@ def set_logging(logging_level):
         logfile = "%s/%s_lscale.log" % (logdir, time.strftime(datetime_format_file, time.gmtime()))
 
         # logformat for each line
-        logformat='%(asctime)s [%(levelname)s] %(message)s'
+        logformat = '%(asctime)s [%(levelname)s] %(message)s'
 
         # configure the logging framework.
-        logging.basicConfig( filename=logfile, format=logformat, datefmt=datetime_format, level=logging_level)
+        logging.basicConfig(filename=logfile, format=logformat, datefmt=datetime_format, level=logging_level)
 
         # Log INFO and higher to console as well.
         # define a Handler which writes INFO messages or higher to the sys.stderr
         console = logging.StreamHandler()
         console.setLevel(logging.INFO)
         logformat='[%(levelname)s] %(message)s'
-        console.setFormatter( logging.Formatter(logformat) )
+        console.setFormatter(logging.Formatter(logformat))
 
         # add the handler to the root logger
         logging.getLogger('').addHandler(console)
