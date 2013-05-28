@@ -5,7 +5,7 @@ import lxml.etree as ET
 #from xml.etree import cElementTree
 #from xml.etree.cElementTree import Element, SubElement, tostring
 from collections import defaultdict
-from utilities import ContainerType, BridgeType, is_lxc
+from utilities import ContainerType, BridgeType, is_lxc, systemconfig
 
 
 def write_topology_xml(topology_root, output):
@@ -173,7 +173,7 @@ def write_topology_xml(topology_root, output):
     print("\n\nEXPORT:\n")
     xml_bytestring = ET.tostring(root_tree, pretty_print=True)
     print(xml_bytestring.decode('utf-8'))
-    output = "topologies/{}".format(output)
+    output = "{}/{}".format(systemconfig.topologies, output)
     print("\nWriting to: %s\n" % output)
     with open(output, 'wb+') as f:
         f.write(xml_bytestring)

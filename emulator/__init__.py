@@ -6,7 +6,7 @@ import os
 
 from jinja2 import Environment, FileSystemLoader
 from emulator import topology_parser, interaction, elements
-from utilities import exceptions
+from utilities import exceptions, systemconfig
 
 
 def emulate(filename, host_id, parsed_topology, destroy):
@@ -19,7 +19,7 @@ def emulate(filename, host_id, parsed_topology, destroy):
     """
     if os.geteuid() == 0:
         template_environment = Environment(loader=FileSystemLoader('emulator/templates'))
-        filename = "topologies/{}".format(filename)
+        filename = "{}/{}".format(systemconfig.topologies, filename)
         topology_parser.parse(filename, template_environment, parsed_topology, host_id, destroy)
         interaction.interact(parsed_topology, host_id)
         try:

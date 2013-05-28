@@ -31,6 +31,18 @@ def read_config(configfile='config.ini'):
     except configparser.NoOptionError:
         nodes = None
 
+    global topologies
+    try:
+        topologies = config.get('output', 'topologies')
+    except configparser.NoOptionError:
+        topologies = 'topologies/'
+
+    global configs
+    try:
+        configs = config.get('output', 'configs')
+    except configparser.NoOptionError:
+        configs = 'topologies/configs'
+
 
 def print_all():
     print("Proxy: %s" % proxy)

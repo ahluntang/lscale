@@ -1,9 +1,9 @@
-
+from utilities import systemconfig
 
 class Configuration(object):
 
     def __init__(self, name, mac):
-        self.file = "output/configs/{}.ini".format(name)
+        self.file = "{}/{}.ini".format(systemconfig.configs, name)
         self.name = name
         self.mac = mac
         self.interfaces = {}  # 'vethname : macaddress'
