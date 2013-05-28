@@ -30,7 +30,7 @@ def parse_arguments():
 
     # parser for emulating topologies
     em_parser = sub_parsers.add_parser('emulate', help='help for emulating topologies')
-    em_parser.add_argument('-f', '--file', default='output/topology.xml', help='input file.', required=False)
+    em_parser.add_argument('-f', '--file', default='topology.xml', help='input file.', required=False)
     em_parser.add_argument('-i', '--id', default='h001',
                            help='host id that should be used to parse and create containers for', required=False)
     em_parser.add_argument('-d', '--destroy', default='yes',

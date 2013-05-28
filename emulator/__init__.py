@@ -19,6 +19,7 @@ def emulate(filename, host_id, parsed_topology, destroy):
     """
     if os.geteuid() == 0:
         template_environment = Environment(loader=FileSystemLoader('emulator/templates'))
+        filename = "topologies/{}".format(filename)
         topology_parser.parse(filename, template_environment, parsed_topology, host_id, destroy)
         interaction.interact(parsed_topology, host_id)
         try:
