@@ -31,6 +31,7 @@ def ospf(networks, container):
     config += 'enable password routeflow\n'
     config += '!\nrouter ospf\n!\n'
     config += '    ospf router-id {}\n'.format(container.interfaces[0].address.split('/')[0])
+
     for network in networks:
         config += "    network {} area 0\n".format(network)
 
@@ -50,6 +51,5 @@ def ospf(networks, container):
         config += "interface {}\n".format(interface_name)
         config += "    ip ospf hello-interval 1\n"
         config += "    ip ospf dead-interval 4\n"
-
 
     return config

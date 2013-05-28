@@ -173,7 +173,7 @@ def write_topology_xml(topology_root, output):
     print("\n\nEXPORT:\n")
     xml_bytestring = ET.tostring(root_tree, pretty_print=True)
     print(xml_bytestring.decode('utf-8'))
-
+    output = "output/{}".format(output)
     print("\nWriting to: %s\n" % output)
     with open(output, 'wb+') as f:
         f.write(xml_bytestring)
