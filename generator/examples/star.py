@@ -1,5 +1,5 @@
 from generator.topology.elements import NetworkComponent, IPComponent, UsedResources, SetupScripts
-from generator.topology import gen_components
+from generator.topology import generate
 from generator.topology import quagga
 from utilities import ContainerType, BridgeType, BackingStore
 
@@ -14,7 +14,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     resources = UsedResources(last_host_id, last_container_id, last_link_id, addressing)
 
     # save the configuration in the generator.
-    gen_components.set_resources(resources)
+    generate.set_resources(resources)
 
     # topology and components are saved in a dictionary
     topology_root = {}
@@ -24,17 +24,17 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     # 39 times: 10 per host, 9 on last host.
 
     # Adding a host to topology.
-    host_id = gen_components.add_host(topology_root)
+    host_id = generate.add_host(topology_root)
     host = topology_root[host_id]['id']
 
     # Retrieve the  IPComponent from the generator.
-    addressing = gen_components.get_resources().addressing
+    addressing = generate.get_resources().addressing
 
     # Use the IPComponent to get an addressing scheme for a line component
     addressing_scheme = addressing.addressing_for_star_component(hosts)
 
     # Create a ring component for topology
-    star_component = gen_components.create_star(host, hosts, addressing_scheme, ContainerType.LXCCLONE, "quagga")
+    star_component = generate.create_star(host, hosts, addressing_scheme, ContainerType.LXCCLONE, "quagga")
     components[star_component.component_id] = star_component
 
     daemons = """
@@ -79,7 +79,7 @@ isisd_options=" --daemon -A 127.0.0.1"
     # After every component has been created
     # merge components into one dictionary,
     for component_id, component in components.items():
-        gen_components.add_component_to_topology(topology_root, component)
+        generate.add_component_to_topology(topology_root, component)
 
     # return the dictionary with the topology.
     return topology_root

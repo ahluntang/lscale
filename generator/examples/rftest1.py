@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from generator.topology.elements import NetworkComponent, IPComponent, UsedResources, SetupScripts
-from generator.topology import gen_components
+from generator.topology import generate
 from utilities import ContainerType, BridgeType, BackingStore
 
 
@@ -14,7 +14,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     resources = UsedResources(last_host_id, last_container_id, last_link_id, addressing)
 
     # save the configuration in the generator.
-    gen_components.set_resources(resources)
+    generate.set_resources(resources)
 
     # topology and components are saved in a dictionary
     topology_root = {}
@@ -29,7 +29,7 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     controller_port = "6633"
 
     # Adding two hosts to topology.
-    host1_id = gen_components.add_host(topology_root)
+    host1_id = generate.add_host(topology_root)
     host1 = topology_root[host1_id]['id']
 
     host1_scripts = SetupScripts()
@@ -52,14 +52,14 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     rfvm1_scripts.add_parameter("prerouting", "ospf", quagga_ospf("rfvm1"))
     rfvm1_scripts.add_parameter("prerouting", "zebra", quagga_zebra("rfvm1"))
 
-    routeflow1_component = gen_components.create_container(host1, "rfvm", ContainerType.LXC, "rfvm",
+    routeflow1_component = generate.create_container(host1, "rfvm", ContainerType.LXC, "rfvm",
                                                            BackingStore.LVM, rfvm1_scripts, "root", "root")
     components[routeflow1_component.component_id] = routeflow1_component
     routeflow1_id = resources.get_last_id("rfvm")
 
     switch1dp = "0000000000000099"
 
-    bridge1_component = gen_components.create_bridge(host1, BridgeType.OPENVSWITCH, controller,
+    bridge1_component = generate.create_bridge(host1, BridgeType.OPENVSWITCH, controller,
                                                      controller_port, switch1dp)
     components[bridge1_component.component_id] = bridge1_component
     br1_id = resources.get_last_id("b")
@@ -67,25 +67,25 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     clientscripts = SetupScripts()
     clientscripts.routing = "routing.sh"
 
-    client1_component = gen_components.create_container(host1, "rfc", ContainerType.UNSHARED,
+    client1_component = generate.create_container(host1, "rfc", ContainerType.UNSHARED,
                                                         scripts=clientscripts)
     components[client1_component.component_id] = client1_component
     client1_id = resources.get_last_id("rfc")
 
-    client2_component = gen_components.create_container(host1, "rfc", ContainerType.UNSHARED,
+    client2_component = generate.create_container(host1, "rfc", ContainerType.UNSHARED,
                                                         scripts=clientscripts)
     components[client2_component.component_id] = client2_component
     client2_id = resources.get_last_id("rfc")
 
     # adding hosts to bridges
-    gen_components.connect_container_bridge(client1_component.topology['containers'][client1_id],
+    generate.connect_container_bridge(client1_component.topology['containers'][client1_id],
                                             bridge1_component.topology['bridges'][br1_id],
                                             container_ip="172.31.1.2/24")
-    gen_components.connect_container_bridge(client2_component.topology['containers'][client2_id],
+    generate.connect_container_bridge(client2_component.topology['containers'][client2_id],
                                             bridge1_component.topology['bridges'][br1_id],
                                             container_ip="172.31.2.2/24")
 
-    dataplane_component = gen_components.create_bridge(host1, BridgeType.OPENVSWITCH,
+    dataplane_component = generate.create_bridge(host1, BridgeType.OPENVSWITCH,
                                                        controller, controller_port, "7266767372667673")
     dp_id = resources.get_last_id("b")
     components[dataplane_component.component_id] = dataplane_component
@@ -94,16 +94,16 @@ def create(last_host_id, last_container_id, last_link_id, starting_address):
     dataplane_component.topology['bridges'][dp_id].bridge_id = "dp0"
     dataplane_component.topology['bridges'][dp_id].address = mongodb_address
 
-    gen_components.connect_container_bridge(routeflow1_component.topology['containers'][routeflow1_id],
+    generate.connect_container_bridge(routeflow1_component.topology['containers'][routeflow1_id],
                                             dataplane_component.topology['bridges'][dp_id], routeflow=True)
-    gen_components.connect_container_bridge(routeflow1_component.topology['containers'][routeflow1_id],
+    generate.connect_container_bridge(routeflow1_component.topology['containers'][routeflow1_id],
                                             dataplane_component.topology['bridges'][dp_id], routeflow=True)
 
     # end creating the topology
     # After every component has been created
     # merge components into one dictionary,
     for component_id, component in components.items():
-        gen_components.add_component_to_topology(topology_root, component)
+        generate.add_component_to_topology(topology_root, component)
 
     # return the dictionary with the topology.
     return topology_root
