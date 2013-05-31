@@ -7,6 +7,7 @@ import netaddr
 import logging
 import threading
 import collections
+import pexpect
 
 import lxml.etree as ET
 import emulator.elements
@@ -75,15 +76,17 @@ def parse_host(template_environment, host, host_id, destroy):
                 [x.join() for x in started]
                 started = []
 
+
+        shell = pexpect.spawn("/bin/bash")
         for link in host.findall('links/link'):
             l = parse_link(link, interfaces, mappings_container, mappings_interfaces, mappings_gateways, mappings_ip,
-                           mappings_summaries, containers, ignored_interfaces)
+                           mappings_summaries, containers, ignored_interfaces, shell)
             if l is not None:
                 links[l.veth0.veth] = l
                 links[l.veth1.veth] = l
 
         for bridge in host.findall('bridges/bridge'):
-            b = parse_bridge(bridge)
+            b = parse_bridge(bridge, shell)
             bridges[b.bridge_id] = b
 
         configured_host = {
@@ -295,7 +298,7 @@ def parse_script(scriptnode, container, type):
         container.cleanupsettings.update(parameters)
 
 
-def parse_bridge(bridge):
+def parse_bridge(bridge, shell):
     bridge_id = bridge.find("id").text
     address = bridge.find("address")
     bridge_type = eval("BridgeType.%s" % bridge.find("type").text)
@@ -306,7 +309,7 @@ def parse_bridge(bridge):
         ip = address.text
 
     # creating the bridge
-    b = emulator.elements.Bridge(bridge_id, ip, bridge_type)
+    b = emulator.elements.Bridge(bridge_id, ip, bridge_type, shell=shell)
 
     controller = bridge.find("controller")
     if controller is not None and controller.text in systemconfig.nodes:
@@ -329,7 +332,7 @@ def parse_bridge(bridge):
 
 
 def parse_link(link, interfaces, mappings_container, mappings_interfaces, mappings_gateways, mappings_ip,
-               mappings_summaries, containers, ignored_interfaces):
+               mappings_summaries, containers, ignored_interfaces, shell):
     """
 
     :param link:
@@ -365,7 +368,7 @@ def parse_link(link, interfaces, mappings_container, mappings_interfaces, mappin
             routes_tree = vinterface.find("routes")
             veth = None
             if count == 1:
-                veth0 = emulator.elements.VirtualInterface(vinterface_id)
+                veth0 = emulator.elements.VirtualInterface(vinterface_id, shell=shell)
                 if not address is None:
                     veth0_ip = address.text
                     veth0.address = veth0_ip
@@ -374,7 +377,7 @@ def parse_link(link, interfaces, mappings_container, mappings_interfaces, mappin
                     parse_routes(routes_tree, routes0, vinterface_id)
                     veth = veth0
             else:
-                veth1 = emulator.elements.VirtualInterface(vinterface_id)
+                veth1 = emulator.elements.VirtualInterface(vinterface_id, shell=shell)
                 if not address is None:
                     veth1_ip = address.text
                     veth1.address = address.text

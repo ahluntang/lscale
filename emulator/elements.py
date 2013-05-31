@@ -320,7 +320,7 @@ class Bridge(object):
         self.shell -- holds the pexpect shell object for this instance
     """
 
-    def __init__(self, bridge_id, address='0.0.0.0', bridge_type=BridgeType.BRIDGE, controller=None, controller_port=None, datapath=None):
+    def __init__(self, bridge_id, address='0.0.0.0', bridge_type=BridgeType.BRIDGE, controller=None, controller_port=None, datapath=None, shell=None):
         """Constructs a new bridge instance.
 
         Argument is the identification of the bridge.
@@ -349,8 +349,10 @@ class Bridge(object):
 
         self.log_location = "%s/%s.log" % (logdir, bridge_id)
         self.logfile = open(self.log_location, 'w+')
-
-        self.shell = pexpect.spawn("/bin/bash", logfile=self.logfile)
+        if shell is None:
+            self.shell = pexpect.spawn("/bin/bash", logfile=self.logfile)
+        else:
+            self.shell = shell
 
         # creating bridge
         if self.bridge_type == BridgeType.OPENVSWITCH:
@@ -455,7 +457,7 @@ class VirtualLink(object):
             Changes when interface is moved to a different network namespace
     """
 
-    def __init__(self, veth0, veth1):
+    def __init__(self, veth0, veth1, shell):
         """Constructs a new VirtualLink instance.
 
         Arguments are the identification of the virtual interfaces veth0 and veth1
@@ -474,8 +476,11 @@ class VirtualLink(object):
         self.log_location = "%s/%s.log" % (logdir, "{}-{}".format(veth0, veth1))
         self.logfile = open(self.log_location, 'w+')
 
-        self.shell = pexpect.spawn("/bin/bash", logfile=self.logfile)
 
+        if shell is None:
+            self.shell = pexpect.spawn("/bin/bash", logfile=self.logfile)
+        else:
+            self.shell = shell
         # create the link
         create_link_cmd = "ip link add name %s type veth peer name  %s" % (self.veth0.veth, self.veth1.veth)
         self.shell.sendline(create_link_cmd)
