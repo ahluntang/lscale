@@ -332,7 +332,7 @@ def parse_bridge(bridge, shell):
 
 
 def parse_link(link, interfaces, mappings_container, mappings_interfaces, mappings_gateways, mappings_ip,
-               mappings_summaries, containers, ignored_interfaces, shell):
+               mappings_summaries, containers, ignored_interfaces, linksshell):
     """
 
     :param link:
@@ -368,7 +368,7 @@ def parse_link(link, interfaces, mappings_container, mappings_interfaces, mappin
             routes_tree = vinterface.find("routes")
             veth = None
             if count == 1:
-                veth0 = emulator.elements.VirtualInterface(vinterface_id, shell=shell)
+                veth0 = emulator.elements.VirtualInterface(vinterface_id)
                 if not address is None:
                     veth0_ip = address.text
                     veth0.address = veth0_ip
@@ -377,7 +377,7 @@ def parse_link(link, interfaces, mappings_container, mappings_interfaces, mappin
                     parse_routes(routes_tree, routes0, vinterface_id)
                     veth = veth0
             else:
-                veth1 = emulator.elements.VirtualInterface(vinterface_id, shell=shell)
+                veth1 = emulator.elements.VirtualInterface(vinterface_id)
                 if not address is None:
                     veth1_ip = address.text
                     veth1.address = address.text
@@ -406,7 +406,7 @@ def parse_link(link, interfaces, mappings_container, mappings_interfaces, mappin
             route.via = netaddr.IPNetwork(veth0.address).ip
 
         # creating the link
-        l = emulator.elements.VirtualLink(veth0, veth1)
+        l = emulator.elements.VirtualLink(veth0, veth1, shell=linksshell)
 
         # moving virtual interface to containers.
         c1 = containers[mappings_container[veth0.veth]]
