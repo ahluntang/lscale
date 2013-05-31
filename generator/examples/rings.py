@@ -15,7 +15,7 @@ def pre_aggregation(last_host_id, last_container_id, last_link_id, starting_addr
     addressing = IPComponent(starting_address)
 
     # Cityflow specific settings
-    hosts_per_ring = 10
+    hosts_per_ring = 8
     rings = 5
 
     # set the starting number from where the topology module can generate new IDs
