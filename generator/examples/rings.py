@@ -15,7 +15,7 @@ def pre_aggregation(last_host_id, last_container_id, last_link_id, starting_addr
     addressing = IPComponent(starting_address)
 
     # Cityflow specific settings
-    hosts_per_ring = 8
+    hosts_per_ring = 5
     rings = 5
 
     # set the starting number from where the topology module can generate new IDs
@@ -41,29 +41,29 @@ def pre_aggregation(last_host_id, last_container_id, last_link_id, starting_addr
     for i in range(0, 10):
         pre_aggregation_rings(host1, components, hosts_per_ring, rings)
 
-    # Adding a host to topology root for next batch of pre aggregation rings
-    host2_id = generate.add_host(topology_root)
-    host2 = topology_root[host2_id]['id']
-
-    # Create pre aggregation rings connected to bridge
-    for i in range(0, 10):
-        pre_aggregation_rings(host2, components, hosts_per_ring, rings)
-
-    # Adding a host to topology root for next batch of pre aggregation rings
-    host3_id = generate.add_host(topology_root)
-    host3 = topology_root[host3_id]['id']
-
-    # Create pre aggregation rings connected to bridge
-    for i in range(0, 10):
-        pre_aggregation_rings(host3, components, hosts_per_ring, rings)
-
-    # Adding a host to topology root
-    host4_id = generate.add_host(topology_root)
-    host4 = topology_root[host4_id]['id']
-
-    # Create pre aggregation rings connected to bridge
-    for i in range(0, 9):
-        pre_aggregation_rings(host4, components, hosts_per_ring, rings)
+    # # Adding a host to topology root for next batch of pre aggregation rings
+    # host2_id = generate.add_host(topology_root)
+    # host2 = topology_root[host2_id]['id']
+    #
+    # # Create pre aggregation rings connected to bridge
+    # for i in range(0, 10):
+    #     pre_aggregation_rings(host2, components, hosts_per_ring, rings)
+    #
+    # # Adding a host to topology root for next batch of pre aggregation rings
+    # host3_id = generate.add_host(topology_root)
+    # host3 = topology_root[host3_id]['id']
+    #
+    # # Create pre aggregation rings connected to bridge
+    # for i in range(0, 10):
+    #     pre_aggregation_rings(host3, components, hosts_per_ring, rings)
+    #
+    # # Adding a host to topology root
+    # host4_id = generate.add_host(topology_root)
+    # host4 = topology_root[host4_id]['id']
+    #
+    # # Create pre aggregation rings connected to bridge
+    # for i in range(0, 9):
+    #     pre_aggregation_rings(host4, components, hosts_per_ring, rings)
 
     # After every component has been created
     # merge components into one dictionary,
