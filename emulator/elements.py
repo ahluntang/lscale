@@ -341,16 +341,14 @@ class Bridge(object):
         self.datapath = datapath
         self.interfaces = []
 
+        #logdir = "logs/bridge_logs"
+        #if not os.path.exists(logdir):
+        #    os.makedirs(logdir)
 
-
-        logdir = "logs/bridge_logs"
-        if not os.path.exists(logdir):
-            os.makedirs(logdir)
-
-        self.log_location = "%s/%s.log" % (logdir, bridge_id)
-        self.logfile = open(self.log_location, 'w+')
+        #self.log_location = "%s/%s.log" % (logdir, bridge_id)
+        #self.logfile = open(self.log_location, 'w+')
         if shell is None:
-            self.shell = pexpect.spawn("/bin/bash", logfile=self.logfile)
+            self.shell = pexpect.spawn("/bin/bash")  # , logfile=self.logfile)
         else:
             self.shell = shell
 
@@ -469,16 +467,15 @@ class VirtualLink(object):
         self.veth0 = veth0
         self.veth1 = veth1
 
-        logdir = "logs/link_logs"
-        if not os.path.exists(logdir):
-            os.makedirs(logdir)
+        #logdir = "logs/link_logs"
+        #if not os.path.exists(logdir):
+        #    os.makedirs(logdir)
 
-        self.log_location = "%s/%s.log" % (logdir, "{}-{}".format(veth0, veth1))
-        self.logfile = open(self.log_location, 'w+')
-
+        #self.log_location = "%s/%s.log" % (logdir, "{}-{}".format(veth0, veth1))
+        #self.logfile = open(self.log_location, 'w+')
 
         if shell is None:
-            self.shell = pexpect.spawn("/bin/bash", logfile=self.logfile)
+            self.shell = pexpect.spawn("/bin/bash")
         else:
             self.shell = shell
         # create the link
