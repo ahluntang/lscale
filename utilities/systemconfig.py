@@ -43,6 +43,16 @@ def read_config(configfile='config.ini'):
     except configparser.NoOptionError:
         configs = 'topologies/configs'
 
+    global interfaces_config
+    try:
+        lxc_config = config.get('interfaces', 'lxcconfig')
+        if lxc_config == "yes":
+            interfaces_config = True
+        else:
+            interfaces_config = False
+    except configparser.NoOptionError:
+        interfaces_config = True
+
 
 def print_all():
     print("Proxy: %s" % proxy)
