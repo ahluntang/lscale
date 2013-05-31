@@ -64,7 +64,7 @@ def parse_host(template_environment, host, host_id, destroy):
             t = threading.Thread(target=container.set_pid)
             boot_queue.append(t)
 
-        [x.start() for x in boot_queue]
+        #[x.start() for x in boot_queue]
         started = []
         i = 0
         for t in boot_queue:
