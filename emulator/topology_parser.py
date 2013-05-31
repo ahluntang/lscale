@@ -65,6 +65,15 @@ def parse_host(template_environment, host, host_id, destroy):
             boot_queue.append(t)
 
         [x.start() for x in boot_queue]
+        started = []
+        i = 0
+        for t in boot_queue:
+            t.start()
+            started.append(t)
+            i += 1
+            if i % 5 == 0:
+                [x.join() for x in started]
+                started = []
 
         for link in host.findall('links/link'):
             l = parse_link(link, interfaces, mappings_container, mappings_interfaces, mappings_gateways, mappings_ip,
@@ -90,8 +99,8 @@ def parse_host(template_environment, host, host_id, destroy):
             "mappings_ip": mappings_ip
         }
 
-        logging.getLogger(__name__).info("Waiting for containers to boot.")
-        [x.join() for x in boot_queue]
+        #logging.getLogger(__name__).info("Waiting for containers to boot.")
+        #[x.join() for x in boot_queue]
 
         move_vinterfaces(configured_host)
         set_summaries(configured_host)
