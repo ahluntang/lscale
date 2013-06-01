@@ -59,23 +59,24 @@ def parse_host(template_environment, host, host_id, destroy):
 
         logging.getLogger(__name__).info("Waiting until lxc-containers have successfully booted.")
 
-        boot_queue = []
-
+        # boot_queue = []
+        #
+        # for container_id, container in containers.items():
+        #     t = threading.Thread(target=container.set_pid)
+        #     boot_queue.append(t)
+        #
+        # #[x.start() for x in boot_queue]
+        # started = []
+        # i = 0
+        # for t in boot_queue:
+        #     t.start()
+        #     started.append(t)
+        #     i += 1
+        #     if i % 5 == 0:
+        #         [x.join() for x in started]
+        #         started = []
         for container_id, container in containers.items():
-            t = threading.Thread(target=container.set_pid)
-            boot_queue.append(t)
-
-        #[x.start() for x in boot_queue]
-        started = []
-        i = 0
-        for t in boot_queue:
-            t.start()
-            started.append(t)
-            i += 1
-            if i % 5 == 0:
-                [x.join() for x in started]
-                started = []
-
+            container.set_pid()
 
         shell = pexpect.spawn("/bin/bash")
         for link in host.findall('links/link'):
